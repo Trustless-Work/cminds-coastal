@@ -59,6 +59,9 @@ importers:
 
   apps/cminds-dashboard:
     dependencies:
+      '@repo/providers':
+        specifier: workspace:*
+        version: link:../../packages/providers
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -105,6 +108,9 @@ importers:
 
   apps/community-dashboard:
     dependencies:
+      '@repo/providers':
+        specifier: workspace:*
+        version: link:../../packages/providers
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -257,6 +263,9 @@ importers:
 
   apps/funding-dashboard:
     dependencies:
+      '@repo/providers':
+        specifier: workspace:*
+        version: link:../../packages/providers
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -303,6 +312,9 @@ importers:
 
   apps/public-viewer:
     dependencies:
+      '@repo/providers':
+        specifier: workspace:*
+        version: link:../../packages/providers
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -382,6 +394,40 @@ importers:
       typescript-eslint:
         specifier: ^8.50.0
         version: 8.50.0(eslint@9.39.1(jiti@2.7.0))(typescript@5.9.2)
+
+  packages/providers:
+    dependencies:
+      next-themes:
+        specifier: ^0.4.6
+        version: 0.4.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.4
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.4(react@19.2.4)
+    devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.3
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.2
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.2(@types/react@19.2.2)
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.1(jiti@2.7.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.2
 
   packages/typescript-config: {}
 

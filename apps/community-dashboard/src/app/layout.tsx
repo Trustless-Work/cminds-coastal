@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
+
+import { AppProviders } from "@repo/providers/app-providers";
+import { ModeToggle } from "@repo/ui/components/mode-toggle";
+
 import "./globals.css";
 
 const inter = Inter({
@@ -27,8 +31,16 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <AppProviders>
+          <div className="fixed top-4 right-4 z-50">
+            <ModeToggle />
+          </div>
+          {children}
+        </AppProviders>
+      </body>
     </html>
   );
 }
