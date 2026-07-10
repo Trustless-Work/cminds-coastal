@@ -1,9 +1,10 @@
 "use client";
 
 import { PollarProvider as PollarRootProvider } from "@pollar/react";
+import { clientEnv } from "@repo/config";
 import type { ReactNode } from "react";
 
-const apiKey = process.env.NEXT_PUBLIC_POLLAR_API_KEY;
+const apiKey = clientEnv.pollarApiKey;
 
 export function PollarProvider({ children }: { children: ReactNode }) {
   if (!apiKey) {

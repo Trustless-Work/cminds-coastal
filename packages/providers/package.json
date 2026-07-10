@@ -21,7 +21,7 @@
   "dependencies": {
     "@pollar/core": "catalog:",
     "@pollar/react": "catalog:",
-    "@repo/ui": "workspace:*",
+    "@repo/config": "workspace:*",
     "next-themes": "^0.4.6",
     "react": "catalog:",
     "react-dom": "catalog:"
