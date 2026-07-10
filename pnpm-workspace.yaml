@@ -1,3 +1,17 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+catalog:
+  next: 16.2.10
+  react: 19.2.4
+  react-dom: 19.2.4
+  typescript: 5.9.2
+  eslint: ^9.39.1
+  "@next/eslint-plugin-next": 16.2.10
+  "@tailwindcss/postcss": ^4
+  tailwindcss: ^4
+  "@types/node": ^22.15.3
+  "@types/react": 19.2.2
+  "@types/react-dom": 19.2.2
+  babel-plugin-react-compiler: 1.0.0

@@ -4,6 +4,10 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:cminds": "turbo run dev --filter=cminds-dashboard",
+    "dev:community": "turbo run dev --filter=community-dashboard",
+    "dev:funding": "turbo run dev --filter=funding-dashboard",
+    "dev:public": "turbo run dev --filter=public-viewer",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
@@ -11,9 +15,9 @@
   "devDependencies": {
     "prettier": "^3.7.4",
     "turbo": "^2.10.4",
-    "typescript": "5.9.2"
+    "typescript": "catalog:"
   },
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@9.15.9",
   "engines": {
     "node": ">=18"
   }

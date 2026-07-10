@@ -1,159 +1,87 @@
-# Turborepo starter
+# CMinds Monorepo
 
-This Turborepo starter is maintained by the Turborepo core team.
+Turborepo + pnpm monorepo for the Coastal Communities Escrow Pilot.
 
-## Using this example
+## Apps
 
-Run the following command:
+| App | Package | Dev port | Description |
+| --- | --- | --- | --- |
+| CMinds Dashboard | `cminds-dashboard` | 3000 | Review and approve milestones |
+| Community Dashboard | `community-dashboard` | 3001 | Create escrows and submit evidence |
+| Funding Dashboard | `funding-dashboard` | 3002 | Fund escrows with USDC |
+| Public Viewer | `public-viewer` | 3003 | Public transparency page |
 
-```sh
-npx create-turbo@latest
-```
+## Packages
 
-## What's inside?
+| Package | Description |
+| --- | --- |
+| `@repo/ui` | Shared React components |
+| `@repo/eslint-config` | Shared ESLint configuration |
+| `@repo/typescript-config` | Shared TypeScript configuration |
 
-This Turborepo includes the following packages/apps:
+## Prerequisites
 
-### Apps and Packages
+- Node.js >= 18
+- pnpm 9 (`corepack enable` recommended)
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## Setup
 
 ```sh
-cd my-turborepo
-turbo build
+pnpm install
 ```
 
-Without global `turbo`, use your package manager:
+## Development
+
+Run all apps in parallel:
 
 ```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+pnpm dev
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Run a single app:
 
 ```sh
-turbo build --filter=docs
+pnpm dev:cminds
+pnpm dev:community
+pnpm dev:funding
+pnpm dev:public
 ```
 
-Without global `turbo`:
+Or with a Turbo filter:
 
 ```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+pnpm exec turbo dev --filter=community-dashboard
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## Other commands
 
 ```sh
-cd my-turborepo
-turbo dev
+pnpm build          # Build all apps and packages
+pnpm lint           # Lint all workspaces
+pnpm check-types    # Type-check all workspaces
+pnpm format         # Format with Prettier
 ```
 
-Without global `turbo`, use your package manager:
+## Workspace structure
 
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
+```
+cminds/
+├── apps/
+│   ├── cminds-dashboard/
+│   ├── community-dashboard/
+│   ├── funding-dashboard/
+│   └── public-viewer/
+├── packages/
+│   ├── eslint-config/
+│   ├── typescript-config/
+│   └── ui/
+├── pnpm-workspace.yaml   # workspace + version catalog
+├── turbo.json
+└── package.json
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Dependency versions are centralized in the `catalog` section of `pnpm-workspace.yaml`. Workspace packages are linked with `workspace:*`.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Documentation
 
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+See [docs/CMINDS_CONTEXT.md](./docs/CMINDS_CONTEXT.md) for product requirements and architecture context.
