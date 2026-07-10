@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
 
-import { AppProviders } from "@repo/providers/app-providers";
+import { AppProviders } from "@repo/providers/AppProviders";
 import { ModeToggle } from "@repo/ui/components/mode-toggle";
 
 import "./globals.css";
