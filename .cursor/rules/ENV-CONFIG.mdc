@@ -1,0 +1,57 @@
+---
+description: Env vars and API keys must be mapped through @repo/config (clientEnv / serverEnv)
+alwaysApply: true
+---
+
+# Environment config — `@repo/config`
+
+All environment variables and API keys are read through **`@repo/config`**. Do not use `process.env` directly in apps, features, or providers.
+
+## Source of truth
+
+| Surface | Class / singleton | File |
+| --- | --- | --- |
+| Browser / Next client | `ClientEnv` / `clientEnv` | `packages/config/src/client-env.ts` |
+| NestJS / API routes / scripts | `ServerEnv` / `serverEnv` | `packages/config/src/server-env.ts` |
+| Shared helpers | `EnvConfig` | `packages/config/src/env-config.ts` |
+
+Import:
+
+```ts
+import { clientEnv, serverEnv } from "@repo/config";
+```
+
+## When adding a new API key or env var
+
+1. Add it to the relevant app `.env.example` (and document the name).
+2. Map it on the correct class:
+   - **Public / browser** → `ClientEnv` with a `NEXT_PUBLIC_*` name
+   - **Secret / server-only** → `ServerEnv` (never prefix with `NEXT_PUBLIC_`)
+3. Consume only via the typed getter (`clientEnv.foo` / `serverEnv.bar`).
+4. Never read `process.env` outside `packages/config`.
+
+## Client vs server
+
+- **Client**: only `NEXT_PUBLIC_*`. Getters must use a **static literal** (`process.env.NEXT_PUBLIC_FOO`), not `process.env[key]` — Next.js will not inline dynamic access.
+- **Server**: secrets, DB URLs, ports, webhook secrets, etc. Safe to use dynamic keys if needed.
+
+## Examples
+
+```ts
+// ✅ client
+const key = clientEnv.pollarApiKey;
+
+// ✅ server
+const url = serverEnv.databaseUrl;
+
+// ❌ do not
+const key = process.env.NEXT_PUBLIC_POLLAR_API_KEY;
+```
+
+## Checklist for new keys
+
+- [ ] `.env.example` updated
+- [ ] Getter added to `ClientEnv` or `ServerEnv`
+- [ ] Call sites use `clientEnv` / `serverEnv`
+- [ ] Secrets are not under `NEXT_PUBLIC_`
+- [ ] Next apps list `@repo/config` in `transpilePackages` if not already
