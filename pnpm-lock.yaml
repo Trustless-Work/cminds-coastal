@@ -409,6 +409,9 @@ importers:
       '@pollar/react':
         specifier: 'catalog:'
         version: 0.10.0(@pollar/core@0.10.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../ui
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
