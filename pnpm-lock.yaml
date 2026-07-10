@@ -65,6 +65,9 @@ importers:
 
   apps/cminds-dashboard:
     dependencies:
+      '@repo/features':
+        specifier: workspace:*
+        version: link:../../packages/features
       '@repo/providers':
         specifier: workspace:*
         version: link:../../packages/providers
@@ -114,6 +117,9 @@ importers:
 
   apps/community-dashboard:
     dependencies:
+      '@repo/features':
+        specifier: workspace:*
+        version: link:../../packages/features
       '@repo/providers':
         specifier: workspace:*
         version: link:../../packages/providers
@@ -178,6 +184,9 @@ importers:
       '@prisma/client':
         specifier: ^7.8.0
         version: 7.8.0(prisma@7.8.0(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)
+      '@repo/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       pg:
         specifier: ^8.22.0
         version: 8.22.0
@@ -269,6 +278,9 @@ importers:
 
   apps/funding-dashboard:
     dependencies:
+      '@repo/features':
+        specifier: workspace:*
+        version: link:../../packages/features
       '@repo/providers':
         specifier: workspace:*
         version: link:../../packages/providers
@@ -318,6 +330,9 @@ importers:
 
   apps/public-viewer:
     dependencies:
+      '@repo/features':
+        specifier: workspace:*
+        version: link:../../packages/features
       '@repo/providers':
         specifier: workspace:*
         version: link:../../packages/providers
@@ -365,6 +380,24 @@ importers:
         specifier: 'catalog:'
         version: 5.9.2
 
+  packages/config:
+    devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.3
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.1(jiti@2.7.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.2
+
   packages/eslint-config:
     devDependencies:
       '@eslint/js':
@@ -401,6 +434,67 @@ importers:
         specifier: ^8.50.0
         version: 8.50.0(eslint@9.39.1(jiti@2.7.0))(typescript@5.9.2)
 
+  packages/features:
+    dependencies:
+      '@pollar/react':
+        specifier: 'catalog:'
+        version: 0.10.0(@pollar/core@0.10.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/config':
+        specifier: workspace:*
+        version: link:../config
+      '@repo/helpers':
+        specifier: workspace:*
+        version: link:../helpers
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../ui
+      react:
+        specifier: 'catalog:'
+        version: 19.2.4
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.4(react@19.2.4)
+    devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.3
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.2
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.2(@types/react@19.2.2)
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.1(jiti@2.7.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.2
+
+  packages/helpers:
+    devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.3
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.1(jiti@2.7.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.2
+
   packages/providers:
     dependencies:
       '@pollar/core':
@@ -409,9 +503,9 @@ importers:
       '@pollar/react':
         specifier: 'catalog:'
         version: 0.10.0(@pollar/core@0.10.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@repo/ui':
+      '@repo/config':
         specifier: workspace:*
-        version: link:../ui
+        version: link:../config
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
