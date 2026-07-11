@@ -1,2 +1,6 @@
 @import "@repo/ui/globals.css";
 @source "../../../../packages/ui/src";
+@source "../../../../packages/tw-blocks/src";
+@source "../../../../packages/features/src";
+@source "../../../../packages/shared/src";
+@source "../../../../packages/providers/src";

@@ -189,7 +189,7 @@ export const UpdateEscrowDialog = () => {
                     <FormControl>
                       <div className="relative">
                         <Percent
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                           size={18}
                         />
                         <Input
@@ -413,7 +413,7 @@ export const UpdateEscrowDialog = () => {
 
                     <div className="md:col-span-3 relative">
                       <DollarSign
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                         size={18}
                       />
                       <Input

@@ -31,7 +31,7 @@ export function UserCard({
   return (
     <div
       className={cn(
-        "flex max-w-[12rem] items-center gap-2 rounded-md border border-border bg-background px-2 py-1.5",
+        "flex max-w-[11rem] items-center gap-2 rounded-full border border-border/60 bg-muted/40 py-1 pl-1 pr-3",
         className,
       )}
     >

@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
   SelectContent,
+  SelectGroup,
   SelectItem,
 } from "@repo/ui/components/select";
 import { Textarea } from "@repo/ui/components/textarea";
@@ -198,16 +199,18 @@ export const InitializeEscrowDialog = () => {
                           <SelectValue placeholder="Select trustline" />
                         </SelectTrigger>
                         <SelectContent>
-                          {trustlineOptions
-                            .filter((option) => option.value)
-                            .map((option, index) => (
-                              <SelectItem
-                                key={`${option.value}-${index}`}
-                                value={option.value}
-                              >
-                                {option.label}
-                              </SelectItem>
-                            ))}
+                          <SelectGroup>
+                            {trustlineOptions
+                              .filter((option) => option.value)
+                              .map((option, index) => (
+                                <SelectItem
+                                  key={`${option.value}-${index}`}
+                                  value={option.value}
+                                >
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -228,7 +231,7 @@ export const InitializeEscrowDialog = () => {
                     <FormControl>
                       <div className="relative">
                         <Percent
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                           size={18}
                         />
                         <Input
@@ -452,7 +455,7 @@ export const InitializeEscrowDialog = () => {
 
                     <div className="md:col-span-3 relative">
                       <DollarSign
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                         size={18}
                       />
                       <Input
@@ -466,7 +469,9 @@ export const InitializeEscrowDialog = () => {
                     <div className="md:col-span-1 flex justify-end">
                       <Button
                         onClick={() => handleRemoveMilestone(index)}
-                        className="p-2 bg-transparent text-red-500 hover:text-red-600"
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
                         disabled={milestones.length === 1}
                         type="button"
                       >

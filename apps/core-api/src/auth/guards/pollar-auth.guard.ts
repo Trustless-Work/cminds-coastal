@@ -4,13 +4,13 @@ import {
   Inject,
   Injectable,
   UnauthorizedException,
-} from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import type { Request } from "express";
-import { IS_OPTIONAL_AUTH_KEY } from "../decorators/optional-auth.decorator";
-import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
-import type { AuthenticatedUser } from "../interfaces/authenticated-user";
-import { PollarTokenService } from "../services/pollar-token.service";
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import type { Request } from 'express';
+import { IS_OPTIONAL_AUTH_KEY } from '../decorators/optional-auth.decorator';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import type { AuthenticatedUser } from '../interfaces/authenticated-user';
+import { PollarTokenService } from '../services/pollar-token.service';
 
 type RequestWithUser = Request & { user?: AuthenticatedUser };
 
@@ -43,7 +43,7 @@ export class PollarAuthGuard implements CanActivate {
       if (isOptional) {
         return true;
       }
-      throw new UnauthorizedException("Missing Authorization bearer token");
+      throw new UnauthorizedException('Missing Authorization bearer token');
     }
 
     try {
@@ -61,7 +61,7 @@ export class PollarAuthGuard implements CanActivate {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new UnauthorizedException("Invalid access token");
+      throw new UnauthorizedException('Invalid access token');
     }
   }
 
@@ -70,8 +70,8 @@ export class PollarAuthGuard implements CanActivate {
     if (!header) {
       return undefined;
     }
-    const [scheme, token] = header.split(" ");
-    if (scheme?.toLowerCase() !== "bearer" || !token) {
+    const [scheme, token] = header.split(' ');
+    if (scheme?.toLowerCase() !== 'bearer' || !token) {
       return undefined;
     }
     return token.trim();

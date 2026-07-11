@@ -2,54 +2,41 @@
 
 import { usePollar } from "@pollar/react";
 import { formatAddress } from "@repo/helpers";
-import { Navbar } from "@repo/shared/Navbar";
 import { Button } from "@repo/ui/components/button";
-import { Card, CardContent } from "@repo/ui/components/card";
 import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-} from "@repo/ui/components/field";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/card";
+import { Field, FieldGroup } from "@repo/ui/components/field";
+import { Skeleton } from "@repo/ui/components/skeleton";
 import { cn } from "@repo/ui/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSyncUser } from "../hooks/useSyncUser";
 import type { SyncableUserRole } from "../types";
-import { LogoutButton } from "./LogoutButton";
-import { UserCard } from "./UserCard";
 
 type SignInViewProps = React.ComponentProps<"div"> & {
   appRole: SyncableUserRole;
   dashboardHref?: string;
-  loginHref?: string;
 };
 
 export function SignInView({
   className,
   appRole,
   dashboardHref = "/dashboard",
-  loginHref = "/login",
   ...props
 }: SignInViewProps) {
   const router = useRouter();
   const { isAuthenticated, verified, wallet, login, logout } = usePollar();
   const address = wallet?.address ?? "";
-  const { profile, isReady, syncing, error } = useSyncUser({
+  const { isReady, syncing, error } = useSyncUser({
     role: appRole,
     enabled: isAuthenticated && verified && Boolean(address),
   });
-
-  const authLeading = profile ? (
-    <>
-      <UserCard
-        displayName={profile.display_name}
-        avatarUrl={profile.avatar_url}
-      />
-      <LogoutButton loginHref={loginHref} />
-    </>
-  ) : isAuthenticated ? (
-    <LogoutButton loginHref={loginHref} />
-  ) : null;
 
   useEffect(() => {
     if (isAuthenticated && verified && isReady) {
@@ -59,108 +46,133 @@ export function SignInView({
 
   if (isAuthenticated && (!verified || syncing || (!isReady && !error))) {
     return (
-      <>
-        <Navbar leading={authLeading} />
-        <div className={cn("flex flex-col gap-6", className)} {...props}>
-          <Card className="overflow-hidden p-0">
-            <CardContent className="flex items-center justify-center p-10">
-              <p className="text-sm text-muted-foreground">
-                {!verified ? "Verifying session…" : "Syncing your account…"}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </>
+      <div className={cn("w-full max-w-sm", className)} {...props}>
+        <Card className="border-border/60 shadow-sm">
+          <CardHeader className="items-center text-center">
+            <CardTitle className="text-xl font-semibold tracking-tight">
+              One moment
+            </CardTitle>
+            <CardDescription>
+              {!verified ? "Verifying your session…" : "Syncing your account…"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-4 w-3/4 mx-auto" />
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (isAuthenticated && address) {
     return (
-      <>
-        <Navbar leading={authLeading} />
-        <div className={cn("flex flex-col gap-6", className)} {...props}>
-          <Card className="overflow-hidden p-0">
-            <CardContent className="grid p-0 md:grid-cols-2">
-              <div className="flex flex-col justify-center gap-6 p-6 md:p-8">
-                <FieldGroup>
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <h1 className="text-2xl font-bold">Signed in</h1>
-                    <p className="text-sm text-balance text-muted-foreground">
-                      Connected as {formatAddress(address)}
-                    </p>
-                    {error ? (
-                      <p className="text-sm text-destructive">{error}</p>
-                    ) : null}
-                  </div>
-                  <Field>
-                    <Button
-                      className="w-full"
-                      variant="outline"
-                      type="button"
-                      onClick={() => {
-                        void logout();
-                      }}
-                    >
-                      Sign out
-                    </Button>
-                  </Field>
-                </FieldGroup>
-              </div>
-              <div className="relative hidden bg-muted md:block">
-                <img
-                  src="/placeholder.svg"
-                  alt=""
-                  className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </>
+      <div className={cn("w-full max-w-sm", className)} {...props}>
+        <Card className="border-border/60 shadow-sm">
+          <CardHeader className="items-center text-center">
+            <CardTitle className="text-xl font-semibold tracking-tight">
+              Signed in
+            </CardTitle>
+            <CardDescription>
+              Connected as{" "}
+              <span className="font-mono text-foreground">
+                {formatAddress(address)}
+              </span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {error ? (
+              <p className="mb-4 text-center text-sm text-destructive">
+                {error}
+              </p>
+            ) : null}
+            <FieldGroup>
+              <Field>
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  type="button"
+                  onClick={() => {
+                    void logout();
+                  }}
+                >
+                  Sign out
+                </Button>
+              </Field>
+            </FieldGroup>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <>
-      <Navbar />
-      <div className={cn("flex flex-col gap-6", className)} {...props}>
-        <Card className="overflow-hidden p-0">
-          <CardContent className="grid p-0 md:grid-cols-2">
-            <div className="p-6 md:p-8">
-              <FieldGroup>
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <h1 className="text-2xl font-bold">Welcome back</h1>
-                  <p className="text-sm text-balance text-muted-foreground">
-                    Continue with Google to access your Stellar wallet.
-                  </p>
-                </div>
-                <Field>
-                  <Button
-                    className="w-full"
-                    type="button"
-                    onClick={() => login({ provider: "google" })}
-                  >
-                    <GoogleIcon />
-                    Continue with Google
-                  </Button>
-                </Field>
-              </FieldGroup>
-            </div>
-            <div className="relative hidden bg-muted md:block">
-              <img
-                src="/placeholder.svg"
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-              />
-            </div>
-          </CardContent>
-        </Card>
-        <FieldDescription className="px-6 text-center">
-          By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-          and <a href="#">Privacy Policy</a>.
-        </FieldDescription>
-      </div>
-    </>
+    <div className={cn("w-full max-w-sm", className)} {...props}>
+      <Card className="border-border/60 shadow-sm transition-shadow hover:shadow-md">
+        <CardHeader className="items-center gap-3 text-center">
+          <div className="flex flex-col gap-1.5">
+            <CardTitle className="text-xl font-semibold tracking-tight">
+              Welcome
+            </CardTitle>
+            <CardDescription className="text-balance">
+              Sign in with Google to access your Stellar wallet and continue.
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup>
+            <Field>
+              <Button
+                className="w-full"
+                type="button"
+                onClick={() => login({ provider: "google" })}
+              >
+                <GoogleIcon />
+                Continue with Google
+              </Button>
+            </Field>
+          </FieldGroup>
+        </CardContent>
+        <CardFooter className="justify-center">
+          <p className="text-center text-xs text-muted-foreground">
+            By continuing, you agree to our{" "}
+            <a
+              href="#"
+              className="underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              Terms
+            </a>{" "}
+            and{" "}
+            <a
+              href="#"
+              className="underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              Privacy Policy
+            </a>
+            .
+          </p>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
+
+function WalletIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="size-5 text-muted-foreground"
+      aria-hidden
+    >
+      <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
+      <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
+    </svg>
   );
 }
 

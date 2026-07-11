@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
   IsIn,
@@ -7,8 +7,8 @@ import {
   IsString,
   Matches,
   MaxLength,
-} from "class-validator";
-import { UserRole } from "../../../generated/prisma/enums";
+} from 'class-validator';
+import { UserRole } from '../../../generated/prisma/enums';
 
 export const SYNCABLE_ROLES = [
   UserRole.COMMUNITY_IMPLEMENTER,
@@ -19,12 +19,12 @@ export const SYNCABLE_ROLES = [
 export type SyncableRole = (typeof SYNCABLE_ROLES)[number];
 
 export class SyncUserDto {
-  @ApiProperty({ example: "user@example.com" })
+  @ApiProperty({ example: 'user@example.com' })
   @IsEmail()
   @IsNotEmpty()
   email!: string;
 
-  @ApiPropertyOptional({ example: "Ada Lovelace" })
+  @ApiPropertyOptional({ example: 'Ada Lovelace' })
   @IsOptional()
   @IsString()
   @MaxLength(120)
@@ -37,16 +37,16 @@ export class SyncUserDto {
   avatar_url?: string;
 
   @ApiProperty({
-    example: "GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    example: 'GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
   })
   @IsString()
   @IsNotEmpty()
   @Matches(/^G[A-Z2-7]{55}$/, {
-    message: "wallet_address must be a valid Stellar G-address",
+    message: 'wallet_address must be a valid Stellar G-address',
   })
   wallet_address!: string;
 
-  @ApiPropertyOptional({ example: "wal_abc123" })
+  @ApiPropertyOptional({ example: 'wal_abc123' })
   @IsOptional()
   @IsString()
   @MaxLength(128)

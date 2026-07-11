@@ -1,28 +1,28 @@
-import { NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { Test, TestingModule } from "@nestjs/testing";
-import { UserRole } from "../../generated/prisma/enums";
-import type { AuthenticatedUser } from "../../auth/interfaces/authenticated-user";
-import { UsersService } from "./users.service";
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { UserRole } from '../../generated/prisma/enums';
+import type { AuthenticatedUser } from '../../auth/interfaces/authenticated-user';
+import { UsersService } from './users.service';
 
-jest.mock("../../database", () => ({
+jest.mock('../../database', () => ({
   PrismaService: class PrismaService {},
 }));
 
-import { PrismaService } from "../../database";
+import { PrismaService } from '../../database';
 
-describe("UsersService", () => {
+describe('UsersService', () => {
   let service: UsersService;
 
   const authUser: AuthenticatedUser = {
-    pollarUserId: "usr_test_1",
-    email: "test@example.com",
-    accessToken: "token",
+    pollarUserId: 'usr_test_1',
+    email: 'test@example.com',
+    accessToken: 'token',
   };
 
   const mockUser = {
-    user_id: "11111111-1111-1111-1111-111111111111",
-    pollar_user_id: "usr_test_1",
-    email: "test@example.com",
+    user_id: '11111111-1111-1111-1111-111111111111',
+    pollar_user_id: 'usr_test_1',
+    email: 'test@example.com',
     display_name: null,
     avatar_url: null,
     roles: [UserRole.COMMUNITY_IMPLEMENTER],
@@ -31,10 +31,10 @@ describe("UsersService", () => {
     updated_at: new Date(),
     wallets: [
       {
-        wallet_id: "22222222-2222-2222-2222-222222222222",
-        user_id: "11111111-1111-1111-1111-111111111111",
-        pollar_wallet_id: "wal_1",
-        address: "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+        wallet_id: '22222222-2222-2222-2222-222222222222',
+        user_id: '11111111-1111-1111-1111-111111111111',
+        pollar_wallet_id: 'wal_1',
+        address: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -72,8 +72,8 @@ describe("UsersService", () => {
     service = module.get(UsersService);
   });
 
-  describe("sync", () => {
-    it("creates a new user with the app role and wallet", async () => {
+  describe('sync', () => {
+    it('creates a new user with the app role and wallet', async () => {
       prismaMock.user.findUnique.mockResolvedValueOnce(null);
       prismaMock.user.create.mockResolvedValueOnce({
         ...mockUser,
@@ -84,10 +84,10 @@ describe("UsersService", () => {
       prismaMock.user.findUniqueOrThrow.mockResolvedValueOnce(mockUser);
 
       const result = await service.sync(authUser, {
-        email: "test@example.com",
+        email: 'test@example.com',
         wallet_address:
-          "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
-        pollar_wallet_id: "wal_1",
+          'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
+        pollar_wallet_id: 'wal_1',
         role: UserRole.COMMUNITY_IMPLEMENTER,
       });
 
@@ -96,7 +96,7 @@ describe("UsersService", () => {
       expect(result.roles).toContain(UserRole.COMMUNITY_IMPLEMENTER);
     });
 
-    it("adds a missing role on an existing user without duplicating", async () => {
+    it('adds a missing role on an existing user without duplicating', async () => {
       prismaMock.user.findUnique.mockResolvedValueOnce({
         ...mockUser,
         roles: [UserRole.COMMUNITY_IMPLEMENTER],
@@ -113,9 +113,9 @@ describe("UsersService", () => {
       });
 
       const result = await service.sync(authUser, {
-        email: "test@example.com",
+        email: 'test@example.com',
         wallet_address:
-          "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+          'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
         role: UserRole.FUNDER,
       });
 
@@ -133,20 +133,20 @@ describe("UsersService", () => {
     });
   });
 
-  describe("findMe", () => {
-    it("returns the user profile when synced", async () => {
+  describe('findMe', () => {
+    it('returns the user profile when synced', async () => {
       prismaMock.user.findUnique.mockResolvedValueOnce(mockUser);
       await expect(service.findMe(authUser)).resolves.toEqual(mockUser);
     });
 
-    it("throws NotFoundException when user was never synced", async () => {
+    it('throws NotFoundException when user was never synced', async () => {
       prismaMock.user.findUnique.mockResolvedValueOnce(null);
       await expect(service.findMe(authUser)).rejects.toBeInstanceOf(
         NotFoundException,
       );
     });
 
-    it("throws UnauthorizedException when user is inactive", async () => {
+    it('throws UnauthorizedException when user is inactive', async () => {
       prismaMock.user.findUnique.mockResolvedValueOnce({
         ...mockUser,
         is_active: false,

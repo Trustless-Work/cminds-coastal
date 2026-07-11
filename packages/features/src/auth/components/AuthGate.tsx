@@ -1,7 +1,8 @@
 "use client";
 
 import { usePollar } from "@pollar/react";
-import { Navbar } from "@repo/shared/Navbar";
+import { DashboardShell } from "@repo/shared/DashboardShell";
+import { Skeleton } from "@repo/ui/components/skeleton";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSyncUser } from "../hooks/useSyncUser";
@@ -11,12 +12,16 @@ import { UserCard } from "./UserCard";
 
 type AuthGateProps = {
   appRole: SyncableUserRole;
+  appTitle: string;
+  appSubtitle?: string;
   children: React.ReactNode;
   loginHref?: string;
 };
 
 export function AuthGate({
   appRole,
+  appTitle,
+  appSubtitle,
   children,
   loginHref = "/login",
 }: AuthGateProps) {
@@ -50,35 +55,52 @@ export function AuthGate({
 
   if (!isAuthenticated || !verified || syncing || !isReady) {
     return (
-      <>
-        <Navbar leading={authLeading} />
-        <div className="flex flex-1 items-center justify-center p-6">
+      <DashboardShell
+        title={appTitle}
+        subtitle={appSubtitle}
+        leading={authLeading}
+      >
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
+          {error ? (
+            <p className="text-sm text-destructive">{error}</p>
+          ) : (
+            <div className="flex w-full max-w-xs flex-col items-center gap-3">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-48" />
+            </div>
+          )}
           <p className="text-sm text-muted-foreground">
-            {error ? error : "Checking session…"}
+            {error ? "Session error" : "Checking session…"}
           </p>
         </div>
-      </>
+      </DashboardShell>
     );
   }
 
   if (!hasAppRole) {
     return (
-      <>
-        <Navbar leading={authLeading} />
-        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6">
+      <DashboardShell
+        title={appTitle}
+        subtitle={appSubtitle}
+        leading={authLeading}
+      >
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
           <p className="text-sm font-medium text-foreground">Access denied</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="max-w-sm text-sm text-muted-foreground">
             Your account does not have permission to use this app.
           </p>
         </div>
-      </>
+      </DashboardShell>
     );
   }
 
   return (
-    <>
-      <Navbar leading={authLeading} />
+    <DashboardShell
+      title={appTitle}
+      subtitle={appSubtitle}
+      leading={authLeading}
+    >
       {children}
-    </>
+    </DashboardShell>
   );
 }

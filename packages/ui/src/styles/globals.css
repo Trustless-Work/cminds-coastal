@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@pollar/react/styles.css";
+@import "./monorepo-sources.css";
 
 @custom-variant dark (&:is(.dark *));
 

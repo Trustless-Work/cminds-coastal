@@ -1,17 +1,17 @@
-import { Module } from "@nestjs/common";
-import { APP_GUARD } from "@nestjs/core";
-import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
-import { AuthModule } from "./auth";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-import { DatabaseModule } from "./database";
-import { UsersModule } from "./modules/users/users.module";
+import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { AuthModule } from './auth';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { DatabaseModule } from './database';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
     ThrottlerModule.forRoot([
       {
-        name: "default",
+        name: 'default',
         ttl: 60_000,
         limit: 120,
       },

@@ -1,15 +1,11 @@
-import {
-  Injectable,
-  Logger,
-  UnauthorizedException,
-} from "@nestjs/common";
-import { serverEnv } from "@repo/config";
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { serverEnv } from '@repo/config';
 import {
   createRemoteJWKSet,
   decodeJwt,
   jwtVerify,
   type JWTPayload,
-} from "jose";
+} from 'jose';
 
 export type VerifiedPollarToken = {
   pollarUserId: string;
@@ -27,14 +23,14 @@ export class PollarTokenService {
 
   async verifyAccessToken(accessToken: string): Promise<VerifiedPollarToken> {
     if (!accessToken.trim()) {
-      throw new UnauthorizedException("Missing access token");
+      throw new UnauthorizedException('Missing access token');
     }
 
     const payload = await this.verifyOrDecode(accessToken);
     const pollarUserId = this.extractUserId(payload);
 
     if (!pollarUserId) {
-      throw new UnauthorizedException("Token missing user id claim");
+      throw new UnauthorizedException('Token missing user id claim');
     }
 
     const email = this.extractEmail(payload);
@@ -61,16 +57,16 @@ export class PollarTokenService {
           `JWKS verification failed (${jwksUrl}): ${error instanceof Error ? error.message : String(error)}`,
         );
         if (this.isProduction()) {
-          throw new UnauthorizedException("Invalid access token");
+          throw new UnauthorizedException('Invalid access token');
         }
       }
     } else if (this.isProduction()) {
       throw new UnauthorizedException(
-        "Pollar JWKS is not configured; set POLLAR_JWKS_URL for production",
+        'Pollar JWKS is not configured; set POLLAR_JWKS_URL for production',
       );
     } else {
       this.logger.warn(
-        "POLLAR_JWKS_URL unset — accepting decoded Pollar JWT in non-production only",
+        'POLLAR_JWKS_URL unset — accepting decoded Pollar JWT in non-production only',
       );
     }
 
@@ -82,13 +78,13 @@ export class PollarTokenService {
     try {
       payload = decodeJwt(accessToken);
     } catch {
-      throw new UnauthorizedException("Malformed access token");
+      throw new UnauthorizedException('Malformed access token');
     }
 
-    if (typeof payload.exp === "number") {
+    if (typeof payload.exp === 'number') {
       const now = Math.floor(Date.now() / 1000);
       if (payload.exp < now - 30) {
-        throw new UnauthorizedException("Access token expired");
+        throw new UnauthorizedException('Access token expired');
       }
     }
 
@@ -103,15 +99,15 @@ export class PollarTokenService {
 
     try {
       const payload = decodeJwt(accessToken);
-      if (typeof payload.iss === "string" && payload.iss.length > 0) {
-        const issuer = payload.iss.replace(/\/$/, "");
+      if (typeof payload.iss === 'string' && payload.iss.length > 0) {
+        const issuer = payload.iss.replace(/\/$/, '');
         return new URL(`${issuer}/.well-known/jwks.json`);
       }
     } catch {
       // ignore — caller will handle malformed tokens
     }
 
-    const base = serverEnv.pollarSdkBaseUrl.replace(/\/v1\/?$/, "");
+    const base = serverEnv.pollarSdkBaseUrl.replace(/\/v1\/?$/, '');
     return new URL(`${base}/.well-known/jwks.json`);
   }
 
@@ -135,7 +131,7 @@ export class PollarTokenService {
     ];
 
     for (const value of candidates) {
-      if (typeof value === "string" && value.length > 0) {
+      if (typeof value === 'string' && value.length > 0) {
         return value;
       }
     }
@@ -144,16 +140,16 @@ export class PollarTokenService {
   }
 
   private extractEmail(payload: JWTPayload): string | undefined {
-    if (typeof payload.email === "string" && payload.email.length > 0) {
+    if (typeof payload.email === 'string' && payload.email.length > 0) {
       return payload.email;
     }
-    if (typeof payload.mail === "string" && payload.mail.length > 0) {
+    if (typeof payload.mail === 'string' && payload.mail.length > 0) {
       return payload.mail;
     }
     return undefined;
   }
 
   private isProduction(): boolean {
-    return process.env.NODE_ENV === "production";
+    return process.env.NODE_ENV === 'production';
   }
 }

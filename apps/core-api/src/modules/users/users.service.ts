@@ -3,11 +3,11 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
-} from "@nestjs/common";
-import { PrismaService } from "../../database";
-import type { UserRole } from "../../generated/prisma/enums";
-import type { AuthenticatedUser } from "../../auth/interfaces/authenticated-user";
-import type { SyncUserDto } from "./dto/sync-user.dto";
+} from '@nestjs/common';
+import { PrismaService } from '../../database';
+import type { UserRole } from '../../generated/prisma/enums';
+import type { AuthenticatedUser } from '../../auth/interfaces/authenticated-user';
+import type { SyncUserDto } from './dto/sync-user.dto';
 
 export type UserWallet = {
   wallet_id: string;
@@ -33,9 +33,7 @@ export type UserProfile = {
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @Inject(PrismaService) private readonly prisma: PrismaService,
-  ) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async sync(
     authUser: AuthenticatedUser,
@@ -43,7 +41,7 @@ export class UsersService {
   ): Promise<UserProfile> {
     const email = (authUser.email ?? dto.email).trim().toLowerCase();
     if (!email) {
-      throw new UnauthorizedException("Email is required to sync user");
+      throw new UnauthorizedException('Email is required to sync user');
     }
 
     const displayName = dto.display_name?.trim() || null;
@@ -51,7 +49,7 @@ export class UsersService {
     const walletAddress = dto.wallet_address.trim();
     const pollarWalletId = dto.pollar_wallet_id?.trim() || null;
 
-    type UserRecord = Omit<UserProfile, "wallets">;
+    type UserRecord = Omit<UserProfile, 'wallets'>;
 
     return this.prisma.$transaction(async (tx) => {
       const existing = await tx.user.findUnique({
@@ -90,7 +88,7 @@ export class UsersService {
 
       if (existingWallet && existingWallet.user_id !== user.user_id) {
         throw new UnauthorizedException(
-          "Wallet address is already linked to another user",
+          'Wallet address is already linked to another user',
         );
       }
 
@@ -126,12 +124,12 @@ export class UsersService {
 
     if (!user) {
       throw new NotFoundException(
-        "User not found — call POST /users/sync after Pollar login",
+        'User not found — call POST /users/sync after Pollar login',
       );
     }
 
     if (!user.is_active) {
-      throw new UnauthorizedException("User account is inactive");
+      throw new UnauthorizedException('User account is inactive');
     }
 
     return user;

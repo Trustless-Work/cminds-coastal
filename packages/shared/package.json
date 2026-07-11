@@ -4,6 +4,8 @@
   "private": true,
   "exports": {
     "./Navbar": "./src/Navbar.tsx",
+    "./DashboardShell": "./src/DashboardShell.tsx",
+    "./LoginShell": "./src/LoginShell.tsx",
     "./security-headers": "./src/security-headers.ts"
   },
   "scripts": {

@@ -4,14 +4,14 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
-} from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import type { Request } from "express";
-import { PrismaService } from "../../database";
-import type { UserRole } from "../../generated/prisma/enums";
-import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
-import { ROLES_KEY } from "../decorators/roles.decorator";
-import type { AuthenticatedUser } from "../interfaces/authenticated-user";
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import type { Request } from 'express';
+import { PrismaService } from '../../database';
+import type { UserRole } from '../../generated/prisma/enums';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { ROLES_KEY } from '../decorators/roles.decorator';
+import type { AuthenticatedUser } from '../interfaces/authenticated-user';
 
 type RequestWithUser = Request & { user?: AuthenticatedUser };
 
@@ -44,7 +44,7 @@ export class RolesGuard implements CanActivate {
     const authUser = request.user;
 
     if (!authUser) {
-      throw new ForbiddenException("Authentication required for this resource");
+      throw new ForbiddenException('Authentication required for this resource');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -53,12 +53,12 @@ export class RolesGuard implements CanActivate {
     });
 
     if (!user || !user.is_active) {
-      throw new ForbiddenException("User is not registered or inactive");
+      throw new ForbiddenException('User is not registered or inactive');
     }
 
     const hasRole = requiredRoles.some((role) => user.roles.includes(role));
     if (!hasRole) {
-      throw new ForbiddenException("Insufficient role for this resource");
+      throw new ForbiddenException('Insufficient role for this resource');
     }
 
     return true;

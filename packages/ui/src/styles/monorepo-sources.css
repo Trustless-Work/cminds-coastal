@@ -1,0 +1,5 @@
+/* Tailwind v4: scan workspace packages for utility classes used outside app src */
+@source "../../../tw-blocks/src";
+@source "../../../features/src";
+@source "../../../shared/src";
+@source "../../../providers/src";

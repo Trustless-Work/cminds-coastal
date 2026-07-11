@@ -1,19 +1,19 @@
-import "reflect-metadata";
-import "dotenv/config";
-import { Logger, ValidationPipe } from "@nestjs/common";
-import { NestFactory } from "@nestjs/core";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { serverEnv } from "@repo/config";
-import helmet from "helmet";
-import { AppModule } from "./app.module";
+import 'reflect-metadata';
+import 'dotenv/config';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { serverEnv } from '@repo/config';
+import helmet from 'helmet';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const logger = new Logger("Bootstrap");
+  const logger = new Logger('Bootstrap');
 
   app.use(
     helmet({
-      crossOriginResourcePolicy: { policy: "cross-origin" },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
   app.enableCors({
@@ -30,13 +30,13 @@ async function bootstrap() {
   );
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle("CMinds Core API")
-    .setDescription("Off-chain API for the Coastal Communities Escrow Pilot")
-    .setVersion("0.1.0")
+    .setTitle('CMinds Core API')
+    .setDescription('Off-chain API for the Coastal Communities Escrow Pilot')
+    .setVersion('0.1.0')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup("docs", app, document);
+  SwaggerModule.setup('docs', app, document);
 
   const port = serverEnv.port;
   await app.listen(port);
