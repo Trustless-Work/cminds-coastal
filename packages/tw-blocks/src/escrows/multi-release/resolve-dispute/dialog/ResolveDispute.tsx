@@ -40,7 +40,6 @@ export const ResolveDisputeDialog = ({
     form,
     handleSubmit,
     isSubmitting,
-    totalAmount,
     distributions,
     handleAddDistribution,
     handleRemoveDistribution,

@@ -66,8 +66,10 @@ export const InitializeEscrowDialog = () => {
 
     // Always keep as string to allow partial input like "0." or "0.5"
     const updatedMilestones = [...milestones];
+    const current = updatedMilestones[index];
+    if (!current) return;
     updatedMilestones[index] = {
-      ...updatedMilestones[index],
+      ...current,
       amount: rawValue,
     };
     form.setValue("milestones", updatedMilestones);
@@ -434,9 +436,14 @@ export const InitializeEscrowDialog = () => {
                         placeholder="Milestone description"
                         value={milestone.description}
                         onChange={(e) => {
-                          const updatedMilestones = [...milestones];
-                          updatedMilestones[index].description = e.target.value;
-                          form.setValue("milestones", updatedMilestones);
+                          form.setValue(
+                            "milestones",
+                            milestones.map((m, i) =>
+                              i === index
+                                ? { ...m, description: e.target.value }
+                                : m
+                            )
+                          );
                         }}
                       />
                     </div>
@@ -446,9 +453,14 @@ export const InitializeEscrowDialog = () => {
                         placeholder="Enter receiver address"
                         value={milestone.receiver}
                         onChange={(e) => {
-                          const updatedMilestones = [...milestones];
-                          updatedMilestones[index].receiver = e.target.value;
-                          form.setValue("milestones", updatedMilestones);
+                          form.setValue(
+                            "milestones",
+                            milestones.map((m, i) =>
+                              i === index
+                                ? { ...m, receiver: e.target.value }
+                                : m
+                            )
+                          );
                         }}
                       />
                     </div>

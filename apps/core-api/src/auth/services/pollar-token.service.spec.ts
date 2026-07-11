@@ -12,7 +12,7 @@ jest.mock('jose', () => {
   class JoseDecodeError extends Error {}
   return {
     createRemoteJWKSet: jest.fn(() => jest.fn()),
-    jwtVerify: jest.fn(async () => {
+    jwtVerify: jest.fn(() => {
       throw new Error('JWKS unavailable in tests');
     }),
     decodeJwt: (token: string) => {

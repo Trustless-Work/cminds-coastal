@@ -119,13 +119,14 @@ describe('UsersService', () => {
         role: UserRole.FUNDER,
       });
 
-      expect(prismaMock.user.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            roles: [UserRole.COMMUNITY_IMPLEMENTER, UserRole.FUNDER],
-          }),
-        }),
-      );
+      expect(prismaMock.user.update).toHaveBeenCalled();
+      const [[updateArg]] = prismaMock.user.update.mock.calls as [
+        [{ data: { roles: UserRole[] } }],
+      ];
+      expect(updateArg.data.roles).toEqual([
+        UserRole.COMMUNITY_IMPLEMENTER,
+        UserRole.FUNDER,
+      ]);
       expect(result.roles).toEqual([
         UserRole.COMMUNITY_IMPLEMENTER,
         UserRole.FUNDER,

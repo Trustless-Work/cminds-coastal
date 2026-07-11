@@ -32,7 +32,6 @@ export const ResolveDisputeForm = ({
     form,
     handleSubmit,
     isSubmitting,
-    totalAmount,
     distributions,
     handleAddDistribution,
     handleRemoveDistribution,
