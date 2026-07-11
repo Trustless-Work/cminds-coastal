@@ -1,7 +1,7 @@
 "use client";
 
 import { PollarProvider as PollarRootProvider } from "@pollar/react";
-import { clientEnv } from "@repo/config";
+import { clientEnv, networkConfig } from "@repo/config";
 import type { ReactNode } from "react";
 
 const apiKey = clientEnv.pollarApiKey;
@@ -12,7 +12,9 @@ export function PollarProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <PollarRootProvider client={{ apiKey, stellarNetwork: "testnet" }}>
+    <PollarRootProvider
+      client={{ apiKey, stellarNetwork: networkConfig.pollarNetwork }}
+    >
       {children}
     </PollarRootProvider>
   );

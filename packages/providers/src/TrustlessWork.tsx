@@ -6,11 +6,11 @@ import {
   mainNet,
   TrustlessWorkConfig,
 } from "@trustless-work/escrow";
-import { clientEnv } from "@repo/config";
+import { clientEnv, networkConfig } from "@repo/config";
 
 export function TrustlessWorkProvider({ children }: { children: ReactNode }) {
   const apiKey = clientEnv.trustlessWorkApiKey ?? "";
-  const baseURL = clientEnv.useMainnet ? mainNet : development;
+  const baseURL = networkConfig.isMainnet ? mainNet : development;
 
   return (
     <TrustlessWorkConfig baseURL={baseURL} apiKey={apiKey}>

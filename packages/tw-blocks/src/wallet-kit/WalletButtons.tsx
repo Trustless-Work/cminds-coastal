@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { networkConfig } from "@repo/config";
 import { useWallet } from "./useWallet";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 import { Button } from "@repo/ui/components/button";
@@ -57,7 +58,7 @@ export const WalletButton = () => {
                 <span className="font-medium">{walletName}</span>
               </div>
               <span className="text-xs px-2 py-1 rounded-md bg-muted text-muted-foreground">
-                Testnet
+                {networkConfig.label}
               </span>
             </div>
 

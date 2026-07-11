@@ -1,5 +1,5 @@
 import type { ModuleInterface } from "@creit.tech/stellar-wallets-kit/types";
-import { clientEnv } from "@repo/config";
+import { networkConfig } from "@repo/config";
 
 type SdkModule = typeof import("@creit.tech/stellar-wallets-kit/sdk");
 type TypesModule = typeof import("@creit.tech/stellar-wallets-kit/types");
@@ -20,7 +20,7 @@ let walletKitPromise: Promise<{
 }> | null = null;
 
 function getNetwork(Networks: NetworksEnum) {
-  return clientEnv.useMainnet ? Networks.PUBLIC : Networks.TESTNET;
+  return Networks[networkConfig.walletKitNetwork];
 }
 
 const loadWalletKit = async () => {
