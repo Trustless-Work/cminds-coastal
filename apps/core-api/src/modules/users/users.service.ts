@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -13,7 +14,6 @@ export type UserWallet = {
   user_id: string;
   pollar_wallet_id: string | null;
   address: string;
-  is_primary: boolean;
   created_at: Date;
   updated_at: Date;
 };
@@ -33,7 +33,9 @@ export type UserProfile = {
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+  ) {}
 
   async sync(
     authUser: AuthenticatedUser,
@@ -97,20 +99,14 @@ export class UsersService {
           where: { wallet_id: existingWallet.wallet_id },
           data: {
             pollar_wallet_id: pollarWalletId ?? existingWallet.pollar_wallet_id,
-            is_primary: true,
           },
         });
       } else {
-        await tx.wallet.updateMany({
-          where: { user_id: user.user_id, is_primary: true },
-          data: { is_primary: false },
-        });
         await tx.wallet.create({
           data: {
             user_id: user.user_id,
             address: walletAddress,
             pollar_wallet_id: pollarWalletId,
-            is_primary: true,
           },
         });
       }

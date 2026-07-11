@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  Inject,
   Injectable,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
@@ -17,8 +18,8 @@ type RequestWithUser = Request & { user?: AuthenticatedUser };
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
-    private readonly reflector: Reflector,
-    private readonly prisma: PrismaService,
+    @Inject(Reflector) private readonly reflector: Reflector,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

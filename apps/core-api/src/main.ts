@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import "dotenv/config";
 import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -10,7 +11,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger("Bootstrap");
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+    }),
+  );
   app.enableCors({
     origin: serverEnv.corsOrigins,
     credentials: true,

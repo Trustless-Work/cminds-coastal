@@ -35,7 +35,6 @@ describe("UsersService", () => {
         user_id: "11111111-1111-1111-1111-111111111111",
         pollar_wallet_id: "wal_1",
         address: "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
-        is_primary: true,
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -53,7 +52,6 @@ describe("UsersService", () => {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
-      updateMany: jest.fn(),
     },
     $transaction: jest.fn(),
   };
@@ -75,14 +73,13 @@ describe("UsersService", () => {
   });
 
   describe("sync", () => {
-    it("creates a new user with the app role and primary wallet", async () => {
+    it("creates a new user with the app role and wallet", async () => {
       prismaMock.user.findUnique.mockResolvedValueOnce(null);
       prismaMock.user.create.mockResolvedValueOnce({
         ...mockUser,
         wallets: undefined,
       });
       prismaMock.wallet.findUnique.mockResolvedValueOnce(null);
-      prismaMock.wallet.updateMany.mockResolvedValueOnce({ count: 0 });
       prismaMock.wallet.create.mockResolvedValueOnce(mockUser.wallets[0]);
       prismaMock.user.findUniqueOrThrow.mockResolvedValueOnce(mockUser);
 

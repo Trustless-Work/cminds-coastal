@@ -8,13 +8,15 @@ import { PollarTokenService } from "./services/pollar-token.service";
 @Module({
   providers: [
     PollarTokenService,
+    PollarAuthGuard,
+    RolesGuard,
     {
       provide: APP_GUARD,
-      useClass: PollarAuthGuard,
+      useExisting: PollarAuthGuard,
     },
     {
       provide: APP_GUARD,
-      useClass: RolesGuard,
+      useExisting: RolesGuard,
     },
   ],
   exports: [PollarTokenService],

@@ -19,7 +19,6 @@ export type UserWallet = {
   user_id: string;
   pollar_wallet_id: string | null;
   address: string;
-  is_primary: boolean;
   created_at: string;
   updated_at: string;
 };

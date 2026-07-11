@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -13,7 +13,9 @@ import { UsersService } from "./users.service";
 @ApiBearerAuth()
 @Controller("users")
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    @Inject(UsersService) private readonly usersService: UsersService,
+  ) {}
 
   @Post("sync")
   @HttpCode(HttpStatus.OK)

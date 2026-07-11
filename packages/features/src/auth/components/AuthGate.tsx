@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSyncUser } from "../hooks/useSyncUser";
 import type { SyncableUserRole } from "../types";
+import { LogoutButton } from "./LogoutButton";
 
 type AuthGateProps = {
   appRole: SyncableUserRole;
@@ -40,5 +41,12 @@ export function AuthGate({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <div className="fixed top-4 right-16 z-50">
+        <LogoutButton loginHref={loginHref} />
+      </div>
+      {children}
+    </>
+  );
 }

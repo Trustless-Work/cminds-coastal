@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -16,7 +17,8 @@ type RequestWithUser = Request & { user?: AuthenticatedUser };
 @Injectable()
 export class PollarAuthGuard implements CanActivate {
   constructor(
-    private readonly reflector: Reflector,
+    @Inject(Reflector) private readonly reflector: Reflector,
+    @Inject(PollarTokenService)
     private readonly pollarTokenService: PollarTokenService,
   ) {}
 

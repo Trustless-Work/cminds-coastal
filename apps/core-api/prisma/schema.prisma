@@ -50,7 +50,6 @@ model Wallet {
   user_id          String   @db.Uuid
   pollar_wallet_id String?
   address          String
-  is_primary       Boolean  @default(true)
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
 
