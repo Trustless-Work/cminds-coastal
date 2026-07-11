@@ -4,6 +4,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:api": "turbo run dev --filter=core-api",
     "dev:cminds": "turbo run dev --filter=cminds-dashboard",
     "dev:community": "turbo run dev --filter=community-dashboard",
     "dev:funding": "turbo run dev --filter=funding-dashboard",

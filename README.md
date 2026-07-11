@@ -38,11 +38,11 @@ Community creates escrow → Funders deposit USDC → Community submits evidence
 ```
 cminds/
 ├── apps/
-│   ├── cminds-dashboard/      # CMinds review & admin (port 3000)
-│   ├── community-dashboard/   # Community escrow & evidence (port 3001)
-│   ├── funding-dashboard/     # Escrow funding detail (port 3002)
-│   ├── public-viewer/         # Public transparency page (port 3003)
-│   └── core-api/              # NestJS API
+│   ├── core-api/              # NestJS API (port 3000)
+│   ├── cminds-dashboard/      # CMinds review & admin (port 3001)
+│   ├── community-dashboard/   # Community escrow & evidence (port 3002)
+│   ├── funding-dashboard/     # Escrow funding detail (port 3003)
+│   └── public-viewer/         # Public transparency page (port 3004)
 ├── packages/
 │   ├── ui/                    # @repo/ui — shared components
 │   ├── eslint-config/         # @repo/eslint-config
@@ -59,11 +59,11 @@ cminds/
 
 | App | Package | Dev port | Description |
 | --- | --- | --- | --- |
-| CMinds Dashboard | `cminds-dashboard` | 3000 | Review and approve milestones |
-| Community Dashboard | `community-dashboard` | 3001 | Create escrows and submit evidence |
-| Funding Dashboard | `funding-dashboard` | 3002 | Fund escrows with USDC |
-| Public Viewer | `public-viewer` | 3003 | Public transparency page |
-| Core API | `core-api` | — | NestJS backend for off-chain data |
+| Core API | `core-api` | 3000 | NestJS backend for off-chain data |
+| CMinds Dashboard | `cminds-dashboard` | 3001 | Review and approve milestones |
+| Community Dashboard | `community-dashboard` | 3002 | Create escrows and submit evidence |
+| Funding Dashboard | `funding-dashboard` | 3003 | Fund escrows with USDC |
+| Public Viewer | `public-viewer` | 3004 | Public transparency page |
 
 ## Packages
 
@@ -95,6 +95,7 @@ pnpm dev
 Run a single app:
 
 ```sh
+pnpm dev:api
 pnpm dev:cminds
 pnpm dev:community
 pnpm dev:funding

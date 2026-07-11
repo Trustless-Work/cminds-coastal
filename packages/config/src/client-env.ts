@@ -9,6 +9,13 @@ export class ClientEnv extends EnvConfig {
     return this.getOptional(process.env.NEXT_PUBLIC_POLLAR_API_KEY);
   }
 
+  get coreApiUrl(): string {
+    return (
+      this.getOptional(process.env.NEXT_PUBLIC_CORE_API_URL) ??
+      "http://localhost:4000"
+    );
+  }
+
   get trustlessWorkApiKey(): string | undefined {
     return this.getOptional(process.env.NEXT_PUBLIC_TRUSTLESS_WORK_API_KEY);
   }

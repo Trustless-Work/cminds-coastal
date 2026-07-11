@@ -1,7 +1,7 @@
 "use client";
 
 import { usePollar } from "@pollar/react";
-import { shortenStellarAddress } from "@repo/helpers";
+import { formatAddress } from "@repo/helpers";
 import { Button } from "@repo/ui/components/button";
 import { Card, CardContent } from "@repo/ui/components/card";
 import {
@@ -10,12 +10,49 @@ import {
   FieldGroup,
 } from "@repo/ui/components/field";
 import { cn } from "@repo/ui/lib/utils";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useSyncUser } from "../hooks/useSyncUser";
+import type { SyncableUserRole } from "../types";
 
-type SignInViewProps = React.ComponentProps<"div">;
+type SignInViewProps = React.ComponentProps<"div"> & {
+  appRole: SyncableUserRole;
+  dashboardHref?: string;
+};
 
-export function SignInView({ className, ...props }: SignInViewProps) {
-  const { isAuthenticated, wallet, login, logout } = usePollar();
+export function SignInView({
+  className,
+  appRole,
+  dashboardHref = "/dashboard",
+  ...props
+}: SignInViewProps) {
+  const router = useRouter();
+  const { isAuthenticated, verified, wallet, login, logout } = usePollar();
   const address = wallet?.address ?? "";
+  const { isReady, syncing, error } = useSyncUser({
+    role: appRole,
+    enabled: isAuthenticated && verified && Boolean(address),
+  });
+
+  useEffect(() => {
+    if (isAuthenticated && verified && isReady) {
+      router.replace(dashboardHref);
+    }
+  }, [dashboardHref, isAuthenticated, isReady, router, verified]);
+
+  if (isAuthenticated && (!verified || syncing || (!isReady && !error))) {
+    return (
+      <div className={cn("flex flex-col gap-6", className)} {...props}>
+        <Card className="overflow-hidden p-0">
+          <CardContent className="flex items-center justify-center p-10">
+            <p className="text-sm text-muted-foreground">
+              {!verified ? "Verifying session…" : "Syncing your account…"}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isAuthenticated && address) {
     return (
@@ -27,15 +64,20 @@ export function SignInView({ className, ...props }: SignInViewProps) {
                 <div className="flex flex-col items-center gap-2 text-center">
                   <h1 className="text-2xl font-bold">Signed in</h1>
                   <p className="text-sm text-balance text-muted-foreground">
-                    Connected as {shortenStellarAddress(address)}
+                    Connected as {formatAddress(address)}
                   </p>
+                  {error ? (
+                    <p className="text-sm text-destructive">{error}</p>
+                  ) : null}
                 </div>
                 <Field>
                   <Button
                     className="w-full"
                     variant="outline"
                     type="button"
-                    onClick={() => logout()}
+                    onClick={() => {
+                      void logout();
+                    }}
                   >
                     Sign out
                   </Button>
