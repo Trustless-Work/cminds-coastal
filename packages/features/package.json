@@ -28,6 +28,7 @@
     "@repo/helpers": "workspace:*",
     "@repo/shared": "workspace:*",
     "@repo/ui": "workspace:*",
+    "lucide-react": "^1.24.0",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

@@ -1,12 +1,14 @@
 "use client";
 
-import { formatAddress } from "@repo/helpers";
+import { formatAddress, useCopy } from "@repo/helpers";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@repo/ui/components/avatar";
+import { Button } from "@repo/ui/components/button";
 import { cn } from "@repo/ui/lib/utils";
+import { Check, Copy } from "lucide-react";
 
 type UserCardProps = {
   displayName: string | null;
@@ -29,13 +31,14 @@ export function UserCard({
   walletAddress,
   className,
 }: UserCardProps) {
+  const { copiedKeyId, copyToClipboard } = useCopy();
   const label = displayName?.trim() || "User";
   const address = walletAddress?.trim() || null;
 
   return (
     <div
       className={cn(
-        "flex max-w-[14rem] items-center gap-2 rounded-full border border-border/60 bg-muted/40 py-1 px-5",
+        "flex max-w-[16rem] items-center gap-2 rounded-full border border-border/60 bg-muted/40 py-1 pr-2 pl-5",
         className,
       )}
     >
@@ -43,17 +46,35 @@ export function UserCard({
         {avatarUrl ? <AvatarImage src={avatarUrl} alt={label} /> : null}
         <AvatarFallback>{initialsFromName(displayName)}</AvatarFallback>
       </Avatar>
-      <div className="min-w-0 flex flex-col leading-tight">
+      <div className="min-w-0 flex flex-1 flex-col leading-tight">
         <span className="truncate text-sm font-medium text-foreground">
           {label}
         </span>
         {address ? (
-          <span
-            className="truncate font-mono text-[11px] text-muted-foreground"
-            title={address}
-          >
-            {formatAddress(address, 4)}
-          </span>
+          <div className="flex min-w-0 items-center gap-0.5">
+            <span
+              className="truncate font-mono text-[11px] text-muted-foreground"
+              title={address}
+            >
+              {formatAddress(address, 4)}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              className="size-5 shrink-0 text-muted-foreground hover:text-foreground"
+              aria-label={copiedKeyId ? "Address copied" : "Copy wallet address"}
+              onClick={() => {
+                void copyToClipboard(address);
+              }}
+            >
+              {copiedKeyId ? (
+                <Check className="size-3 text-emerald-500" />
+              ) : (
+                <Copy className="size-3" />
+              )}
+            </Button>
+          </div>
         ) : null}
       </div>
     </div>
