@@ -2,6 +2,20 @@
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
   "globalDependencies": [".env*"],
+  "globalEnv": [
+    "NODE_ENV",
+    "NEXT_PUBLIC_POLLAR_API_KEY",
+    "NEXT_PUBLIC_CORE_API_URL",
+    "NEXT_PUBLIC_TRUSTLESS_WORK_API_KEY",
+    "NEXT_PUBLIC_USE_MAINNET",
+    "DATABASE_URL",
+    "DIRECT_URL",
+    "PORT",
+    "POLLAR_SECRET_KEY",
+    "POLLAR_SDK_BASE_URL",
+    "POLLAR_JWKS_URL",
+    "CORS_ORIGINS"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

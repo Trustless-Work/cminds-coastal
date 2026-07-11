@@ -1,9 +1,22 @@
+import Link from "next/link";
+
+import { buttonVariants } from "@repo/ui/components/button";
+import { cn } from "@repo/ui/lib/utils";
+
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <h1>Hello World</h1>
-      </main>
-    </div>
+    <main className="flex flex-1 flex-col items-center justify-center gap-6 p-6 text-center sm:p-8">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Funding Dashboard
+        </h1>
+        <p className="max-w-sm text-sm text-muted-foreground">
+          Fund coastal conservation escrows with USDC on Stellar.
+        </p>
+      </div>
+      <Link href="/login" className={cn(buttonVariants())}>
+        Sign in
+      </Link>
+    </main>
   );
 }

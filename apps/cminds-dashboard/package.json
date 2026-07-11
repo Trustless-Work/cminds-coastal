@@ -3,14 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3000",
+    "dev": "next dev --port 3001",
     "build": "next build",
-    "start": "next start --port 3000",
+    "start": "next start --port 3001",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@repo/features": "workspace:*",
     "@repo/providers": "workspace:*",
+    "@repo/shared": "workspace:*",
+    "@repo/tw-blocks": "workspace:*",
     "@repo/ui": "workspace:*",
     "next": "catalog:",
     "react": "catalog:",

@@ -17,16 +17,16 @@ Product context: `docs/CMINDS_CONTEXT.md`
 
 | Package | Path | Dev port | Primary actor | Responsibility |
 | --- | --- | --- | --- | --- |
-| `community-dashboard` | `apps/community-dashboard` | 3001 | Community Implementer / Release Signer | Create escrows, select tasks, submit evidence, release funds |
-| `cminds-dashboard` | `apps/cminds-dashboard` | 3000 | CMinds operator | Review evidence, approve/dispute milestones, admin pause/cancel |
-| `funding-dashboard` | `apps/funding-dashboard` | 3002 | Funder / Depositor | View escrow detail, fund with USDC, copy escrow address |
-| `public-viewer` | `apps/public-viewer` | 3003 | Observer / public | Transparency page — status, milestones, funding, evidence links |
+| `cminds-dashboard` | `apps/cminds-dashboard` | 3001 | CMinds operator | Review evidence, approve/dispute milestones, admin pause/cancel |
+| `community-dashboard` | `apps/community-dashboard` | 3002 | Community Implementer / Release Signer | Create escrows, select tasks, submit evidence, release funds |
+| `funding-dashboard` | `apps/funding-dashboard` | 3003 | Funder / Depositor | View escrow detail, fund with USDC, copy escrow address |
+| `public-viewer` | `apps/public-viewer` | 3004 | Observer / public | Transparency page — status, milestones, funding, evidence links |
 
 ### Backend
 
-| Package | Path | Stack |
-| --- | --- | --- |
-| `core-api` | `apps/core-api` | NestJS API (Prisma + Supabase PostgreSQL) |
+| Package | Path | Dev port | Stack |
+| --- | --- | --- | --- |
+| `core-api` | `apps/core-api` | 3000 | NestJS API (Prisma + Supabase PostgreSQL) |
 
 ### Shared packages
 
@@ -36,7 +36,7 @@ Product context: `docs/CMINDS_CONTEXT.md`
 | `@repo/eslint-config` | `packages/eslint-config` | Shared ESLint |
 | `@repo/typescript-config` | `packages/typescript-config` | Shared TypeScript configs |
 
-Run from repo root: `pnpm dev`, `pnpm dev:community`, `pnpm dev:cminds`, `pnpm dev:funding`, `pnpm dev:public`.
+Run from repo root: `pnpm dev`, `pnpm dev:api`, `pnpm dev:cminds`, `pnpm dev:community`, `pnpm dev:funding`, `pnpm dev:public`.
 
 ---
 

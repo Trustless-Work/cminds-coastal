@@ -7,3 +7,55 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// =============================================
+// ENUMS
+// =============================================
+
+enum UserRole {
+  COMMUNITY_IMPLEMENTER
+  RELEASE_SIGNER
+  CMINDS_OPERATOR
+  FUNDER
+}
+
+// =============================================
+// USERS & AUTH
+// =============================================
+
+model User {
+  user_id        String     @id @default(uuid()) @db.Uuid
+  pollar_user_id String     @unique
+  email          String     @unique
+  display_name   String?
+  avatar_url     String?
+  roles          UserRole[]
+  is_active      Boolean    @default(true)
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+
+  wallets Wallet[]
+
+  @@index([roles])
+  @@index([is_active])
+  @@map("user")
+}
+
+// =============================================
+// WALLETS
+// =============================================
+
+model Wallet {
+  wallet_id        String   @id @default(uuid()) @db.Uuid
+  user_id          String   @db.Uuid
+  pollar_wallet_id String?
+  address          String
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@unique([address])
+  @@index([user_id])
+  @@map("wallet")
+}
