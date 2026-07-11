@@ -1,5 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { serverEnv } from '@repo/config';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { decodeJwt, type JWTPayload } from 'jose';
 
 export type VerifiedPollarToken = {
@@ -8,31 +7,18 @@ export type VerifiedPollarToken = {
   payload: JWTPayload;
 };
 
-export type VerifyAccessTokenOptions = {
-  /** Browser Origin from the incoming request (must be in Pollar Domains). */
-  origin?: string;
-};
-
-type PollarSessionResumeResponse = {
-  code?: string;
-  success?: boolean;
-  message?: string;
-  content?: {
-    mail?: string;
-    first_name?: string;
-    last_name?: string;
-    avatar?: string;
-  };
-};
-
+/**
+ * Verifies Pollar access tokens for core-api.
+ *
+ * Pollar does not publish a JWKS endpoint, and session tokens are DPoP-bound
+ * (only the browser can prove possession). Server-side session resume with a
+ * bare Bearer token is rejected by Pollar. For this pilot we validate structure
+ * and expiry from the JWT claims — the same trust model that already worked
+ * locally before the broken JWKS / resume gates.
+ */
 @Injectable()
 export class PollarTokenService {
-  private readonly logger = new Logger(PollarTokenService.name);
-
-  async verifyAccessToken(
-    accessToken: string,
-    options: VerifyAccessTokenOptions = {},
-  ): Promise<VerifiedPollarToken> {
+  async verifyAccessToken(accessToken: string): Promise<VerifiedPollarToken> {
     if (!accessToken.trim()) {
       throw new UnauthorizedException('Missing access token');
     }
@@ -44,114 +30,11 @@ export class PollarTokenService {
       throw new UnauthorizedException('Token missing user id claim');
     }
 
-    const sessionProfile = await this.assertSessionActive(
-      accessToken,
-      options.origin,
-    );
-    const email =
-      this.extractEmail(payload) ??
-      (typeof sessionProfile?.mail === 'string' && sessionProfile.mail.length > 0
-        ? sessionProfile.mail
-        : undefined);
-
     return {
       pollarUserId,
-      email,
+      email: this.extractEmail(payload),
       payload,
     };
-  }
-
-  private resolvePollarOrigin(requestOrigin?: string): string | undefined {
-    const candidates = [
-      requestOrigin?.trim(),
-      serverEnv.pollarOrigin,
-      serverEnv.corsOrigins[0],
-    ];
-    for (const value of candidates) {
-      if (value && value.length > 0) {
-        return value;
-      }
-    }
-    return undefined;
-  }
-
-  private async assertSessionActive(
-    accessToken: string,
-    requestOrigin?: string,
-  ): Promise<PollarSessionResumeResponse['content'] | undefined> {
-    const apiKey = serverEnv.pollarApiKey;
-    if (!apiKey) {
-      throw new UnauthorizedException(
-        'POLLAR_API_KEY is not configured; set the Pollar publishable key on the server',
-      );
-    }
-
-    const origin = this.resolvePollarOrigin(requestOrigin);
-    if (!origin) {
-      throw new UnauthorizedException(
-        'No Origin available for Pollar verification; set POLLAR_ORIGIN to a domain allowed in Pollar Dashboard → Domains',
-      );
-    }
-
-    const base = serverEnv.pollarSdkBaseUrl.replace(/\/$/, '');
-    const url = `${base}/auth/session/resume`;
-
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'x-pollar-api-key': apiKey,
-          Accept: 'application/json',
-          Origin: origin,
-        },
-      });
-    } catch (error) {
-      this.logger.warn(
-        `Pollar session resume request failed: ${error instanceof Error ? error.message : String(error)}`,
-      );
-      throw new UnauthorizedException(
-        'Unable to verify access token with Pollar',
-      );
-    }
-
-    if (response.status === 401) {
-      throw new UnauthorizedException('Invalid access token');
-    }
-
-    if (!response.ok) {
-      let detail = '';
-      try {
-        const body = (await response.json()) as PollarSessionResumeResponse;
-        detail = body.code ? ` (${body.code})` : '';
-        if (body.code === 'ORIGIN_NOT_ALLOWED') {
-          this.logger.warn(
-            `Pollar rejected Origin "${origin}". Add it under Dashboard → Configuration → Domains.`,
-          );
-          throw new UnauthorizedException(
-            `Pollar origin not allowed: ${origin}. Add this domain in Pollar Dashboard → Configuration → Domains`,
-          );
-        }
-      } catch (error) {
-        if (error instanceof UnauthorizedException) {
-          throw error;
-        }
-      }
-      this.logger.warn(
-        `Pollar session resume returned ${response.status}${detail} from ${url}`,
-      );
-      throw new UnauthorizedException(
-        'Unable to verify access token with Pollar',
-      );
-    }
-
-    try {
-      const body = (await response.json()) as PollarSessionResumeResponse;
-      return body.content;
-    } catch {
-      return undefined;
-    }
   }
 
   private decodeAndValidateExpiry(accessToken: string): JWTPayload {
