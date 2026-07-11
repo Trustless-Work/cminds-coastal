@@ -4,9 +4,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 const mockServerEnv: {
   pollarApiKey: string | undefined;
   pollarSdkBaseUrl: string;
+  pollarOrigin: string | undefined;
+  corsOrigins: string[];
 } = {
   pollarApiKey: 'pub_testnet_test',
   pollarSdkBaseUrl: 'https://sdk.api.pollar.xyz/v1',
+  pollarOrigin: undefined,
+  corsOrigins: ['http://localhost:3001'],
 };
 
 jest.mock('@repo/config', () => ({
@@ -50,6 +54,8 @@ describe('PollarTokenService', () => {
   beforeEach(async () => {
     mockServerEnv.pollarApiKey = 'pub_testnet_test';
     mockServerEnv.pollarSdkBaseUrl = 'https://sdk.api.pollar.xyz/v1';
+    mockServerEnv.pollarOrigin = undefined;
+    mockServerEnv.corsOrigins = ['http://localhost:3001'];
 
     fetchMock = jest.fn().mockResolvedValue({
       ok: true,
@@ -79,7 +85,9 @@ describe('PollarTokenService', () => {
       exp: Math.floor(Date.now() / 1000) + 3600,
     });
 
-    const verified = await service.verifyAccessToken(token);
+    const verified = await service.verifyAccessToken(token, {
+      origin: 'http://localhost:3002',
+    });
     expect(verified.pollarUserId).toBe('usr_abc');
     expect(verified.email).toBe('a@b.com');
     expect(fetchMock).toHaveBeenCalledWith(
@@ -89,6 +97,24 @@ describe('PollarTokenService', () => {
         headers: expect.objectContaining({
           Authorization: `Bearer ${token}`,
           'x-pollar-api-key': 'pub_testnet_test',
+          Origin: 'http://localhost:3002',
+        }),
+      }),
+    );
+  });
+
+  it('falls back to corsOrigins when request origin is missing', async () => {
+    const token = makeUnsignedJwt({
+      sub: 'usr_abc',
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    });
+
+    await service.verifyAccessToken(token);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://sdk.api.pollar.xyz/v1/auth/session/resume',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Origin: 'http://localhost:3001',
         }),
       }),
     );
@@ -119,6 +145,23 @@ describe('PollarTokenService', () => {
     await expect(service.verifyAccessToken(token)).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
+  });
+
+  it('rejects with a clear message when Pollar returns ORIGIN_NOT_ALLOWED', async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 403,
+      json: async () => ({ code: 'ORIGIN_NOT_ALLOWED', success: false }),
+    });
+
+    const token = makeUnsignedJwt({
+      sub: 'usr_abc',
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    });
+
+    await expect(
+      service.verifyAccessToken(token, { origin: 'https://evil.example' }),
+    ).rejects.toThrow(/origin not allowed/i);
   });
 
   it('rejects when Pollar session resume request fails', async () => {

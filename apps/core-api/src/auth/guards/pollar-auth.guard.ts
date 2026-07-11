@@ -47,7 +47,12 @@ export class PollarAuthGuard implements CanActivate {
     }
 
     try {
-      const verified = await this.pollarTokenService.verifyAccessToken(token);
+      const originHeader = request.headers.origin;
+      const origin =
+        typeof originHeader === 'string' ? originHeader : undefined;
+      const verified = await this.pollarTokenService.verifyAccessToken(token, {
+        origin,
+      });
       request.user = {
         pollarUserId: verified.pollarUserId,
         email: verified.email,

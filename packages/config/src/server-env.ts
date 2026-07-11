@@ -52,6 +52,14 @@ export class ServerEnv extends EnvConfig {
     );
   }
 
+  /**
+   * Origin sent to Pollar SDK APIs when the incoming request has none.
+   * Must match a domain in Pollar Dashboard → Configuration → Domains.
+   */
+  get pollarOrigin(): string | undefined {
+    return this.getOptional(process.env.POLLAR_ORIGIN);
+  }
+
   get corsOrigins(): string[] {
     const raw = this.getOptional(process.env.CORS_ORIGINS);
     if (!raw) {
