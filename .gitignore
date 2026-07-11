@@ -24,6 +24,9 @@ coverage
 out/
 build
 dist
+*.tsbuildinfo
+# Nest runtime copy for Railway/Railpack (global `dist` is stripped from images)
+apps/core-api/runtime/
 
 
 # Debug
