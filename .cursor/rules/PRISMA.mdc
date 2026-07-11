@@ -38,11 +38,13 @@ enum MilestoneStatus {
 
 enum UserRole {
   COMMUNITY_IMPLEMENTER
-  CMINDS_OPERATOR
   RELEASE_SIGNER
+  CMINDS_OPERATOR
   FUNDER
 }
 ```
+
+Identity: `User.pollar_user_id` maps to Pollar `usr_…`. Roles live on `User.roles` (not on `Wallet`). Syncable on login: `COMMUNITY_IMPLEMENTER`, `CMINDS_OPERATOR`, `FUNDER`. `RELEASE_SIGNER` is assigned via seed/admin only.
 
 ## Relations & Cascade
 
