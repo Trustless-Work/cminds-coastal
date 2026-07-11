@@ -1,17 +1,14 @@
 "use client";
 
+import { usePollar } from "@pollar/react";
+import { clientEnv } from "@repo/config";
 import {
   createContext,
+  useCallback,
   useContext,
-  useState,
-  useEffect,
-  ReactNode,
+  type ReactNode,
 } from "react";
 
-/**
- * Type definition for the wallet context
- * Contains wallet address, name, and functions to manage wallet state
- */
 type WalletContextType = {
   walletAddress: string | null;
   walletName: string | null;
@@ -19,75 +16,60 @@ type WalletContextType = {
   clearWalletInfo: () => void;
 };
 
-/**
- * Create the React context for wallet state management
- */
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
+const noopSetWalletInfo = (): void => {};
+const noopClearWalletInfo = (): void => {};
+
+const emptyWalletValue: WalletContextType = {
+  walletAddress: null,
+  walletName: null,
+  setWalletInfo: noopSetWalletInfo,
+  clearWalletInfo: noopClearWalletInfo,
+};
+
 /**
- * Wallet Provider component that wraps the application
- * Manages wallet state and provides wallet information to child components
- * Automatically loads saved wallet information from localStorage on initialization
+ * Bridges Pollar's custodial G-address into the existing wallet context API
+ * used by Trustless Work escrow forms and mutations.
  */
-export const WalletProvider = ({ children }: { children: ReactNode }) => {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [walletName, setWalletName] = useState<string | null>(null);
+function PollarWalletBridge({ children }: { children: ReactNode }) {
+  const { wallet } = usePollar();
+  const walletAddress = wallet?.address ?? null;
 
-  /**
-   * Load saved wallet information from localStorage when the component mounts
-   * This ensures the wallet state persists across browser sessions
-   */
-  useEffect(() => {
-    const storedAddress = localStorage.getItem("walletAddress");
-    const storedName = localStorage.getItem("walletName");
-
-    // This effect initializes state from localStorage once on mount.
-    // It is a controlled sync from an external store, so we allow setState here.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (storedAddress) setWalletAddress(storedAddress);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (storedName) setWalletName(storedName);
+  const setWalletInfo = useCallback((): void => {
+    // Address is owned by Pollar session; Freighter connect is no longer used.
   }, []);
 
-  /**
-   * Set wallet information and save it to localStorage
-   * This function is called when a wallet is successfully connected
-   *
-   * @param address - The wallet's public address
-   * @param name - The name/identifier of the wallet (e.g., "Freighter", "Albedo")
-   */
-  const setWalletInfo = (address: string, name: string) => {
-    setWalletAddress(address);
-    setWalletName(name);
-    localStorage.setItem("walletAddress", address);
-    localStorage.setItem("walletName", name);
-  };
-
-  /**
-   * Clear wallet information and remove it from localStorage
-   * This function is called when disconnecting a wallet
-   */
-  const clearWalletInfo = () => {
-    setWalletAddress(null);
-    setWalletName(null);
-    localStorage.removeItem("walletAddress");
-    localStorage.removeItem("walletName");
-  };
+  const clearWalletInfo = useCallback((): void => {
+    // Clearing Freighter local state is a no-op; use Pollar logout instead.
+  }, []);
 
   return (
     <WalletContext.Provider
-      value={{ walletAddress, walletName, setWalletInfo, clearWalletInfo }}
+      value={{
+        walletAddress,
+        walletName: walletAddress ? "Pollar" : null,
+        setWalletInfo,
+        clearWalletInfo,
+      }}
     >
       {children}
     </WalletContext.Provider>
   );
+}
+
+export const WalletProvider = ({ children }: { children: ReactNode }) => {
+  if (!clientEnv.pollarApiKey) {
+    return (
+      <WalletContext.Provider value={emptyWalletValue}>
+        {children}
+      </WalletContext.Provider>
+    );
+  }
+
+  return <PollarWalletBridge>{children}</PollarWalletBridge>;
 };
 
-/**
- * Custom hook to access the wallet context
- * Provides wallet state and functions to components
- * Throws an error if used outside of WalletProvider
- */
 export const useWalletContext = () => {
   const context = useContext(WalletContext);
   if (!context) {

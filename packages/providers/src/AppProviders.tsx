@@ -18,18 +18,18 @@ export function AppProviders({ children }: { children: ReactNode }) {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <ReactQueryClientProvider>
         <TrustlessWorkProvider>
-          <WalletProvider>
-            <EscrowProvider>
-              <EscrowDialogsProvider>
-                <EscrowAmountProvider>
-                  <PollarProvider>
+          <PollarProvider>
+            <WalletProvider>
+              <EscrowProvider>
+                <EscrowDialogsProvider>
+                  <EscrowAmountProvider>
                     {children}
                     <Toaster richColors position="top-center" />
-                  </PollarProvider>
-                </EscrowAmountProvider>
-              </EscrowDialogsProvider>
-            </EscrowProvider>
-          </WalletProvider>
+                  </EscrowAmountProvider>
+                </EscrowDialogsProvider>
+              </EscrowProvider>
+            </WalletProvider>
+          </PollarProvider>
         </TrustlessWorkProvider>
       </ReactQueryClientProvider>
     </ThemeProvider>

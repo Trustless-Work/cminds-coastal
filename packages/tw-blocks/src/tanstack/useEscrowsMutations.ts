@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { usePollarSignTransaction } from "@repo/providers/usePollarSignTransaction";
 import {
   EscrowType,
   FundEscrowPayload,
@@ -26,10 +27,11 @@ import {
   WithdrawRemainingFundsPayload,
   useWithdrawRemainingFunds,
 } from "@trustless-work/escrow";
-import { signTransaction } from "../wallet-kit/wallet-kit";
 
 /**
  * Use the mutations to interact with the escrows
+ *
+ * Flow: TW builds unsigned XDR → Pollar signs → TW sends
  *
  * - Deploy Escrow
  * - Update Escrow
@@ -42,6 +44,7 @@ import { signTransaction } from "../wallet-kit/wallet-kit";
  */
 export const useEscrowsMutations = () => {
   const queryClient = useQueryClient();
+  const { signTransaction } = usePollarSignTransaction();
   const { deployEscrow } = useInitializeEscrow();
   const { updateEscrow } = useUpdateEscrow();
   const { fundEscrow } = useFundEscrow();
@@ -53,6 +56,22 @@ export const useEscrowsMutations = () => {
   const { resolveDispute } = useResolveDispute();
   const { withdrawRemainingFunds } = useWithdrawRemainingFunds();
 
+  async function signAndSend(unsignedTransaction: string) {
+    const signedTxXdr = await signTransaction(unsignedTransaction);
+
+    if (!signedTxXdr) {
+      throw new Error("Signed transaction is missing.");
+    }
+
+    const response = await sendTransaction(signedTxXdr);
+
+    if (response.status !== "SUCCESS") {
+      throw new Error("Transaction failed to send");
+    }
+
+    return response;
+  }
+
   /**
    * Deploy Escrow
    */
@@ -60,7 +79,6 @@ export const useEscrowsMutations = () => {
     mutationFn: async ({
       payload,
       type,
-      address,
     }: {
       payload:
         | InitializeSingleReleaseEscrowPayload
@@ -76,22 +94,7 @@ export const useEscrowsMutations = () => {
         );
       }
 
-      const signedTxXdr = await signTransaction({
-        unsignedTransaction,
-        address,
-      });
-
-      if (!signedTxXdr) {
-        throw new Error("Signed transaction is missing.");
-      }
-
-      const response = await sendTransaction(signedTxXdr);
-
-      if (response.status !== "SUCCESS") {
-        throw new Error("Transaction failed to send");
-      }
-
-      return response;
+      return signAndSend(unsignedTransaction);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["escrows"] });
@@ -108,7 +111,6 @@ export const useEscrowsMutations = () => {
     mutationFn: async ({
       payload,
       type,
-      address,
     }: {
       payload:
         | UpdateSingleReleaseEscrowPayload
@@ -124,22 +126,7 @@ export const useEscrowsMutations = () => {
         );
       }
 
-      const signedTxXdr = await signTransaction({
-        unsignedTransaction,
-        address,
-      });
-
-      if (!signedTxXdr) {
-        throw new Error("Signed transaction is missing.");
-      }
-
-      const response = await sendTransaction(signedTxXdr);
-
-      if (response.status !== "SUCCESS") {
-        throw new Error("Transaction failed to send");
-      }
-
-      return response;
+      return signAndSend(unsignedTransaction);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["escrows"] });
@@ -156,13 +143,11 @@ export const useEscrowsMutations = () => {
     mutationFn: async ({
       payload,
       type,
-      address,
     }: {
       payload: FundEscrowPayload;
       type: EscrowType;
       address: string;
     }) => {
-      // Step 1: Get unsigned transaction
       const { unsignedTransaction } = await fundEscrow(payload, type);
 
       if (!unsignedTransaction) {
@@ -171,24 +156,7 @@ export const useEscrowsMutations = () => {
         );
       }
 
-      // Step 2: Sign transaction
-      const signedTxXdr = await signTransaction({
-        unsignedTransaction,
-        address,
-      });
-
-      if (!signedTxXdr) {
-        throw new Error("Signed transaction is missing.");
-      }
-
-      // Step 3: Send transaction
-      const response = await sendTransaction(signedTxXdr);
-
-      if (response.status !== "SUCCESS") {
-        throw new Error("Transaction failed to send");
-      }
-
-      return response;
+      return signAndSend(unsignedTransaction);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["escrows"] });
@@ -205,7 +173,6 @@ export const useEscrowsMutations = () => {
     mutationFn: async ({
       payload,
       type,
-      address,
     }: {
       payload: ApproveMilestonePayload;
       type: EscrowType;
@@ -219,22 +186,7 @@ export const useEscrowsMutations = () => {
         );
       }
 
-      const signedTxXdr = await signTransaction({
-        unsignedTransaction,
-        address,
-      });
-
-      if (!signedTxXdr) {
-        throw new Error("Signed transaction is missing.");
-      }
-
-      const response = await sendTransaction(signedTxXdr);
-
-      if (response.status !== "SUCCESS") {
-        throw new Error("Transaction failed to send");
-      }
-
-      return response;
+      return signAndSend(unsignedTransaction);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["escrows"] });
@@ -251,7 +203,6 @@ export const useEscrowsMutations = () => {
     mutationFn: async ({
       payload,
       type,
-      address,
     }: {
       payload: ChangeMilestoneStatusPayload;
       type: EscrowType;
@@ -268,22 +219,7 @@ export const useEscrowsMutations = () => {
         );
       }
 
-      const signedTxXdr = await signTransaction({
-        unsignedTransaction,
-        address,
-      });
-
-      if (!signedTxXdr) {
-        throw new Error("Signed transaction is missing.");
-      }
-
-      const response = await sendTransaction(signedTxXdr);
-
-      if (response.status !== "SUCCESS") {
-        throw new Error("Transaction failed to send");
-      }
-
-      return response;
+      return signAndSend(unsignedTransaction);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["escrows"] });
@@ -300,7 +236,6 @@ export const useEscrowsMutations = () => {
     mutationFn: async ({
       payload,
       type,
-      address,
     }: {
       payload:
         | MultiReleaseStartDisputePayload
@@ -316,22 +251,7 @@ export const useEscrowsMutations = () => {
         );
       }
 
-      const signedTxXdr = await signTransaction({
-        unsignedTransaction,
-        address,
-      });
-
-      if (!signedTxXdr) {
-        throw new Error("Signed transaction is missing.");
-      }
-
-      const response = await sendTransaction(signedTxXdr);
-
-      if (response.status !== "SUCCESS") {
-        throw new Error("Transaction failed to send");
-      }
-
-      return response;
+      return signAndSend(unsignedTransaction);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["escrows"] });
@@ -348,7 +268,6 @@ export const useEscrowsMutations = () => {
     mutationFn: async ({
       payload,
       type,
-      address,
     }: {
       payload:
         | MultiReleaseReleaseFundsPayload
@@ -364,22 +283,7 @@ export const useEscrowsMutations = () => {
         );
       }
 
-      const signedTxXdr = await signTransaction({
-        unsignedTransaction,
-        address,
-      });
-
-      if (!signedTxXdr) {
-        throw new Error("Signed transaction is missing.");
-      }
-
-      const response = await sendTransaction(signedTxXdr);
-
-      if (response.status !== "SUCCESS") {
-        throw new Error("Transaction failed to send");
-      }
-
-      return response;
+      return signAndSend(unsignedTransaction);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["escrows"] });
@@ -396,7 +300,6 @@ export const useEscrowsMutations = () => {
     mutationFn: async ({
       payload,
       type,
-      address,
     }: {
       payload:
         | MultiReleaseResolveDisputePayload
@@ -412,22 +315,7 @@ export const useEscrowsMutations = () => {
         );
       }
 
-      const signedTxXdr = await signTransaction({
-        unsignedTransaction,
-        address,
-      });
-
-      if (!signedTxXdr) {
-        throw new Error("Signed transaction is missing.");
-      }
-
-      const response = await sendTransaction(signedTxXdr);
-
-      if (response.status !== "SUCCESS") {
-        throw new Error("Transaction failed to send");
-      }
-
-      return response;
+      return signAndSend(unsignedTransaction);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["escrows"] });
@@ -443,7 +331,6 @@ export const useEscrowsMutations = () => {
   const withdrawRemainingFundsMutation = useMutation({
     mutationFn: async ({
       payload,
-      address,
     }: {
       payload: WithdrawRemainingFundsPayload;
       address: string;
@@ -456,22 +343,7 @@ export const useEscrowsMutations = () => {
         );
       }
 
-      const signedTxXdr = await signTransaction({
-        unsignedTransaction,
-        address,
-      });
-
-      if (!signedTxXdr) {
-        throw new Error("Signed transaction is missing.");
-      }
-
-      const response = await sendTransaction(signedTxXdr);
-
-      if (response.status !== "SUCCESS") {
-        throw new Error("Transaction failed to send");
-      }
-
-      return response;
+      return signAndSend(unsignedTransaction);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["escrows"] });

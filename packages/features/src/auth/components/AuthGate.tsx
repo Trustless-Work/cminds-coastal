@@ -26,7 +26,7 @@ export function AuthGate({
   loginHref = "/login",
 }: AuthGateProps) {
   const router = useRouter();
-  const { isAuthenticated, verified } = usePollar();
+  const { isAuthenticated, verified, wallet } = usePollar();
   const { profile, isReady, syncing, error } = useSyncUser({
     role: appRole,
     enabled: isAuthenticated && verified,
@@ -34,6 +34,8 @@ export function AuthGate({
 
   const hasAppRole = Boolean(profile?.roles.includes(appRole));
   const showAuthLeading = Boolean(isAuthenticated && profile);
+  const walletAddress =
+    wallet?.address ?? profile?.wallets[0]?.address ?? null;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -46,6 +48,7 @@ export function AuthGate({
       <UserCard
         displayName={profile?.display_name ?? null}
         avatarUrl={profile?.avatar_url ?? null}
+        walletAddress={walletAddress}
       />
       <LogoutButton loginHref={loginHref} />
     </>
