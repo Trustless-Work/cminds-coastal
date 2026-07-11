@@ -2,6 +2,7 @@
 
 import { usePollar } from "@pollar/react";
 import { formatAddress } from "@repo/helpers";
+import { Navbar } from "@repo/shared/Navbar";
 import { Button } from "@repo/ui/components/button";
 import { Card, CardContent } from "@repo/ui/components/card";
 import {
@@ -14,25 +15,41 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSyncUser } from "../hooks/useSyncUser";
 import type { SyncableUserRole } from "../types";
+import { LogoutButton } from "./LogoutButton";
+import { UserCard } from "./UserCard";
 
 type SignInViewProps = React.ComponentProps<"div"> & {
   appRole: SyncableUserRole;
   dashboardHref?: string;
+  loginHref?: string;
 };
 
 export function SignInView({
   className,
   appRole,
   dashboardHref = "/dashboard",
+  loginHref = "/login",
   ...props
 }: SignInViewProps) {
   const router = useRouter();
   const { isAuthenticated, verified, wallet, login, logout } = usePollar();
   const address = wallet?.address ?? "";
-  const { isReady, syncing, error } = useSyncUser({
+  const { profile, isReady, syncing, error } = useSyncUser({
     role: appRole,
     enabled: isAuthenticated && verified && Boolean(address),
   });
+
+  const authLeading = profile ? (
+    <>
+      <UserCard
+        displayName={profile.display_name}
+        avatarUrl={profile.avatar_url}
+      />
+      <LogoutButton loginHref={loginHref} />
+    </>
+  ) : isAuthenticated ? (
+    <LogoutButton loginHref={loginHref} />
+  ) : null;
 
   useEffect(() => {
     if (isAuthenticated && verified && isReady) {
@@ -42,44 +59,89 @@ export function SignInView({
 
   if (isAuthenticated && (!verified || syncing || (!isReady && !error))) {
     return (
-      <div className={cn("flex flex-col gap-6", className)} {...props}>
-        <Card className="overflow-hidden p-0">
-          <CardContent className="flex items-center justify-center p-10">
-            <p className="text-sm text-muted-foreground">
-              {!verified ? "Verifying session…" : "Syncing your account…"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        <Navbar leading={authLeading} />
+        <div className={cn("flex flex-col gap-6", className)} {...props}>
+          <Card className="overflow-hidden p-0">
+            <CardContent className="flex items-center justify-center p-10">
+              <p className="text-sm text-muted-foreground">
+                {!verified ? "Verifying session…" : "Syncing your account…"}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
   if (isAuthenticated && address) {
     return (
+      <>
+        <Navbar leading={authLeading} />
+        <div className={cn("flex flex-col gap-6", className)} {...props}>
+          <Card className="overflow-hidden p-0">
+            <CardContent className="grid p-0 md:grid-cols-2">
+              <div className="flex flex-col justify-center gap-6 p-6 md:p-8">
+                <FieldGroup>
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <h1 className="text-2xl font-bold">Signed in</h1>
+                    <p className="text-sm text-balance text-muted-foreground">
+                      Connected as {formatAddress(address)}
+                    </p>
+                    {error ? (
+                      <p className="text-sm text-destructive">{error}</p>
+                    ) : null}
+                  </div>
+                  <Field>
+                    <Button
+                      className="w-full"
+                      variant="outline"
+                      type="button"
+                      onClick={() => {
+                        void logout();
+                      }}
+                    >
+                      Sign out
+                    </Button>
+                  </Field>
+                </FieldGroup>
+              </div>
+              <div className="relative hidden bg-muted md:block">
+                <img
+                  src="/placeholder.svg"
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Navbar />
       <div className={cn("flex flex-col gap-6", className)} {...props}>
         <Card className="overflow-hidden p-0">
           <CardContent className="grid p-0 md:grid-cols-2">
-            <div className="flex flex-col justify-center gap-6 p-6 md:p-8">
+            <div className="p-6 md:p-8">
               <FieldGroup>
                 <div className="flex flex-col items-center gap-2 text-center">
-                  <h1 className="text-2xl font-bold">Signed in</h1>
+                  <h1 className="text-2xl font-bold">Welcome back</h1>
                   <p className="text-sm text-balance text-muted-foreground">
-                    Connected as {formatAddress(address)}
+                    Continue with Google to access your Stellar wallet.
                   </p>
-                  {error ? (
-                    <p className="text-sm text-destructive">{error}</p>
-                  ) : null}
                 </div>
                 <Field>
                   <Button
                     className="w-full"
-                    variant="outline"
                     type="button"
-                    onClick={() => {
-                      void logout();
-                    }}
+                    onClick={() => login({ provider: "google" })}
                   >
-                    Sign out
+                    <GoogleIcon />
+                    Continue with Google
                   </Button>
                 </Field>
               </FieldGroup>
@@ -93,48 +155,12 @@ export function SignInView({
             </div>
           </CardContent>
         </Card>
+        <FieldDescription className="px-6 text-center">
+          By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+          and <a href="#">Privacy Policy</a>.
+        </FieldDescription>
       </div>
-    );
-  }
-
-  return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <div className="p-6 md:p-8">
-            <FieldGroup>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
-                <p className="text-sm text-balance text-muted-foreground">
-                  Continue with Google to access your Stellar wallet.
-                </p>
-              </div>
-              <Field>
-                <Button
-                  className="w-full"
-                  type="button"
-                  onClick={() => login({ provider: "google" })}
-                >
-                  <GoogleIcon />
-                  Continue with Google
-                </Button>
-              </Field>
-            </FieldGroup>
-          </div>
-          <div className="relative hidden bg-muted md:block">
-            <img
-              src="/placeholder.svg"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
-          </div>
-        </CardContent>
-      </Card>
-      <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </FieldDescription>
-    </div>
+    </>
   );
 }
 

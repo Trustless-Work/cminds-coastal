@@ -1,12 +1,10 @@
 {
-  "name": "@repo/features",
+  "name": "@repo/shared",
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./auth/components/*": "./src/auth/components/*.tsx",
-    "./auth/hooks/*": "./src/auth/hooks/*.ts",
-    "./auth/services/*": "./src/auth/services/*.ts",
-    "./auth/types": "./src/auth/types.ts"
+    "./Navbar": "./src/Navbar.tsx",
+    "./security-headers": "./src/security-headers.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -19,19 +17,11 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "eslint": "catalog:",
-    "next": "catalog:",
     "typescript": "catalog:"
   },
   "dependencies": {
-    "@pollar/react": "catalog:",
-    "@repo/config": "workspace:*",
-    "@repo/helpers": "workspace:*",
-    "@repo/shared": "workspace:*",
     "@repo/ui": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"
-  },
-  "peerDependencies": {
-    "next": ">=15"
   }
 }

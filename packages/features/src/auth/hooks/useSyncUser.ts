@@ -1,7 +1,7 @@
 "use client";
 
 import { usePollar } from "@pollar/react";
-import { ApiError, setAuthToken } from "@repo/config";
+import { ApiError, setAuthTokenProvider } from "@repo/config";
 import { useEffect, useRef, useState } from "react";
 import { syncUser } from "../services/users.service";
 import type { SyncableUserRole, UserProfile } from "../types";
@@ -32,6 +32,14 @@ type PollarClientLike = {
   } | null;
 };
 
+function readAccessToken(client: PollarClientLike): string | undefined {
+  const state = client.getAuthState();
+  if (state.step !== "authenticated") {
+    return undefined;
+  }
+  return state.session?.token.accessToken;
+}
+
 export function useSyncUser({
   role,
   enabled = true,
@@ -49,6 +57,10 @@ export function useSyncUser({
       return;
     }
 
+    const client = getClient() as PollarClientLike;
+
+    setAuthTokenProvider(() => readAccessToken(client));
+
     if (inFlight.current || profile) {
       if (profile) {
         setIsReady(true);
@@ -56,12 +68,7 @@ export function useSyncUser({
       return;
     }
 
-    const client = getClient() as PollarClientLike;
-    const state = client.getAuthState();
-    const accessToken =
-      state.step === "authenticated"
-        ? state.session?.token.accessToken
-        : undefined;
+    const accessToken = readAccessToken(client);
     if (!accessToken) {
       setIsReady(false);
       return;
@@ -82,7 +89,6 @@ export function useSyncUser({
     inFlight.current = true;
     setSyncing(true);
     setError(null);
-    setAuthToken(accessToken);
 
     void syncUser({
       email,

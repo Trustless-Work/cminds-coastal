@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Inter } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 
 import { AppProviders } from "@repo/providers/AppProviders";
-import { ModeToggle } from "@repo/ui/components/mode-toggle";
+import { Navbar } from "@repo/shared/Navbar";
 
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
-  weight: ["400", "500"],
 });
 
 const geistMono = Geist_Mono({
@@ -30,14 +29,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
         <AppProviders>
-          <div className="fixed top-4 right-4 z-50">
-            <ModeToggle />
-          </div>
+          <Navbar />
           {children}
         </AppProviders>
       </body>

@@ -12,6 +12,8 @@
   "dependencies": {
     "@repo/features": "workspace:*",
     "@repo/providers": "workspace:*",
+    "@repo/shared": "workspace:*",
+    "@repo/tw-blocks": "workspace:*",
     "@repo/ui": "workspace:*",
     "next": "catalog:",
     "react": "catalog:",

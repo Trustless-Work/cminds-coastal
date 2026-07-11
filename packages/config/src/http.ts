@@ -2,14 +2,22 @@ import axios, { type AxiosInstance } from "axios";
 import { clientEnv } from "./client-env";
 import { handleApiError } from "./handle-errors";
 
-let authToken: string | undefined;
+export type AuthTokenProvider = () => string | undefined;
+
+let getAccessToken: AuthTokenProvider | undefined;
+
+export function setAuthTokenProvider(
+  provider: AuthTokenProvider | undefined,
+): void {
+  getAccessToken = provider;
+}
 
 export function setAuthToken(token: string | undefined): void {
-  authToken = token;
+  getAccessToken = token ? () => token : undefined;
 }
 
 export function clearAuthToken(): void {
-  authToken = undefined;
+  getAccessToken = undefined;
 }
 
 export const http: AxiosInstance = axios.create({
@@ -20,8 +28,9 @@ export const http: AxiosInstance = axios.create({
 });
 
 http.interceptors.request.use((config) => {
-  if (authToken) {
-    config.headers.Authorization = `Bearer ${authToken}`;
+  const token = getAccessToken?.();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });

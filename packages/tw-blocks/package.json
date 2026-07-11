@@ -11,7 +11,8 @@
     "./wallet-kit/trustlines": "./src/wallet-kit/trustlines.ts",
     "./handle-errors/*": "./src/handle-errors/*.ts",
     "./tanstack/*": "./src/tanstack/*.ts",
-    "./escrows/*": "./src/escrows/*"
+    "./escrows/multi-release/initialize-escrow/dialog/InitializeEscrow": "./src/escrows/multi-release/initialize-escrow/dialog/InitializeEscrow.tsx",
+    "./*": "./src/*"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

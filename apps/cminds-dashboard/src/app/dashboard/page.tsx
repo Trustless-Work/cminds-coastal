@@ -1,4 +1,7 @@
+"use client";
+
 import { AuthGate } from "@repo/features/auth/components/AuthGate";
+import { InitializeEscrowDialog } from "@repo/tw-blocks/escrows/multi-release/initialize-escrow/dialog/InitializeEscrow";
 
 export default function DashboardPage() {
   return (
@@ -9,6 +12,7 @@ export default function DashboardPage() {
           You are signed in as a CMinds operator.
         </p>
       </main>
+      <InitializeEscrowDialog />
     </AuthGate>
   );
 }

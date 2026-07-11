@@ -1,11 +1,13 @@
 "use client";
 
 import { usePollar } from "@pollar/react";
+import { Navbar } from "@repo/shared/Navbar";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSyncUser } from "../hooks/useSyncUser";
 import type { SyncableUserRole } from "../types";
 import { LogoutButton } from "./LogoutButton";
+import { UserCard } from "./UserCard";
 
 type AuthGateProps = {
   appRole: SyncableUserRole;
@@ -20,10 +22,13 @@ export function AuthGate({
 }: AuthGateProps) {
   const router = useRouter();
   const { isAuthenticated, verified } = usePollar();
-  const { isReady, syncing, error } = useSyncUser({
+  const { profile, isReady, syncing, error } = useSyncUser({
     role: appRole,
     enabled: isAuthenticated && verified,
   });
+
+  const hasAppRole = Boolean(profile?.roles.includes(appRole));
+  const showAuthLeading = Boolean(isAuthenticated && profile);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -31,21 +36,48 @@ export function AuthGate({
     }
   }, [isAuthenticated, loginHref, router]);
 
+  const authLeading = showAuthLeading ? (
+    <>
+      <UserCard
+        displayName={profile?.display_name ?? null}
+        avatarUrl={profile?.avatar_url ?? null}
+      />
+      <LogoutButton loginHref={loginHref} />
+    </>
+  ) : isAuthenticated ? (
+    <LogoutButton loginHref={loginHref} />
+  ) : null;
+
   if (!isAuthenticated || !verified || syncing || !isReady) {
     return (
-      <div className="flex flex-1 items-center justify-center p-6">
-        <p className="text-sm text-muted-foreground">
-          {error ? error : "Checking session…"}
-        </p>
-      </div>
+      <>
+        <Navbar leading={authLeading} />
+        <div className="flex flex-1 items-center justify-center p-6">
+          <p className="text-sm text-muted-foreground">
+            {error ? error : "Checking session…"}
+          </p>
+        </div>
+      </>
+    );
+  }
+
+  if (!hasAppRole) {
+    return (
+      <>
+        <Navbar leading={authLeading} />
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6">
+          <p className="text-sm font-medium text-foreground">Access denied</p>
+          <p className="text-sm text-muted-foreground">
+            Your account does not have permission to use this app.
+          </p>
+        </div>
+      </>
     );
   }
 
   return (
     <>
-      <div className="fixed top-4 right-16 z-50">
-        <LogoutButton loginHref={loginHref} />
-      </div>
+      <Navbar leading={authLeading} />
       {children}
     </>
   );
