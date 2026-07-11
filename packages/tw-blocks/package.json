@@ -1,0 +1,50 @@
+{
+  "name": "@repo/tw-blocks",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./wallet-kit/WalletButtons": "./src/wallet-kit/WalletButtons.tsx",
+    "./wallet-kit/WalletProvider": "./src/wallet-kit/WalletProvider.tsx",
+    "./wallet-kit/useWallet": "./src/wallet-kit/useWallet.ts",
+    "./wallet-kit/wallet-kit": "./src/wallet-kit/wallet-kit.ts",
+    "./wallet-kit/validators": "./src/wallet-kit/validators.ts",
+    "./wallet-kit/trustlines": "./src/wallet-kit/trustlines.ts",
+    "./handle-errors/*": "./src/handle-errors/*.ts",
+    "./tanstack/*": "./src/tanstack/*.ts",
+    "./escrows/*": "./src/escrows/*"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "eslint": "catalog:",
+    "next": "catalog:",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@creit.tech/stellar-wallets-kit": "^2.5.0",
+    "@hookform/resolvers": "^5.4.0",
+    "@repo/config": "workspace:*",
+    "@repo/helpers": "workspace:*",
+    "@repo/providers": "workspace:*",
+    "@repo/ui": "workspace:*",
+    "@tanstack/react-query": "^5.101.2",
+    "@tanstack/react-query-devtools": "^5.101.2",
+    "@tanstack/react-table": "^8.21.3",
+    "@trustless-work/blocks": "^1.2.5",
+    "@trustless-work/escrow": "^3.0.5",
+    "axios": "^1.18.1",
+    "lucide-react": "^1.24.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-hook-form": "^7.81.0",
+    "sonner": "^2.0.7",
+    "zod": "3.25.76"
+  }
+}
