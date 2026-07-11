@@ -1,11 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { serverEnv } from '@repo/config';
-import {
-  createRemoteJWKSet,
-  decodeJwt,
-  jwtVerify,
-  type JWTPayload,
-} from 'jose';
+import { decodeJwt, type JWTPayload } from 'jose';
 
 export type VerifiedPollarToken = {
   pollarUserId: string;
@@ -13,27 +8,39 @@ export type VerifiedPollarToken = {
   payload: JWTPayload;
 };
 
+type PollarSessionResumeResponse = {
+  code?: string;
+  success?: boolean;
+  content?: {
+    mail?: string;
+    first_name?: string;
+    last_name?: string;
+    avatar?: string;
+  };
+};
+
 @Injectable()
 export class PollarTokenService {
   private readonly logger = new Logger(PollarTokenService.name);
-  private readonly jwksByUrl = new Map<
-    string,
-    ReturnType<typeof createRemoteJWKSet>
-  >();
 
   async verifyAccessToken(accessToken: string): Promise<VerifiedPollarToken> {
     if (!accessToken.trim()) {
       throw new UnauthorizedException('Missing access token');
     }
 
-    const payload = await this.verifyOrDecode(accessToken);
+    const payload = this.decodeAndValidateExpiry(accessToken);
     const pollarUserId = this.extractUserId(payload);
 
     if (!pollarUserId) {
       throw new UnauthorizedException('Token missing user id claim');
     }
 
-    const email = this.extractEmail(payload);
+    const sessionProfile = await this.assertSessionActive(accessToken);
+    const email =
+      this.extractEmail(payload) ??
+      (typeof sessionProfile?.mail === 'string' && sessionProfile.mail.length > 0
+        ? sessionProfile.mail
+        : undefined);
 
     return {
       pollarUserId,
@@ -42,35 +49,57 @@ export class PollarTokenService {
     };
   }
 
-  private async verifyOrDecode(accessToken: string): Promise<JWTPayload> {
-    const jwksUrl = this.resolveJwksUrl(accessToken);
-
-    if (jwksUrl) {
-      try {
-        const jwks = this.getJwks(jwksUrl);
-        const { payload } = await jwtVerify(accessToken, jwks, {
-          clockTolerance: 30,
-        });
-        return payload;
-      } catch (error) {
-        this.logger.warn(
-          `JWKS verification failed (${jwksUrl}): ${error instanceof Error ? error.message : String(error)}`,
-        );
-        if (this.isProduction()) {
-          throw new UnauthorizedException('Invalid access token');
-        }
-      }
-    } else if (this.isProduction()) {
+  private async assertSessionActive(
+    accessToken: string,
+  ): Promise<PollarSessionResumeResponse['content'] | undefined> {
+    const apiKey = serverEnv.pollarApiKey;
+    if (!apiKey) {
       throw new UnauthorizedException(
-        'Pollar JWKS is not configured; set POLLAR_JWKS_URL for production',
-      );
-    } else {
-      this.logger.warn(
-        'POLLAR_JWKS_URL unset — accepting decoded Pollar JWT in non-production only',
+        'POLLAR_API_KEY is not configured; set the Pollar publishable key on the server',
       );
     }
 
-    return this.decodeAndValidateExpiry(accessToken);
+    const base = serverEnv.pollarSdkBaseUrl.replace(/\/$/, '');
+    const url = `${base}/auth/session/resume`;
+
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'x-pollar-api-key': apiKey,
+          Accept: 'application/json',
+        },
+      });
+    } catch (error) {
+      this.logger.warn(
+        `Pollar session resume request failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      throw new UnauthorizedException(
+        'Unable to verify access token with Pollar',
+      );
+    }
+
+    if (response.status === 401) {
+      throw new UnauthorizedException('Invalid access token');
+    }
+
+    if (!response.ok) {
+      this.logger.warn(
+        `Pollar session resume returned ${response.status} from ${url}`,
+      );
+      throw new UnauthorizedException(
+        'Unable to verify access token with Pollar',
+      );
+    }
+
+    try {
+      const body = (await response.json()) as PollarSessionResumeResponse;
+      return body.content;
+    } catch {
+      return undefined;
+    }
   }
 
   private decodeAndValidateExpiry(accessToken: string): JWTPayload {
@@ -89,37 +118,6 @@ export class PollarTokenService {
     }
 
     return payload;
-  }
-
-  private resolveJwksUrl(accessToken: string): URL | null {
-    const configured = serverEnv.pollarJwksUrl;
-    if (configured) {
-      return new URL(configured);
-    }
-
-    try {
-      const payload = decodeJwt(accessToken);
-      if (typeof payload.iss === 'string' && payload.iss.length > 0) {
-        const issuer = payload.iss.replace(/\/$/, '');
-        return new URL(`${issuer}/.well-known/jwks.json`);
-      }
-    } catch {
-      // ignore — caller will handle malformed tokens
-    }
-
-    const base = serverEnv.pollarSdkBaseUrl.replace(/\/v1\/?$/, '');
-    return new URL(`${base}/.well-known/jwks.json`);
-  }
-
-  private getJwks(jwksUrl: URL): ReturnType<typeof createRemoteJWKSet> {
-    const key = jwksUrl.toString();
-    const existing = this.jwksByUrl.get(key);
-    if (existing) {
-      return existing;
-    }
-    const jwks = createRemoteJWKSet(jwksUrl);
-    this.jwksByUrl.set(key, jwks);
-    return jwks;
   }
 
   private extractUserId(payload: JWTPayload): string | undefined {
@@ -147,9 +145,5 @@ export class PollarTokenService {
       return payload.mail;
     }
     return undefined;
-  }
-
-  private isProduction(): boolean {
-    return process.env.NODE_ENV === 'production';
   }
 }

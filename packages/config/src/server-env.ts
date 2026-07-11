@@ -37,15 +37,19 @@ export class ServerEnv extends EnvConfig {
     return this.getOptional(process.env.POLLAR_SECRET_KEY);
   }
 
+  /**
+   * Pollar publishable key (`pub_…`) used server-side to call SDK APIs
+   * (e.g. session resume). Same value as NEXT_PUBLIC_POLLAR_API_KEY on frontends.
+   */
+  get pollarApiKey(): string | undefined {
+    return this.getOptional(process.env.POLLAR_API_KEY);
+  }
+
   get pollarSdkBaseUrl(): string {
     return (
       this.getOptional(process.env.POLLAR_SDK_BASE_URL) ??
       DEFAULT_POLLAR_SDK_BASE_URL
     );
-  }
-
-  get pollarJwksUrl(): string | undefined {
-    return this.getOptional(process.env.POLLAR_JWKS_URL);
   }
 
   get corsOrigins(): string[] {

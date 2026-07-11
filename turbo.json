@@ -12,8 +12,8 @@
     "DIRECT_URL",
     "PORT",
     "POLLAR_SECRET_KEY",
+    "POLLAR_API_KEY",
     "POLLAR_SDK_BASE_URL",
-    "POLLAR_JWKS_URL",
     "CORS_ORIGINS"
   ],
   "tasks": {
