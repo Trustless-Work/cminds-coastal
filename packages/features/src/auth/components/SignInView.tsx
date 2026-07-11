@@ -1,6 +1,7 @@
 "use client";
 
 import { usePollar } from "@pollar/react";
+import { clientEnv } from "@repo/config";
 import { formatAddress } from "@repo/helpers";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -25,6 +26,39 @@ type SignInViewProps = React.ComponentProps<"div"> & {
 };
 
 export function SignInView({
+  className,
+  appRole,
+  dashboardHref = "/dashboard",
+  ...props
+}: SignInViewProps) {
+  if (!clientEnv.pollarApiKey) {
+    return (
+      <div className={cn("w-full max-w-sm", className)} {...props}>
+        <Card className="border-border/60 shadow-sm">
+          <CardHeader className="items-center text-center">
+            <CardTitle className="text-xl font-semibold tracking-tight">
+              Wallet auth unavailable
+            </CardTitle>
+            <CardDescription>
+              Set NEXT_PUBLIC_POLLAR_API_KEY to enable sign-in for this app.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <SignInViewInner
+      className={className}
+      appRole={appRole}
+      dashboardHref={dashboardHref}
+      {...props}
+    />
+  );
+}
+
+function SignInViewInner({
   className,
   appRole,
   dashboardHref = "/dashboard",

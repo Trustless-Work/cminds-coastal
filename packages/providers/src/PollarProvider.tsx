@@ -6,9 +6,9 @@ import type { ReactNode } from "react";
 
 import { PollarSignProvider } from "./usePollarSignTransaction";
 
-const apiKey = clientEnv.pollarApiKey;
-
 export function PollarProvider({ children }: { children: ReactNode }) {
+  const apiKey = clientEnv.pollarApiKey;
+
   if (!apiKey) {
     return <PollarSignProvider>{children}</PollarSignProvider>;
   }

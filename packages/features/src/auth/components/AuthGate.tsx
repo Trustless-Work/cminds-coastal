@@ -1,6 +1,7 @@
 "use client";
 
 import { usePollar } from "@pollar/react";
+import { clientEnv } from "@repo/config";
 import { DashboardShell } from "@repo/shared/DashboardShell";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useRouter } from "next/navigation";
@@ -18,7 +19,26 @@ type AuthGateProps = {
   loginHref?: string;
 };
 
-export function AuthGate({
+export function AuthGate(props: AuthGateProps) {
+  if (!clientEnv.pollarApiKey) {
+    return (
+      <DashboardShell title={props.appTitle} subtitle={props.appSubtitle}>
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
+          <p className="text-sm font-medium text-foreground">
+            Wallet auth unavailable
+          </p>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            Set NEXT_PUBLIC_POLLAR_API_KEY to enable sign-in for this app.
+          </p>
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  return <AuthGateInner {...props} />;
+}
+
+function AuthGateInner({
   appRole,
   appTitle,
   appSubtitle,
