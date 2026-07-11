@@ -25,6 +25,8 @@ out/
 build
 dist
 *.tsbuildinfo
+# Compiled workspace packages (avoid `dist` — Railpack strips it from images)
+packages/config/lib/
 # Nest runtime copy for Railway/Railpack (global `dist` is stripped from images)
 apps/core-api/runtime/
 

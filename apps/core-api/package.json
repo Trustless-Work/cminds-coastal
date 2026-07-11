@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && rm -rf runtime && cp -R dist runtime",
+    "build": "pnpm --filter @repo/config run build && nest build && rm -rf runtime && cp -R dist runtime",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "dev": "tsx watch src/main.ts",
     "start": "nest start",
