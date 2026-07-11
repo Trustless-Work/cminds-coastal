@@ -15,11 +15,22 @@ All environment variables and API keys are read through **`@repo/config`**. Do n
 | NestJS / API routes / scripts | `ServerEnv` / `serverEnv` | `packages/config/src/server-env.ts` |
 | Stellar network (testnet/mainnet) | `NetworkConfig` / `networkConfig` | `packages/config/src/network-config.ts` |
 | Shared helpers | `EnvConfig` | `packages/config/src/env-config.ts` |
+| Core API HTTP client | `http` / `setAuthToken` / `clearAuthToken` | `packages/config/src/http.ts` |
+| API error normalization | `ApiError` / `handleApiError` | `packages/config/src/handle-errors.ts` |
 
 Import:
 
 ```ts
-import { clientEnv, serverEnv, networkConfig } from "@repo/config";
+import {
+  clientEnv,
+  serverEnv,
+  networkConfig,
+  http,
+  setAuthToken,
+  clearAuthToken,
+  ApiError,
+  handleApiError,
+} from "@repo/config";
 ```
 
 ## Network switch (`NEXT_PUBLIC_USE_MAINNET`)
@@ -35,6 +46,36 @@ import { clientEnv, serverEnv, networkConfig } from "@repo/config";
 | UI labels | `networkConfig.label` |
 
 API keys stay separate env vars; the operator must supply the key that matches the selected network (`pub_testnet_` / `pub_mainnet_`, TW testnet vs mainnet key).
+
+## Core API HTTP (`http`)
+
+Browser / feature packages call Core API through the shared Axios instance — do not use raw `fetch` or construct `Authorization` headers in services.
+
+| Export | Role |
+| --- | --- |
+| `http` | Axios instance with `baseURL: clientEnv.coreApiUrl` |
+| `setAuthToken(token)` | Store Bearer token for the request interceptor |
+| `clearAuthToken()` | Clear the stored token |
+| `ApiError` | Typed error with `status` + normalized `message` |
+| `handleApiError(error)` | Normalize NestJS / Axios / unknown failures into `ApiError` |
+
+```ts
+// ✅ set token once (e.g. in a hook), then call thin service methods
+setAuthToken(accessToken);
+const { data } = await http.post<UserProfile>("/users/sync", payload);
+
+// ✅ catch normalized errors
+catch (err) {
+  if (err instanceof ApiError) {
+    // err.status, err.message
+  }
+}
+
+// ❌ do not
+await fetch(`${clientEnv.coreApiUrl}/users/sync`, { headers: { Authorization: `Bearer ${token}` } });
+```
+
+Failed responses are rejected as `ApiError` via the response interceptor (Nest `message: string | string[]` is flattened).
 
 ## When adding a new API key or env var
 

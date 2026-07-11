@@ -405,6 +405,10 @@ importers:
         version: 5.9.2
 
   packages/config:
+    dependencies:
+      axios:
+        specifier: ^1.18.1
+        version: 1.18.1
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*

@@ -9,3 +9,5 @@ export {
   type NetworkAsset,
   type TrustlineOption,
 } from "./network-config";
+export { http, setAuthToken, clearAuthToken } from "./http";
+export { ApiError, handleApiError } from "./handle-errors";

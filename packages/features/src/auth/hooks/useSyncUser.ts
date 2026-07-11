@@ -1,8 +1,9 @@
 "use client";
 
 import { usePollar } from "@pollar/react";
+import { ApiError, setAuthToken } from "@repo/config";
 import { useEffect, useRef, useState } from "react";
-import { syncUser, UsersApiError } from "../services/usersService";
+import { syncUser } from "../services/users.service";
 import type { SyncableUserRole, UserProfile } from "../types";
 
 type UseSyncUserOptions = {
@@ -81,8 +82,9 @@ export function useSyncUser({
     inFlight.current = true;
     setSyncing(true);
     setError(null);
+    setAuthToken(accessToken);
 
-    void syncUser(accessToken, {
+    void syncUser({
       email,
       display_name: displayName || undefined,
       avatar_url: userProfile?.avatar || undefined,
@@ -95,7 +97,7 @@ export function useSyncUser({
       })
       .catch((err: unknown) => {
         const message =
-          err instanceof UsersApiError
+          err instanceof ApiError
             ? err.message
             : err instanceof Error
               ? err.message
