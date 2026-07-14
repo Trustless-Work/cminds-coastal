@@ -1,7 +1,8 @@
 "use client";
 
 import { AuthGate } from "@repo/features/auth/components/AuthGate";
-import { InitializeEscrowDialog } from "@repo/tw-blocks/escrows/multi-release/initialize-escrow/dialog/InitializeEscrow";
+
+import { OperatorDashboardView } from "../../features/escrow-review/views/OperatorDashboardView";
 
 export default function DashboardPage() {
   return (
@@ -17,7 +18,7 @@ export default function DashboardPage() {
             Review milestones, approve evidence, and manage escrows.
           </p>
         </div>
-        <InitializeEscrowDialog />
+        <OperatorDashboardView />
       </main>
     </AuthGate>
   );

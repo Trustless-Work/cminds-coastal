@@ -4,7 +4,12 @@ import { LoginShell } from "@repo/shared/LoginShell";
 export default function LoginPage() {
   return (
     <LoginShell>
-      <SignInView appRole="CMINDS_OPERATOR" dashboardHref="/dashboard" />
+      <SignInView
+        appRole="CMINDS_OPERATOR"
+        dashboardHref="/dashboard"
+        providers={["email"]}
+        enforceAllowedEmailDomain
+      />
     </LoginShell>
   );
 }
