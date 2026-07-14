@@ -162,8 +162,10 @@ export function useUpdateEscrow({
 
     // Always keep as string to allow partial input like "0." or "0.5"
     const updatedMilestones = [...milestones];
+    const current = updatedMilestones[index];
+    if (!current) return;
     updatedMilestones[index] = {
-      ...updatedMilestones[index],
+      ...current,
       amount: rawValue,
     };
     form.setValue("milestones", updatedMilestones);

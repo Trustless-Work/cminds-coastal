@@ -5,11 +5,16 @@ import {
   type ThemeProviderProps,
 } from "next-themes";
 
+/**
+ * Light-mode only. Dark / system themes and toggles are not supported.
+ * @see docs/DESIGN_SYSTEM.md
+ */
 export function ThemeProvider({
   children,
   attribute = "class",
-  defaultTheme = "system",
-  enableSystem = true,
+  defaultTheme = "light",
+  forcedTheme = "light",
+  enableSystem = false,
   disableTransitionOnChange = true,
   scriptProps,
   ...props
@@ -25,6 +30,7 @@ export function ThemeProvider({
     <NextThemesProvider
       attribute={attribute}
       defaultTheme={defaultTheme}
+      forcedTheme={forcedTheme}
       enableSystem={enableSystem}
       disableTransitionOnChange={disableTransitionOnChange}
       scriptProps={resolvedScriptProps}

@@ -3,6 +3,7 @@
 import { usePollar } from "@pollar/react";
 import { clientEnv } from "@repo/config";
 import { DashboardShell } from "@repo/shared/DashboardShell";
+import type { NavLink } from "@repo/shared/Navbar";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -15,6 +16,9 @@ type AuthGateProps = {
   appRole: SyncableUserRole;
   appTitle: string;
   appSubtitle?: string;
+  logoSrc?: string;
+  logoHref?: string;
+  navLinks?: NavLink[];
   children: React.ReactNode;
   loginHref?: string;
 };
@@ -22,7 +26,13 @@ type AuthGateProps = {
 export function AuthGate(props: AuthGateProps) {
   if (!clientEnv.pollarApiKey) {
     return (
-      <DashboardShell title={props.appTitle} subtitle={props.appSubtitle}>
+      <DashboardShell
+        title={props.appTitle}
+        subtitle={props.appSubtitle}
+        logoSrc={props.logoSrc}
+        logoHref={props.logoHref}
+        navLinks={props.navLinks}
+      >
         <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
           <p className="text-sm font-medium text-foreground">
             Wallet auth unavailable
@@ -42,6 +52,9 @@ function AuthGateInner({
   appRole,
   appTitle,
   appSubtitle,
+  logoSrc,
+  logoHref,
+  navLinks,
   children,
   loginHref = "/login",
 }: AuthGateProps) {
@@ -81,6 +94,9 @@ function AuthGateInner({
       <DashboardShell
         title={appTitle}
         subtitle={appSubtitle}
+        logoSrc={logoSrc}
+        logoHref={logoHref}
+        navLinks={navLinks}
         leading={authLeading}
       >
         <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
@@ -105,6 +121,9 @@ function AuthGateInner({
       <DashboardShell
         title={appTitle}
         subtitle={appSubtitle}
+        logoSrc={logoSrc}
+        logoHref={logoHref}
+        navLinks={navLinks}
         leading={authLeading}
       >
         <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
@@ -121,6 +140,9 @@ function AuthGateInner({
     <DashboardShell
       title={appTitle}
       subtitle={appSubtitle}
+      logoSrc={logoSrc}
+      logoHref={logoHref}
+      navLinks={navLinks}
       leading={authLeading}
     >
       {children}

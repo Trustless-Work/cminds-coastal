@@ -70,6 +70,21 @@ export class ServerEnv extends EnvConfig {
       .map((origin) => origin.trim())
       .filter(Boolean);
   }
+
+  get supabaseUrl(): string | undefined {
+    return this.getOptional(process.env.SUPABASE_URL);
+  }
+
+  get supabaseServiceRoleKey(): string | undefined {
+    return this.getOptional(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  }
+
+  get supabaseEscrowImagesBucket(): string {
+    return (
+      this.getOptional(process.env.SUPABASE_ESCROW_IMAGES_BUCKET) ??
+      "escrow-images"
+    );
+  }
 }
 
 export const serverEnv = new ServerEnv();

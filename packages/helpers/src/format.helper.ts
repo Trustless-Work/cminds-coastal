@@ -30,7 +30,8 @@ export function formatTimestamp(ts?: {
  * @param address - The address
  * @returns The formatted address
  */
-export function formatAddress(address: string, length: number = 10) {
+export function formatAddress(address: string | undefined, length: number = 10) {
+  if (!address) return "—";
   return `${address.slice(0, length)}...${address.slice(-length)}`;
 }
 

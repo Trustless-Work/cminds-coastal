@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePollarSignTransaction } from "@repo/providers/usePollarSignTransaction";
+import { useWalletContext } from "@repo/providers/WalletProvider";
 import {
   EscrowType,
   FundEscrowPayload,
@@ -28,10 +29,12 @@ import {
   useWithdrawRemainingFunds,
 } from "@trustless-work/escrow";
 
+import { signTransaction as signWithWalletKit } from "../wallet-kit/wallet-kit";
+
 /**
  * Use the mutations to interact with the escrows
  *
- * Flow: TW builds unsigned XDR → Pollar signs → TW sends
+ * Flow: TW builds unsigned XDR → Pollar or Wallet Kit signs → TW sends
  *
  * - Deploy Escrow
  * - Update Escrow
@@ -44,7 +47,8 @@ import {
  */
 export const useEscrowsMutations = () => {
   const queryClient = useQueryClient();
-  const { signTransaction } = usePollarSignTransaction();
+  const { walletAddress, walletName } = useWalletContext();
+  const { signTransaction: signWithPollar } = usePollarSignTransaction();
   const { deployEscrow } = useInitializeEscrow();
   const { updateEscrow } = useUpdateEscrow();
   const { fundEscrow } = useFundEscrow();
@@ -57,7 +61,17 @@ export const useEscrowsMutations = () => {
   const { withdrawRemainingFunds } = useWithdrawRemainingFunds();
 
   async function signAndSend(unsignedTransaction: string) {
-    const signedTxXdr = await signTransaction(unsignedTransaction);
+    const useBrowserWallet =
+      Boolean(walletAddress) &&
+      Boolean(walletName) &&
+      walletName !== "Pollar";
+
+    const signedTxXdr = useBrowserWallet
+      ? await signWithWalletKit({
+          unsignedTransaction,
+          address: walletAddress as string,
+        })
+      : await signWithPollar(unsignedTransaction);
 
     if (!signedTxXdr) {
       throw new Error("Signed transaction is missing.");
@@ -74,6 +88,9 @@ export const useEscrowsMutations = () => {
 
   /**
    * Deploy Escrow
+   *
+   * contractId is returned by sendTransaction after the signed XDR is
+   * broadcast — not by the initial deployEscrow (unsigned XDR) call.
    */
   const deployEscrowMutation = useMutation({
     mutationFn: async ({
@@ -86,7 +103,8 @@ export const useEscrowsMutations = () => {
       type: EscrowType;
       address: string;
     }) => {
-      const { unsignedTransaction } = await deployEscrow(payload, type);
+      const deployResponse = await deployEscrow(payload, type);
+      const { unsignedTransaction } = deployResponse;
 
       if (!unsignedTransaction) {
         throw new Error(
@@ -94,7 +112,23 @@ export const useEscrowsMutations = () => {
         );
       }
 
-      return signAndSend(unsignedTransaction);
+      const sendResponse = await signAndSend(unsignedTransaction);
+      const contractId =
+        sendResponse &&
+        typeof sendResponse === "object" &&
+        "contractId" in sendResponse &&
+        typeof (sendResponse as { contractId?: unknown }).contractId ===
+          "string"
+          ? (sendResponse as { contractId: string }).contractId
+          : undefined;
+
+      if (!contractId) {
+        throw new Error(
+          "Missing contract id from send transaction response."
+        );
+      }
+
+      return { ...deployResponse, ...sendResponse, contractId };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["escrows"] });

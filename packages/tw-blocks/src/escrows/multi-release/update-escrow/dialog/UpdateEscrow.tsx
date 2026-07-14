@@ -405,7 +405,12 @@ export const UpdateEscrowDialog = () => {
                         }
                         onChange={(e) => {
                           const updatedMilestones = [...milestones];
-                          updatedMilestones[index].description = e.target.value;
+                          const current = updatedMilestones[index];
+                          if (!current) return;
+                          updatedMilestones[index] = {
+                            ...current,
+                            description: e.target.value,
+                          };
                           form.setValue("milestones", updatedMilestones);
                         }}
                       />

@@ -13,13 +13,25 @@ import { Toaster } from "@repo/ui/components/sonner";
 import { PollarProvider } from "./PollarProvider";
 import { ThemeProvider } from "./ThemeProvider";
 
-export function AppProviders({ children }: { children: ReactNode }) {
+export type AppProvidersProps = {
+  children: ReactNode;
+  /**
+   * Enable Stellar Wallet Kit (Freighter) in the shared wallet context.
+   * Use on the funding dashboard so funders can connect a browser wallet.
+   */
+  allowBrowserWallet?: boolean;
+};
+
+export function AppProviders({
+  children,
+  allowBrowserWallet = false,
+}: AppProvidersProps) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
       <ReactQueryClientProvider>
         <TrustlessWorkProvider>
           <PollarProvider>
-            <WalletProvider>
+            <WalletProvider allowBrowserWallet={allowBrowserWallet}>
               <EscrowProvider>
                 <EscrowDialogsProvider>
                   <EscrowAmountProvider>
