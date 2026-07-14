@@ -7,6 +7,7 @@ export default function LoginPage() {
       <SignInView
         appRole="COMMUNITY_IMPLEMENTER"
         dashboardHref="/dashboard"
+        providers={["google", "email"]}
       />
     </LoginShell>
   );
