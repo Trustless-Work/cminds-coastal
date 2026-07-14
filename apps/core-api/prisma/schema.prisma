@@ -19,6 +19,16 @@ enum UserRole {
   FUNDER
 }
 
+enum EscrowStatus {
+  DRAFT
+  INITIALIZED
+  FUNDED
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
 // =============================================
 // USERS & AUTH
 // =============================================
@@ -34,7 +44,10 @@ model User {
   created_at     DateTime   @default(now())
   updated_at     DateTime   @updatedAt
 
-  wallets Wallet[]
+  wallets                  Wallet[]
+  initialized_escrows      Escrow[] @relation("EscrowInitializer")
+  approved_escrows         Escrow[] @relation("EscrowApprover")
+  release_signer_escrows   Escrow[] @relation("EscrowReleaseSigner")
 
   @@index([roles])
   @@index([is_active])
@@ -58,4 +71,90 @@ model Wallet {
   @@unique([address])
   @@index([user_id])
   @@map("wallet")
+}
+
+// =============================================
+// CMINDS OPERATOR EMAIL ALLOWLIST
+// =============================================
+
+model AllowedEmailDomain {
+  domain_id  String   @id @default(uuid()) @db.Uuid
+  domain     String   @unique
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([is_active])
+  @@map("allowed_email_domain")
+}
+
+// =============================================
+// FIXED TASK MENU
+// =============================================
+
+model Task {
+  task_id              String   @id @default(uuid()) @db.Uuid
+  code                 String   @unique
+  category             String
+  name                 String
+  expected_deliverable String
+  is_active            Boolean  @default(true)
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  escrow_milestones EscrowMilestone[]
+
+  @@index([is_active])
+  @@index([category])
+  @@map("task")
+}
+
+// =============================================
+// ESCROW METADATA (off-chain)
+// =============================================
+
+model Escrow {
+  escrow_id              String       @id
+  title                  String
+  community_name         String
+  description            String
+  geographic_area        String?
+  image_url              String?
+  status                 EscrowStatus @default(INITIALIZED)
+  engagement_id          String
+  initializer_user_id    String       @db.Uuid
+  approver_user_id       String?      @db.Uuid
+  release_signer_user_id String?      @db.Uuid
+  created_at             DateTime     @default(now())
+  updated_at             DateTime     @updatedAt
+
+  initializer    User              @relation("EscrowInitializer", fields: [initializer_user_id], references: [user_id])
+  approver       User?             @relation("EscrowApprover", fields: [approver_user_id], references: [user_id])
+  release_signer User?             @relation("EscrowReleaseSigner", fields: [release_signer_user_id], references: [user_id])
+  milestones     EscrowMilestone[]
+
+  @@index([initializer_user_id])
+  @@index([status])
+  @@map("escrow")
+}
+
+model EscrowMilestone {
+  escrow_milestone_id String    @id @default(uuid()) @db.Uuid
+  escrow_id           String
+  task_id             String    @db.Uuid
+  milestone_index     Int
+  amount              Decimal   @db.Decimal(18, 2)
+  deadline            DateTime?
+  custom_description  String?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  escrow Escrow @relation(fields: [escrow_id], references: [escrow_id], onDelete: Cascade)
+  task   Task   @relation(fields: [task_id], references: [task_id])
+
+  @@unique([escrow_id, task_id])
+  @@unique([escrow_id, milestone_index])
+  @@index([escrow_id])
+  @@index([task_id])
+  @@map("escrow_milestone")
 }

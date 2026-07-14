@@ -5,6 +5,9 @@ import { AuthModule } from './auth';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database';
+import { AllowedEmailDomainsModule } from './modules/allowed-email-domains/allowed-email-domains.module';
+import { EscrowsModule } from './modules/escrows/escrows.module';
+import { TasksModule } from './modules/tasks/tasks.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -18,7 +21,10 @@ import { UsersModule } from './modules/users/users.module';
     ]),
     DatabaseModule,
     AuthModule,
+    AllowedEmailDomainsModule,
     UsersModule,
+    TasksModule,
+    EscrowsModule,
   ],
   controllers: [AppController],
   providers: [
