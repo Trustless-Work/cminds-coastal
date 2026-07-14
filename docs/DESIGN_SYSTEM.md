@@ -294,7 +294,7 @@ Icon buttons for primary actions (e.g. search): **circular**, black fill, white 
 
 ---
 
-## 10. Motion
+## 11. Motion
 
 Subtle, premium, purposeful.
 
@@ -309,9 +309,9 @@ Avoid bounce, springy overshoot, or long decorative animations.
 
 ---
 
-## 11. Components
+## 12. Components
 
-### 11.1 Navbar
+### 12.1 Navbar
 
 - Height `80–88px` (up to `96` with brand lockups)
 - Structure: **Logo / title** → **links** (optional) → **auth / actions**
@@ -319,7 +319,7 @@ Avoid bounce, springy overshoot, or long decorative animations.
 - No theme toggle
 - Light background (`#FFFFFF`), optional subtle bottom border (`#ECECEC`) or blur only if it stays quiet
 
-### 11.2 Buttons
+### 12.2 Buttons
 
 **Primary**
 
@@ -338,7 +338,7 @@ Avoid bounce, springy overshoot, or long decorative animations.
 - Circular, often accent black
 - Search-style diameter ~`72px` on marketing surfaces; smaller (`40–48`) in dense dashboards
 
-### 11.3 Cards (Image Card)
+### 12.3 Cards (Image Card)
 
 ```
 Card
@@ -354,7 +354,7 @@ Rules:
 - No giant badges, no footer button rows unless the card **is** the action
 - Image ≈ majority of visual weight
 
-### 11.4 Hero / Media Banner
+### 12.4 Hero / Media Banner
 
 Most important marketing / landing component:
 
@@ -364,7 +364,7 @@ Most important marketing / landing component:
 
 Photography should carry ~**70%** of visual weight on such pages.
 
-### 11.5 Search / selector strip (pattern)
+### 12.5 Search / selector strip (pattern)
 
 White container · radius full · padding ~`24` · soft shadow.
 
@@ -380,19 +380,19 @@ Fields separated by `1px` light gray dividers. Primary action = black circular i
 
 Reuse this pattern for any “composed filter” UI (not only travel search).
 
-### 11.6 Inputs (forms)
+### 12.6 Inputs (forms)
 
 Still support classic forms for escrow create / auth, but keep radius soft (`8–12`), borders subtle, and labels calm. Prefer the icon → label → value selector look when the control is a picker.
 
-### 11.7 Divider
+### 12.7 Divider
 
 `1px` · `#ECECEC` · never thick or colored.
 
-### 11.8 Badge / Chip
+### 12.8 Badge / Chip
 
 Radius `12` · compact · muted fills. Prefer small status chips over large colored pills.
 
-### 11.9 Modal / Drawer / Tooltip / Tabs / Pagination / Skeleton / Empty state
+### 12.9 Modal / Drawer / Tooltip / Tabs / Pagination / Skeleton / Empty state
 
 - Same colors, radii, and spacing
 - Skeletons use tertiary background (`#F3F3F3`)
@@ -400,7 +400,7 @@ Radius `12` · compact · muted fills. Prefer small status chips over large colo
 
 ---
 
-## 12. Images
+## 13. Images
 
 | Rule | Detail |
 | --- | --- |
@@ -414,7 +414,7 @@ Never crop imagery into tiny decorative thumbnails that fight the layout.
 
 ---
 
-## 13. Responsive behavior
+## 14. Responsive behavior
 
 - **Mobile:** preserve air — reduce type one step, keep radius scale, stack search fields vertically if needed
 - **Lists / tables:** follow monorepo rule — card list on mobile, table from `md+` (`DAPP.mdc`)
@@ -422,7 +422,7 @@ Never crop imagery into tiny decorative thumbnails that fight the layout.
 
 ---
 
-## 14. What *not* to do
+## 15. What *not* to do
 
 | Avoid | Why |
 | --- | --- |
@@ -438,7 +438,7 @@ Never crop imagery into tiny decorative thumbnails that fight the layout.
 
 ---
 
-## 15. CSS tokens (implementation map)
+## 16. CSS tokens (implementation map)
 
 Map design tokens → `packages/ui/src/styles/globals.css` (and Tailwind `@theme`).
 
@@ -478,7 +478,7 @@ Semantic shadcn roles (`card`, `muted`, `accent`, `ring`, `destructive`, sidebar
 
 ---
 
-## 16. Suggested component library surface (`@repo/ui`)
+## 17. Suggested component library surface (`@repo/ui`)
 
 ### Foundations
 
@@ -498,7 +498,7 @@ Hover / press / loading · staggered card animations · optional scroll reveal
 
 ---
 
-## 17. App application guide
+## 18. App application guide
 
 | App | How the system shows up |
 | --- | --- |
@@ -511,7 +511,7 @@ Shared chrome (`@repo/shared` Navbar, `@repo/providers`) must stay light-only an
 
 ---
 
-## 18. Checklist for new UI
+## 19. Checklist for new UI
 
 - [ ] Light mode only (no dark classes product path)
 - [ ] Spacing from the `4…96` scale
@@ -526,7 +526,7 @@ Shared chrome (`@repo/shared` Navbar, `@repo/providers`) must stay light-only an
 
 ---
 
-## 19. Why this feels premium
+## 20. Why this feels premium
 
 Consistency of proportions — one type family, few weights, 8px spacing, repeated large radii (`16` / `24` / `32`), white–black–gray only, soft elevation, photography as hero — matters more than any single effect. The hierarchy is always clear: dominant media (when present), one primary interaction, then quiet supporting cards. That discipline is the product’s polish.
 
