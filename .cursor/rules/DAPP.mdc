@@ -134,8 +134,8 @@ Libraries: `react-hook-form`, `zod`, `@hookform/resolvers/zod`, form primitives 
 ## UI / UX standards
 
 - **100% responsive** — all Tailwind breakpoints
-- **Light / Dark mode** compatible
-- Clean, minimal, consistent with existing patterns
+- **Light mode only** — see `docs/DESIGN_SYSTEM.md`; no theme toggle or dark product path
+- Clean, minimal, consistent with the design system (airy, soft radii, photography-led)
 
 ### Responsive data tables (lists)
 
