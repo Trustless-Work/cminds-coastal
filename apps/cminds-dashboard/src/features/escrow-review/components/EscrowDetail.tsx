@@ -247,18 +247,18 @@ export const EscrowDetail = ({
                                   href={link}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="inline-flex max-w-full items-center gap-1 break-all text-sm text-primary hover:underline"
+                                  className="inline-flex max-w-full items-center gap-1 text-sm text-primary hover:underline"
                                 >
-                                  {link}
+                                  <span>View Evidence</span>
                                   <ExternalLink className="size-3 shrink-0" />
                                 </a>
                               </li>
                             ))}
                           </ul>
                         ) : (
-                          <p className="text-sm text-muted-foreground">
+                          <p className="break-words text-sm text-muted-foreground">
                             {milestone.evidence?.trim() ||
-                              "No evidence submitted"}
+                              "No Evidence Submitted"}
                           </p>
                         )}
                       </div>

@@ -141,7 +141,7 @@ function ReviewQueueCard({ item }: { item: ReviewQueueItem }) {
                     rel="noreferrer"
                     className="inline-flex max-w-full items-center gap-1 truncate text-sm text-primary hover:underline"
                   >
-                    <span className="truncate">Open evidence</span>
+                    <span className="truncate">View Evidence</span>
                     <ExternalLink className="size-3 shrink-0" />
                   </a>
                 </li>
