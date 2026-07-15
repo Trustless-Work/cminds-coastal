@@ -1,17 +1,17 @@
 import type { ModuleInterface } from "@creit.tech/stellar-wallets-kit/types";
-import { networkConfig } from "@repo/config";
+import { clientEnv, networkConfig } from "@repo/config";
 
 type SdkModule = typeof import("@creit.tech/stellar-wallets-kit/sdk");
 type TypesModule = typeof import("@creit.tech/stellar-wallets-kit/types");
-type ModulesUtilsModule =
-  typeof import("@creit.tech/stellar-wallets-kit/modules/utils");
 type FreighterModuleType =
   typeof import("@creit.tech/stellar-wallets-kit/modules/freighter");
+type AlbedoModuleType =
+  typeof import("@creit.tech/stellar-wallets-kit/modules/albedo");
 type StellarWalletsKitStatic = SdkModule["StellarWalletsKit"];
 type NetworksEnum = TypesModule["Networks"];
 
 /**
- * Stellar Wallet Kit helpers — Freighter-first for the CMinds pilot.
+ * Stellar Wallet Kit — Freighter, Albedo, and WalletConnect only.
  * Loaded only on the client, in response to effects or user actions.
  */
 let walletKitPromise: Promise<{
@@ -30,32 +30,58 @@ const loadWalletKit = async () => {
 
   if (!walletKitPromise) {
     walletKitPromise = (async () => {
-      const [sdk, types, modules, freighter] = await Promise.all([
+      const [sdk, types, freighter, albedo, walletConnect] = await Promise.all([
         import("@creit.tech/stellar-wallets-kit/sdk") as Promise<SdkModule>,
         import("@creit.tech/stellar-wallets-kit/types") as Promise<TypesModule>,
         import(
-          "@creit.tech/stellar-wallets-kit/modules/utils"
-        ) as Promise<ModulesUtilsModule>,
-        import(
           "@creit.tech/stellar-wallets-kit/modules/freighter"
         ) as Promise<FreighterModuleType>,
+        import(
+          "@creit.tech/stellar-wallets-kit/modules/albedo"
+        ) as Promise<AlbedoModuleType>,
+        import("@creit.tech/stellar-wallets-kit/modules/wallet-connect"),
       ]);
 
       const { StellarWalletsKit } = sdk;
       const { Networks } = types;
-      const { defaultModules } = modules;
-      const { FreighterModule, FREIGHTER_ID } = freighter;
+      const { FreighterModule } = freighter;
+      const { AlbedoModule } = albedo;
+      const { WalletConnectModule, WalletConnectTargetChain } = walletConnect;
 
-      const freighterModule = new FreighterModule();
-      const modulesList = defaultModules();
-      const freighterFirst = [
-        freighterModule,
-        ...modulesList.filter((m) => m.productId !== FREIGHTER_ID),
+      const modules: ModuleInterface[] = [
+        new FreighterModule(),
+        new AlbedoModule(),
       ];
+
+      const projectId = clientEnv.walletConnectProjectId;
+      if (projectId) {
+        const origin = window.location.origin;
+        modules.push(
+          new WalletConnectModule({
+            projectId,
+            metadata: {
+              name: "CMinds Funding",
+              description:
+                "Fund coastal conservation escrows with USDC on Stellar",
+              url: origin,
+              icons: [`${origin}/favicon.ico`],
+            },
+            allowedChains: [
+              networkConfig.isMainnet
+                ? WalletConnectTargetChain.PUBLIC
+                : WalletConnectTargetChain.TESTNET,
+            ],
+          }),
+        );
+      } else {
+        console.warn(
+          "NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set — WalletConnect will not appear in the wallet modal.",
+        );
+      }
 
       StellarWalletsKit.init({
         network: getNetwork(Networks),
-        modules: freighterFirst,
+        modules,
       });
 
       return { StellarWalletsKit, Networks };

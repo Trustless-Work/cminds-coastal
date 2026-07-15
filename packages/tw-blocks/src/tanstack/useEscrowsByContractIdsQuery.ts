@@ -19,7 +19,7 @@ export const useEscrowsByContractIdsQuery = ({
   const { getEscrowByContractIds } = useGetEscrowFromIndexerByContractIds();
 
   return useQuery({
-    queryKey: ["escrow", contractIds, validateOnChain],
+    queryKey: ["escrows", "contract-ids", contractIds, validateOnChain],
     queryFn: async (): Promise<Escrow[]> => {
       if (!contractIds) {
         throw new Error(

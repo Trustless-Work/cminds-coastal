@@ -29,46 +29,35 @@ export const ContractIdCopyPanel = ({
   };
 
   return (
-    <section
-      className={cn(
-        "rounded-2xl border-2 border-primary/40 bg-primary/5 p-5 sm:p-8",
-        className,
-      )}
-    >
-      <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-        Escrow contract ID
-      </p>
-      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-        Copy this address and send USDC from any Stellar wallet. Multiple
-        funders can contribute to the same escrow.
-      </p>
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-stretch">
-        <div className="min-w-0 flex-1 rounded-xl bg-background px-4 py-4 ring-1 ring-foreground/10">
-          <p className="break-all font-mono text-base font-semibold leading-relaxed tracking-tight sm:text-lg md:text-xl">
-            {contractId}
-          </p>
-        </div>
+    <div className={cn("space-y-3", className)}>
+      <div className="space-y-1">
+        <p className="text-sm font-medium text-foreground">Contract ID</p>
+        <p className="text-sm text-muted-foreground">
+          Send USDC from any Stellar wallet to this address.
+        </p>
+      </div>
+
+      <div className="flex items-start gap-2 rounded-2xl border border-border bg-background-secondary/60 px-3 py-3">
+        <p className="min-w-0 flex-1 break-all font-mono text-xs leading-relaxed text-foreground">
+          {contractId}
+        </p>
         <Button
           type="button"
-          size="lg"
-          className="h-auto shrink-0 gap-2 px-6 py-4 text-base sm:self-stretch"
+          variant="outline"
+          size="icon"
+          className="size-9 shrink-0 rounded-full"
+          aria-label={copied ? "Copied" : "Copy contract ID"}
           onClick={() => {
             void handleCopy();
           }}
         >
           {copied ? (
-            <>
-              <Check className="size-5" />
-              Copied
-            </>
+            <Check className="size-4" />
           ) : (
-            <>
-              <Copy className="size-5" />
-              Copy contract ID
-            </>
+            <Copy className="size-4" />
           )}
         </Button>
       </div>
-    </section>
+    </div>
   );
 };

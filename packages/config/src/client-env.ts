@@ -26,6 +26,11 @@ export class ClientEnv extends EnvConfig {
       "true"
     );
   }
+
+  /** Reown / WalletConnect Cloud project id (Stellar Wallets Kit). */
+  get walletConnectProjectId(): string | undefined {
+    return this.getOptional(process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID);
+  }
 }
 
 export const clientEnv = new ClientEnv();

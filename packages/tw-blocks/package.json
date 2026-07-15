@@ -19,6 +19,7 @@
     "./escrows/single-multi-release/change-milestone-status/dialog/ChangeMilestoneStatus": "./src/escrows/single-multi-release/change-milestone-status/dialog/ChangeMilestoneStatus.tsx",
     "./escrows/multi-release/release-milestone/button/ReleaseMilestone": "./src/escrows/multi-release/release-milestone/button/ReleaseMilestone.tsx",
     "./escrows/single-multi-release/fund-escrow/dialog/FundEscrow": "./src/escrows/single-multi-release/fund-escrow/dialog/FundEscrow.tsx",
+    "./escrows/indicators/balance-progress/donut/BalanceProgress": "./src/escrows/indicators/balance-progress/donut/BalanceProgress.tsx",
     "./tanstack/useEscrowsByRoleQuery": "./src/tanstack/useEscrowsByRoleQuery.ts",
     "./tanstack/useEscrowsByContractIdsQuery": "./src/tanstack/useEscrowsByContractIdsQuery.ts",
     "./tanstack/useEscrowsMutations": "./src/tanstack/useEscrowsMutations.ts",
