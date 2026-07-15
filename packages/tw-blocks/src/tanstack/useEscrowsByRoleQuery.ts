@@ -36,7 +36,7 @@ export const useEscrowsByRoleQuery = ({
   status,
   type,
   enabled = true,
-  validateOnChain = true,
+  validateOnChain = false,
 }: UseEscrowsByRoleQueryParams) => {
   // Get the escrows by role
   const { getEscrowsByRole } = useGetEscrowsFromIndexerByRole();

@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
+    "@pollar/core": "catalog:",
     "@pollar/react": "catalog:",
     "@radix-ui/react-slot": "^1.3.0",
     "class-variance-authority": "^0.7.1",

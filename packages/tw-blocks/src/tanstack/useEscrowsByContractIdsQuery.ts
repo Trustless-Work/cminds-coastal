@@ -13,7 +13,7 @@ import { GetEscrowsFromIndexerResponse as Escrow } from "@trustless-work/escrow/
  */
 export const useEscrowsByContractIdsQuery = ({
   contractIds,
-  validateOnChain = true,
+  validateOnChain = false,
 }: GetEscrowFromIndexerByContractIdsParams) => {
   // Get the escrow by contract ids
   const { getEscrowByContractIds } = useGetEscrowFromIndexerByContractIds();

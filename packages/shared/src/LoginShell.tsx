@@ -21,7 +21,7 @@ export function LoginShell({
   imageAlt = "Coastal conservation",
   logoSrc,
   logoAlt = "CMinds",
-  showFooter = true,
+  showFooter = false,
 }: LoginShellProps) {
   if (!imageSrc) {
     return (

@@ -4,6 +4,7 @@ import { PollarProvider as PollarRootProvider } from "@pollar/react";
 import { clientEnv, networkConfig } from "@repo/config";
 import type { ReactNode } from "react";
 
+import { getSharedPollarClient } from "./get-shared-pollar-client";
 import { PollarSignProvider } from "./usePollarSignTransaction";
 
 export function PollarProvider({ children }: { children: ReactNode }) {
@@ -13,10 +14,10 @@ export function PollarProvider({ children }: { children: ReactNode }) {
     return <PollarSignProvider>{children}</PollarSignProvider>;
   }
 
+  const client = getSharedPollarClient(apiKey, networkConfig.pollarNetwork);
+
   return (
-    <PollarRootProvider
-      client={{ apiKey, stellarNetwork: networkConfig.pollarNetwork }}
-    >
+    <PollarRootProvider client={client}>
       <PollarSignProvider>{children}</PollarSignProvider>
     </PollarRootProvider>
   );

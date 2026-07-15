@@ -10,11 +10,11 @@ catalogs:
       specifier: 16.2.10
       version: 16.2.10
     '@pollar/core':
-      specifier: ^0.10.0
-      version: 0.10.0
+      specifier: 0.10.1
+      version: 0.10.1
     '@pollar/react':
-      specifier: ^0.10.0
-      version: 0.10.0
+      specifier: 0.10.1
+      version: 0.10.1
     '@tailwindcss/postcss':
       specifier: ^4
       version: 4.3.2
@@ -656,10 +656,10 @@ importers:
         version: 5.4.0(react-hook-form@7.81.0(react@19.2.4))
       '@pollar/core':
         specifier: 'catalog:'
-        version: 0.10.0
+        version: 0.10.1
       '@pollar/react':
         specifier: 'catalog:'
-        version: 0.10.0(@pollar/core@0.10.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 0.10.1(@pollar/core@0.10.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@repo/config':
         specifier: workspace:*
         version: link:../config
@@ -745,10 +745,10 @@ importers:
     dependencies:
       '@pollar/core':
         specifier: 'catalog:'
-        version: 0.10.0
+        version: 0.10.1
       '@pollar/react':
         specifier: 'catalog:'
-        version: 0.10.0(@pollar/core@0.10.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 0.10.1(@pollar/core@0.10.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@repo/config':
         specifier: workspace:*
         version: link:../config
@@ -925,9 +925,12 @@ importers:
       '@base-ui/react':
         specifier: ^1.6.0
         version: 1.6.0(@date-fns/tz@1.5.0)(@types/react@19.2.2)(date-fns@4.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@pollar/core':
+        specifier: 'catalog:'
+        version: 0.10.1
       '@pollar/react':
         specifier: 'catalog:'
-        version: 0.10.0(@pollar/core@0.10.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 0.10.1(@pollar/core@0.10.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@radix-ui/react-slot':
         specifier: ^1.3.0
         version: 1.3.0(@types/react@19.2.2)(react@19.2.4)
@@ -2355,8 +2358,8 @@ packages:
     resolution: {integrity: sha512-SEeaJLb3qBNF/OaXnaR1NmmBbFYk1zC0ZH/52fATcRPLFg/p791YrcyFFy44Bo9sLaGuSuLp5Q6axbb/O+v/RA==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  '@pollar/core@0.10.0':
-    resolution: {integrity: sha512-+qYmAdwg+46PoWl8SdqY2E3CSQ2ulKZnukAn5uF5+fWFV0OhyNoqtMHlGDS+0uL96+HsQKL2DhR8VXlkOZXYOw==}
+  '@pollar/core@0.10.1':
+    resolution: {integrity: sha512-BC+qB/pC0U8ejmxiW65G6QMSzgegD9E+1vPRUkInXixWwk7QHgJAhlIfCnUoB7DLH9msJwK5E5LKDNprXR4Uuw==}
     engines: {node: '>=20'}
     peerDependencies:
       expo-secure-store: '>=12'
@@ -2367,11 +2370,11 @@ packages:
       react-native-keychain:
         optional: true
 
-  '@pollar/react@0.10.0':
-    resolution: {integrity: sha512-AZQKxL96Zac1FU4bqGG2QwKG105yS0ZOFhv8JaZeOODlq4MEf3xWplNeXAt2S3QOyd8K6Z93RGmADg7MdNI/GA==}
+  '@pollar/react@0.10.1':
+    resolution: {integrity: sha512-ubPFyaKGcAXEmv8FxP6sb04Wi7HElaB1BBGZiirKkceObHAuAN5LX0+SmR1bGPs1sOpJimqIn1UoOJoiqraegQ==}
     engines: {node: '>=20'}
     peerDependencies:
-      '@pollar/core': ^0.10.0
+      '@pollar/core': ^0.10.1
       react: '>=18'
       react-dom: '>=18'
 
@@ -10051,16 +10054,16 @@ snapshots:
 
   '@pkgr/core@0.3.6': {}
 
-  '@pollar/core@0.10.0':
+  '@pollar/core@0.10.1':
     dependencies:
       '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@stellar/freighter-api': 2.0.0
       openapi-fetch: 0.17.0
 
-  '@pollar/react@0.10.0(@pollar/core@0.10.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@pollar/react@0.10.1(@pollar/core@0.10.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
-      '@pollar/core': 0.10.0
+      '@pollar/core': 0.10.1
       '@simplewebauthn/browser': 13.3.0
       qr.js: 0.0.0
       react: 19.2.4

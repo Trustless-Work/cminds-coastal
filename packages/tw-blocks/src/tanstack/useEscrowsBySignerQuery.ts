@@ -32,7 +32,7 @@ export const useEscrowsBySignerQuery = ({
   status,
   type,
   enabled = true,
-  validateOnChain = true,
+  validateOnChain = false,
 }: UseEscrowsBySignerQueryParams) => {
   const { getEscrowsBySigner } = useGetEscrowsFromIndexerBySigner();
 

@@ -15,7 +15,6 @@ export function AuthLoginShell({
       imageSrc="/logos/assets/auth.webp"
       imageAlt={imageAlt}
       logoSrc="/logos/dark-en-logo.png"
-      showFooter={false}
     >
       {children}
     </LoginShell>
