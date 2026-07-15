@@ -111,6 +111,7 @@ export const UserEmailCombobox = ({
 }: UserEmailComboboxProps) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const {
     users,
     isFetching,
@@ -122,6 +123,10 @@ export const UserEmailCombobox = ({
   } = useUserEmailSearch(role, query, open);
 
   const listRef = useRef<HTMLDivElement | null>(null);
+
+  const focusSearchInput = useCallback(() => {
+    inputRef.current?.focus({ preventScroll: true });
+  }, []);
 
   const onListScroll = useCallback(() => {
     const el = listRef.current;
@@ -164,12 +169,17 @@ export const UserEmailCombobox = ({
         <PopoverContent
           className="w-[var(--radix-popover-trigger-width)] p-2 sm:w-80"
           align="start"
+          initialFocus={() => {
+            // Default popup focus scrolls the page to the portal node (top).
+            queueMicrotask(focusSearchInput);
+            return false;
+          }}
         >
           <Input
+            ref={inputRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={placeholder}
-            autoFocus
           />
           <div
             ref={listRef}
