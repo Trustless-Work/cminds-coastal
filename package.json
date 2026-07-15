@@ -9,6 +9,7 @@
     "dev:community": "turbo run dev --filter=community-dashboard",
     "dev:funding": "turbo run dev --filter=funding-dashboard",
     "dev:public": "turbo run dev --filter=public-viewer",
+    "dev:admin": "turbo run dev --filter=admin",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
