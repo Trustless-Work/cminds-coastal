@@ -63,7 +63,7 @@ export function useDisputeMilestone({
         address: walletAddress || "",
       });
 
-      toast.success("Milestone disputed successfully");
+      toast.success("Task disputed successfully");
 
       updateEscrow({
         ...selectedEscrow,

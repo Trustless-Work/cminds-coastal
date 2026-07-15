@@ -111,7 +111,7 @@ export const WalletButton = () => {
       onClick={handleConnect}
     >
       <Wallet className="h-4 w-4" />
-      Connect Wallet
+      Connect External Wallet
     </Button>
   );
 };

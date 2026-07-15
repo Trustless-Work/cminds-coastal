@@ -92,7 +92,8 @@ export function useResolveDispute({
 
   const handleDistributionAddressChange = (index: number, value: string) => {
     const updated = [...distributions];
-    updated[index] = { ...updated[index], address: value };
+    const current = updated[index] ?? { address: "", amount: "" };
+    updated[index] = { ...current, address: value };
     form.setValue("distributions", updated);
   };
 
@@ -112,7 +113,8 @@ export function useResolveDispute({
       }
     }
     const updated = [...distributions];
-    updated[index] = { ...updated[index], amount: rawValue };
+    const current = updated[index] ?? { address: "", amount: "" };
+    updated[index] = { ...current, amount: rawValue };
     form.setValue("distributions", updated);
   };
 
@@ -130,6 +132,7 @@ export function useResolveDispute({
   const isAnyDistributionEmpty = React.useMemo(() => {
     if (!distributions.length) return true;
     const last = distributions[distributions.length - 1];
+    if (!last) return true;
     return (last.address || "").trim() === "" || (last.amount ?? "") === "";
   }, [distributions]);
 
@@ -138,7 +141,7 @@ export function useResolveDispute({
       setIsSubmitting(true);
 
       if (!isExactMatch) {
-        toast.error("The total distributions must equal the milestone amount");
+        toast.error("The total distributions must equal the task amount");
         return;
       }
 

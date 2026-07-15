@@ -13,13 +13,25 @@ import { Toaster } from "@repo/ui/components/sonner";
 import { PollarProvider } from "./PollarProvider";
 import { ThemeProvider } from "./ThemeProvider";
 
-export function AppProviders({ children }: { children: ReactNode }) {
+export type AppProvidersProps = {
+  children: ReactNode;
+  /**
+   * Funding dashboard: wallet context is Wallet Kit only (Freighter, etc.).
+   * Does not use Pollar's custodial address for signing or display.
+   */
+  allowBrowserWallet?: boolean;
+};
+
+export function AppProviders({
+  children,
+  allowBrowserWallet = false,
+}: AppProvidersProps) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
       <ReactQueryClientProvider>
         <TrustlessWorkProvider>
           <PollarProvider>
-            <WalletProvider>
+            <WalletProvider allowBrowserWallet={allowBrowserWallet}>
               <EscrowProvider>
                 <EscrowDialogsProvider>
                   <EscrowAmountProvider>

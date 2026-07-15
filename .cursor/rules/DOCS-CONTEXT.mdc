@@ -12,8 +12,11 @@ Before implementing features, fixing bugs, or making product decisions, **consul
 | Document | Path | Use when |
 | --- | --- | --- |
 | **CMinds product requirements** | `docs/CMINDS_CONTEXT.md` | Any feature work, UX, API design, naming, status models, scope questions |
+| **Design system** | `docs/DESIGN_SYSTEM.md` | Any UI, styling, layout, components, tokens, motion — **light mode only** |
 
 When `docs/` grows, read the relevant file(s) first. If requirements are ambiguous, prefer what is written in docs over assumptions.
+
+**UI rule:** Follow `docs/DESIGN_SYSTEM.md` for all four frontends. Do not add dark mode or a theme toggle.
 
 ---
 

@@ -6,6 +6,7 @@
     "./Navbar": "./src/Navbar.tsx",
     "./DashboardShell": "./src/DashboardShell.tsx",
     "./LoginShell": "./src/LoginShell.tsx",
+    "./UsdcAmount": "./src/UsdcAmount.tsx",
     "./security-headers": "./src/security-headers.ts"
   },
   "scripts": {
@@ -22,6 +23,7 @@
     "typescript": "catalog:"
   },
   "dependencies": {
+    "@repo/helpers": "workspace:*",
     "@repo/ui": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"

@@ -37,12 +37,12 @@ export const ApproveMilestoneDialog = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button type="button" className="cursor-pointer w-full">
-          Approve Milestone
+          Approve Task
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Approve Milestone</DialogTitle>
+          <DialogTitle>Approve Task</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -55,7 +55,7 @@ export const ApproveMilestoneDialog = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center">
-                    Milestone<span className="text-destructive ml-1">*</span>
+                    Task<span className="text-destructive ml-1">*</span>
                   </FormLabel>
                   <FormControl>
                     <Select
@@ -65,12 +65,12 @@ export const ApproveMilestoneDialog = () => {
                       }}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select milestone" />
+                        <SelectValue placeholder="Select task" />
                       </SelectTrigger>
                       <SelectContent>
                         {(selectedEscrow?.milestones || []).map((m, idx) => (
                           <SelectItem key={`ms-${idx}`} value={String(idx)}>
-                            {m?.description || `Milestone ${idx + 1}`}
+                            {m?.description || `Task ${idx + 1}`}
                           </SelectItem>
                         ))}
                       </SelectContent>

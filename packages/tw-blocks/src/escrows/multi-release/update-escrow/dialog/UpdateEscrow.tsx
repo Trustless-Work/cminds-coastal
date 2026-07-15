@@ -72,7 +72,7 @@ export const UpdateEscrowDialog = () => {
                   </h2>
                 </div>
                 <p className="text-muted-foreground mt-1">
-                  Update escrow details and milestones
+                  Update escrow details and tasks
                 </p>
 
                 {isEscrowLocked && (
@@ -86,7 +86,7 @@ export const UpdateEscrowDialog = () => {
 
                     <p className="text-muted-foreground font-medium">
                       When the escrow has balance, it cannot be updated in all
-                      fields, just adding new milestones is allowed.
+                      fields, just adding new tasks is allowed.
                     </p>
                   </div>
                 )}
@@ -372,7 +372,7 @@ export const UpdateEscrowDialog = () => {
 
             <div className="space-y-4">
               <FormLabel className="flex items-center">
-                Milestones<span className="text-destructive ml-1">*</span>
+                Tasks<span className="text-destructive ml-1">*</span>
               </FormLabel>
               {milestones.map((milestone, index) => (
                 <div key={index} className="space-y-4">
@@ -398,14 +398,19 @@ export const UpdateEscrowDialog = () => {
 
                     <div className="md:col-span-4">
                       <Input
-                        placeholder="Milestone description"
+                        placeholder="Task description"
                         value={milestone.description}
                         disabled={
                           isEscrowLocked && index < initialMilestonesCount
                         }
                         onChange={(e) => {
                           const updatedMilestones = [...milestones];
-                          updatedMilestones[index].description = e.target.value;
+                          const current = updatedMilestones[index];
+                          if (!current) return;
+                          updatedMilestones[index] = {
+                            ...current,
+                            description: e.target.value,
+                          };
                           form.setValue("milestones", updatedMilestones);
                         }}
                       />

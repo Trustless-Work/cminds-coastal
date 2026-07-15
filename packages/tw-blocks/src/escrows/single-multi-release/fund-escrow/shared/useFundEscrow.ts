@@ -1,9 +1,14 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { fundEscrowSchema, type FundEscrowValues } from "./schema";
 import { toast } from "sonner";
 import { FundEscrowPayload } from "@trustless-work/escrow";
+import {
+  GetEscrowBalancesResponse,
+  GetEscrowsFromIndexerResponse as Escrow,
+} from "@trustless-work/escrow/types";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
 import {
@@ -13,6 +18,7 @@ import {
 import { useWalletContext } from "@repo/providers/WalletProvider";
 
 export function useFundEscrow({ onSuccess }: { onSuccess?: () => void } = {}) {
+  const queryClient = useQueryClient();
   const { fundEscrow } = useEscrowsMutations();
   const { selectedEscrow, updateEscrow } = useEscrowContext();
   const { walletAddress } = useWalletContext();
@@ -59,10 +65,39 @@ export function useFundEscrow({ onSuccess }: { onSuccess?: () => void } = {}) {
         address: walletAddress || "",
       });
 
+      const nextBalance = (selectedEscrow?.balance || 0) + finalPayload.amount;
+
       updateEscrow({
-        ...selectedEscrow,
-        balance: (selectedEscrow?.balance || 0) + finalPayload.amount,
+        balance: nextBalance,
       });
+
+      queryClient.setQueriesData<Escrow[]>(
+        { queryKey: ["escrows", "contract-ids"] },
+        (current) => {
+          if (!current) return current;
+          return current.map((escrow) =>
+            escrow.contractId === finalPayload.contractId
+              ? { ...escrow, balance: nextBalance }
+              : escrow,
+          );
+        },
+      );
+
+      queryClient.setQueryData<GetEscrowBalancesResponse[]>(
+        ["escrows", [finalPayload.contractId]],
+        (current) => {
+          if (!current?.length) {
+            return [
+              { address: finalPayload.contractId, balance: nextBalance },
+            ];
+          }
+          return current.map((item) =>
+            item.address === finalPayload.contractId
+              ? { ...item, balance: nextBalance }
+              : item,
+          );
+        },
+      );
 
       toast.success("Escrow funded successfully");
 

@@ -55,7 +55,7 @@ export const ApproveMilestoneButton = ({
         address: walletAddress || "",
       });
 
-      toast.success("Milestone approved flag updated successfully");
+      toast.success("Task approved successfully");
 
       updateEscrow({
         ...selectedEscrow,
@@ -96,7 +96,7 @@ export const ApproveMilestoneButton = ({
           <span className="ml-2">Approving...</span>
         </div>
       ) : (
-        "Approve Milestone"
+        "Approve Task"
       )}
     </Button>
   );

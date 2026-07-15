@@ -6,7 +6,8 @@
     "./auth/components/*": "./src/auth/components/*.tsx",
     "./auth/hooks/*": "./src/auth/hooks/*.ts",
     "./auth/services/*": "./src/auth/services/*.ts",
-    "./auth/types": "./src/auth/types.ts"
+    "./auth/types": "./src/auth/types.ts",
+    "./escrow/services/*": "./src/escrow/services/*.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -23,14 +24,19 @@
     "typescript": "catalog:"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.4.0",
+    "@pollar/core": "catalog:",
     "@pollar/react": "catalog:",
     "@repo/config": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/shared": "workspace:*",
     "@repo/ui": "workspace:*",
+    "@tanstack/react-query": "^5.101.2",
     "lucide-react": "^1.24.0",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "react-hook-form": "^7.81.0",
+    "zod": "3.25.76"
   },
   "peerDependencies": {
     "next": ">=15"

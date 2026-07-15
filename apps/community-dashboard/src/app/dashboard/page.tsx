@@ -1,4 +1,8 @@
+"use client";
+
 import { AuthGate } from "@repo/features/auth/components/AuthGate";
+
+import { CommunityDashboardView } from "../../features/escrow-create/views/CommunityDashboardView";
 
 export default function DashboardPage() {
   return (
@@ -11,9 +15,10 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
-            Create escrows, submit evidence, and release milestone funds.
+            Create escrows, submit evidence, and release task funds.
           </p>
         </div>
+        <CommunityDashboardView />
       </main>
     </AuthGate>
   );

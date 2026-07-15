@@ -3,9 +3,11 @@
 import { usePollar } from "@pollar/react";
 import { clientEnv } from "@repo/config";
 import { DashboardShell } from "@repo/shared/DashboardShell";
+import type { NavLink } from "@repo/shared/Navbar";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { usePollarBootstrap } from "../hooks/usePollarBootstrap";
 import { useSyncUser } from "../hooks/useSyncUser";
 import type { SyncableUserRole } from "../types";
 import { LogoutButton } from "./LogoutButton";
@@ -15,6 +17,9 @@ type AuthGateProps = {
   appRole: SyncableUserRole;
   appTitle: string;
   appSubtitle?: string;
+  logoSrc?: string;
+  logoHref?: string;
+  navLinks?: NavLink[];
   children: React.ReactNode;
   loginHref?: string;
 };
@@ -22,7 +27,13 @@ type AuthGateProps = {
 export function AuthGate(props: AuthGateProps) {
   if (!clientEnv.pollarApiKey) {
     return (
-      <DashboardShell title={props.appTitle} subtitle={props.appSubtitle}>
+      <DashboardShell
+        title={props.appTitle}
+        subtitle={props.appSubtitle}
+        logoSrc={props.logoSrc}
+        logoHref={props.logoHref}
+        navLinks={props.navLinks}
+      >
         <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
           <p className="text-sm font-medium text-foreground">
             Wallet auth unavailable
@@ -38,36 +49,76 @@ export function AuthGate(props: AuthGateProps) {
   return <AuthGateInner {...props} />;
 }
 
+function AuthContentSkeleton({ error }: { error: string | null }) {
+  if (error) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
+        <p className="text-sm font-medium text-foreground">Session error</p>
+        <p className="max-w-sm text-sm text-destructive">{error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-6 sm:p-8">
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-72 max-w-full" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Skeleton className="h-48 rounded-xl" />
+        <Skeleton className="h-48 rounded-xl" />
+        <Skeleton className="h-48 rounded-xl sm:col-span-2 lg:col-span-1" />
+      </div>
+    </div>
+  );
+}
+
 function AuthGateInner({
   appRole,
   appTitle,
   appSubtitle,
+  logoSrc,
+  logoHref,
+  navLinks,
   children,
   loginHref = "/login",
 }: AuthGateProps) {
   const router = useRouter();
+  const { bootstrapped } = usePollarBootstrap();
   const { isAuthenticated, verified, wallet } = usePollar();
-  const { profile, isReady, syncing, error } = useSyncUser({
+  const { profile, pollarAvatar, isReady, syncing, error } = useSyncUser({
     role: appRole,
-    enabled: isAuthenticated && verified,
+    enabled: bootstrapped && isAuthenticated && verified,
   });
 
   const hasAppRole = Boolean(profile?.roles.includes(appRole));
   const showAuthLeading = Boolean(isAuthenticated && profile);
   const walletAddress =
     wallet?.address ?? profile?.wallets[0]?.address ?? null;
+  const avatarUrl = profile?.avatar_url ?? pollarAvatar ?? null;
+  const sessionPending =
+    !bootstrapped ||
+    !isAuthenticated ||
+    !verified ||
+    syncing ||
+    !isReady;
 
   useEffect(() => {
+    if (!bootstrapped) {
+      return;
+    }
     if (!isAuthenticated) {
       router.replace(loginHref);
     }
-  }, [isAuthenticated, loginHref, router]);
+  }, [bootstrapped, isAuthenticated, loginHref, router]);
 
   const authLeading = showAuthLeading ? (
     <>
       <UserCard
         displayName={profile?.display_name ?? null}
-        avatarUrl={profile?.avatar_url ?? null}
+        avatarUrl={avatarUrl}
+        subtitle={profile?.email ?? null}
         walletAddress={walletAddress}
       />
       <LogoutButton loginHref={loginHref} />
@@ -76,26 +127,17 @@ function AuthGateInner({
     <LogoutButton loginHref={loginHref} />
   ) : null;
 
-  if (!isAuthenticated || !verified || syncing || !isReady) {
+  if (sessionPending) {
     return (
       <DashboardShell
         title={appTitle}
         subtitle={appSubtitle}
+        logoSrc={logoSrc}
+        logoHref={logoHref}
+        navLinks={navLinks}
         leading={authLeading}
       >
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-          {error ? (
-            <p className="text-sm text-destructive">{error}</p>
-          ) : (
-            <div className="flex w-full max-w-xs flex-col items-center gap-3">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-48" />
-            </div>
-          )}
-          <p className="text-sm text-muted-foreground">
-            {error ? "Session error" : "Checking session…"}
-          </p>
-        </div>
+        <AuthContentSkeleton error={error} />
       </DashboardShell>
     );
   }
@@ -105,6 +147,9 @@ function AuthGateInner({
       <DashboardShell
         title={appTitle}
         subtitle={appSubtitle}
+        logoSrc={logoSrc}
+        logoHref={logoHref}
+        navLinks={navLinks}
         leading={authLeading}
       >
         <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
@@ -121,6 +166,9 @@ function AuthGateInner({
     <DashboardShell
       title={appTitle}
       subtitle={appSubtitle}
+      logoSrc={logoSrc}
+      logoHref={logoHref}
+      navLinks={navLinks}
       leading={authLeading}
     >
       {children}

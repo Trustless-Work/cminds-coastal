@@ -54,7 +54,7 @@ export const DisputeMilestoneButton = ({
         address: walletAddress || "",
       });
 
-      toast.success("Milestone disputed successfully");
+      toast.success("Task disputed successfully");
 
       updateEscrow({
         ...selectedEscrow,
@@ -91,7 +91,7 @@ export const DisputeMilestoneButton = ({
           <span className="ml-2">Disputing...</span>
         </div>
       ) : (
-        "Dispute Milestone"
+        "Dispute Task"
       )}
     </Button>
   );

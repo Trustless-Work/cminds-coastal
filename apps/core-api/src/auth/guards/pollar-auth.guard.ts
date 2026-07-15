@@ -22,7 +22,7 @@ export class PollarAuthGuard implements CanActivate {
     private readonly pollarTokenService: PollarTokenService,
   ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -47,7 +47,7 @@ export class PollarAuthGuard implements CanActivate {
     }
 
     try {
-      const verified = await this.pollarTokenService.verifyAccessToken(token);
+      const verified = this.pollarTokenService.verifyAccessToken(token);
       request.user = {
         pollarUserId: verified.pollarUserId,
         email: verified.email,

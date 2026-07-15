@@ -65,7 +65,7 @@ export const ChangeMilestoneStatusButton = ({
         address: walletAddress || "",
       });
 
-      toast.success("Milestone status updated successfully");
+      toast.success("Task status updated successfully");
     } catch (error) {
       toast.error(handleError(error as ErrorResponse).message);
     } finally {

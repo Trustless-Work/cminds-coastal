@@ -50,8 +50,8 @@ export const getFormSchema = () => {
         )
         .min(2, { message: "At least two distributions are required." }),
       milestoneIndex: z
-        .string({ required_error: "Milestone is required" })
-        .min(1, { message: "Milestone is required" }),
+        .string({ required_error: "Task is required" })
+        .min(1, { message: "Task is required" }),
     })
     .superRefine((data, ctx) => {
       const seen = new Map<string, number>();

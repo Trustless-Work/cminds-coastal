@@ -60,7 +60,7 @@ export const ChangeMilestoneStatusDialog = ({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Change Milestone Status</DialogTitle>
+          <DialogTitle>Change Task Status</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -79,7 +79,7 @@ export const ChangeMilestoneStatusDialog = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center">
-                        Milestone
+                        Task
                         <span className="text-destructive ml-1">*</span>
                       </FormLabel>
                       <FormControl>
@@ -90,7 +90,7 @@ export const ChangeMilestoneStatusDialog = ({
                           }}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select milestone" />
+                            <SelectValue placeholder="Select task" />
                           </SelectTrigger>
                           <SelectContent>
                             {(selectedEscrow?.milestones || []).map(
@@ -99,7 +99,7 @@ export const ChangeMilestoneStatusDialog = ({
                                   key={`ms-${idx}`}
                                   value={String(idx)}
                                 >
-                                  {m?.description || `Milestone ${idx + 1}`}
+                                  {m?.description || `Task ${idx + 1}`}
                                 </SelectItem>
                               )
                             )}

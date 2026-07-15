@@ -92,17 +92,20 @@ export const EscrowProvider = ({ children }: { children: ReactNode }) => {
    *
    * @param updater - The updater function
    */
-  const updateEscrow: EscrowContextType["updateEscrow"] = (updater) => {
-    setSelectedEscrowState((current) => {
-      if (!current) return current;
-      const next =
-        typeof updater === "function"
-          ? updater(current)
-          : { ...current, ...updater };
-      persist(next);
-      return next;
-    });
-  };
+  const updateEscrow: EscrowContextType["updateEscrow"] = useCallback(
+    (updater) => {
+      setSelectedEscrowState((current) => {
+        if (!current) return current;
+        const next =
+          typeof updater === "function"
+            ? updater(current)
+            : { ...current, ...updater };
+        persist(next);
+        return next;
+      });
+    },
+    [],
+  );
 
   /**
    * Set a field of the selected escrow
@@ -110,22 +113,34 @@ export const EscrowProvider = ({ children }: { children: ReactNode }) => {
    * @param key - The key of the field to set
    * @param value - The value to set
    */
-  const setEscrowField: EscrowContextType["setEscrowField"] = (key, value) => {
-    setSelectedEscrowState((current) => {
-      if (!current) return current;
-      const next = { ...current, [key]: value } as Escrow;
-      persist(next);
-      return next;
-    });
-  };
+  const setEscrowField: EscrowContextType["setEscrowField"] = useCallback(
+    (key, value) => {
+      setSelectedEscrowState((current) => {
+        if (!current) return current;
+        const next = { ...current, [key]: value } as Escrow;
+        persist(next);
+        return next;
+      });
+    },
+    [],
+  );
 
   /**
    * Clear the selected escrow
    */
-  const clearEscrow = () => {
+  const clearEscrow = useCallback(() => {
     setSelectedEscrowState(null);
     persist(null);
-  };
+  }, []);
+
+  const setSelectedEscrow = useCallback(
+    (value?: SingleEscrowPayload | MultiEscrowPayload) => {
+      const next = (value as unknown as Escrow) ?? null;
+      setSelectedEscrowState(next);
+      persist(next);
+    },
+    [],
+  );
 
   /**
    * Set the user roles in the escrow
@@ -150,22 +165,31 @@ export const EscrowProvider = ({ children }: { children: ReactNode }) => {
    */
   const hasEscrow = useMemo(() => Boolean(selectedEscrow), [selectedEscrow]);
 
+  const value = useMemo(
+    () => ({
+      selectedEscrow,
+      hasEscrow,
+      updateEscrow,
+      setEscrowField,
+      clearEscrow,
+      setSelectedEscrow,
+      setUserRolesInEscrow,
+      userRolesInEscrow,
+    }),
+    [
+      selectedEscrow,
+      hasEscrow,
+      updateEscrow,
+      setEscrowField,
+      clearEscrow,
+      setSelectedEscrow,
+      setUserRolesInEscrow,
+      userRolesInEscrow,
+    ],
+  );
+
   return (
-    <EscrowContext.Provider
-      value={{
-        selectedEscrow,
-        hasEscrow,
-        updateEscrow,
-        setEscrowField,
-        clearEscrow,
-        setSelectedEscrow: (value?: SingleEscrowPayload | MultiEscrowPayload) =>
-          setSelectedEscrowState((value as unknown as Escrow) ?? null),
-        setUserRolesInEscrow,
-        userRolesInEscrow,
-      }}
-    >
-      {children}
-    </EscrowContext.Provider>
+    <EscrowContext.Provider value={value}>{children}</EscrowContext.Provider>
   );
 };
 

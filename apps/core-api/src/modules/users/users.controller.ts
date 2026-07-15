@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Inject,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -14,6 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CurrentUser, type AuthenticatedUser } from '../../auth';
+import { SearchUsersQueryDto } from './dto/search-users-query.dto';
 import { SyncUserDto } from './dto/sync-user.dto';
 import { UsersService } from './users.service';
 
@@ -43,5 +45,20 @@ export class UsersController {
   @ApiResponse({ status: 404, description: 'User not synced yet' })
   me(@CurrentUser() user: AuthenticatedUser) {
     return this.usersService.findMe(user);
+  }
+
+  @Get('search')
+  @ApiOperation({
+    summary:
+      'Search users by email; optionally filter by role (escrow role pickers)',
+  })
+  @ApiResponse({ status: 200, description: 'Matching users with wallets' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Role not searchable' })
+  search(@Query() query: SearchUsersQueryDto) {
+    return this.usersService.searchByRoleAndEmail({
+      role: query.role,
+      q: query.q,
+    });
   }
 }

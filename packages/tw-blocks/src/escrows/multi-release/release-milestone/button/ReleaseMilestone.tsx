@@ -59,7 +59,7 @@ export const ReleaseMilestoneButton = ({
         address: walletAddress || "",
       });
 
-      toast.success("Milestone released successfully");
+      toast.success("Task released successfully");
 
       // Ensure amounts are up to date for the success dialog
       if (selectedEscrow) {
@@ -113,7 +113,7 @@ export const ReleaseMilestoneButton = ({
           <span className="ml-2">Releasing...</span>
         </div>
       ) : (
-        "Release Milestone"
+        "Release Task"
       )}
     </Button>
   );

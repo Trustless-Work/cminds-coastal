@@ -1,20 +1,20 @@
+"use client";
+
 import { AuthGate } from "@repo/features/auth/components/AuthGate";
+
+import { FUNDING_NAV } from "../../features/escrow-fund/constants/nav";
+import { FundingEscrowListView } from "../../features/escrow-fund/views/FundingEscrowListView";
 
 export default function DashboardPage() {
   return (
     <AuthGate
       appRole="FUNDER"
-      appTitle="Funding"
-      appSubtitle="Funder dashboard"
+      appTitle="CMinds"
+      logoSrc="/logos/dark-en-logo.png"
+      logoHref="/dashboard"
+      navLinks={FUNDING_NAV}
     >
-      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-6 sm:p-8">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            View escrows, fund with USDC, and track deposit history.
-          </p>
-        </div>
-      </main>
+      <FundingEscrowListView />
     </AuthGate>
   );
 }

@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const changeMilestoneStatusSchema = z.object({
   milestoneIndex: z
-    .string({ required_error: "Milestone is required" })
-    .min(1, { message: "Milestone is required" }),
+    .string({ required_error: "Task is required" })
+    .min(1, { message: "Task is required" }),
   status: z
     .string({ required_error: "Status is required" })
     .min(1, { message: "Status is required" }),

@@ -18,7 +18,7 @@ export type VerifiedPollarToken = {
  */
 @Injectable()
 export class PollarTokenService {
-  async verifyAccessToken(accessToken: string): Promise<VerifiedPollarToken> {
+  verifyAccessToken(accessToken: string): VerifiedPollarToken {
     if (!accessToken.trim()) {
       throw new UnauthorizedException('Missing access token');
     }

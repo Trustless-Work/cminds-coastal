@@ -408,7 +408,7 @@ export const InitializeEscrowDialog = () => {
             />
 
             <div className="space-y-4">
-              <FormLabel className="flex items-center">Milestones</FormLabel>
+              <FormLabel className="flex items-center">Tasks</FormLabel>
 
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                 <div className="md:col-span-4">
@@ -433,7 +433,7 @@ export const InitializeEscrowDialog = () => {
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                     <div className="md:col-span-4">
                       <Input
-                        placeholder="Milestone description"
+                        placeholder="Task description"
                         value={milestone.description}
                         onChange={(e) => {
                           form.setValue(

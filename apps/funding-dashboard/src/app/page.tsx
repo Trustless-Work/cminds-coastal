@@ -11,7 +11,8 @@ export default function Home() {
           Funding Dashboard
         </h1>
         <p className="max-w-sm text-sm text-muted-foreground">
-          Fund coastal conservation escrows with USDC on Stellar.
+          Fund coastal conservation escrows with USDC — copy the contract ID or
+          connect your wallet.
         </p>
       </div>
       <Link href="/login" className={cn(buttonVariants())}>
