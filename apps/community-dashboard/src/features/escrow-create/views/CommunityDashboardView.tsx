@@ -12,8 +12,13 @@ import { CommunityStatsCards } from "../components/CommunityStatsCards";
 import { useCommunityEscrows } from "../hooks/useCommunityEscrows";
 
 export const CommunityDashboardView = () => {
-  const { data = [], isLoading, isError, error, refetch } =
-    useCommunityEscrows();
+  const {
+    data = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useCommunityEscrows();
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pb-24 pt-6 sm:px-10">
@@ -34,7 +39,7 @@ export const CommunityDashboardView = () => {
             href="/dashboard/escrows/new"
             className="inline-flex h-11 w-fit shrink-0 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Create escrow
+            Create Escrow
           </Link>
         </header>
 
@@ -94,7 +99,7 @@ export const CommunityDashboardView = () => {
             description="Create an escrow from the fixed task menu to get started."
             icon={<FileStack />}
             link="/dashboard/escrows/new"
-            linkText="Create escrow"
+            linkText="Create Escrow"
           />
         ) : null}
 

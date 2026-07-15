@@ -133,7 +133,7 @@ The Community Implementer may be an individual, community collective, local orga
 
 Responsibilities:
 
-- Create escrow with milestones.
+- Create Escrow with milestones.
 - Select tasks from fixed menu.
 - Define milestone amounts.
 - Add project details.
@@ -535,7 +535,7 @@ The Community Dashboard should support:
 
 - Wallet login with Freighter
 - View community-related escrows
-- Create escrow request
+- Create Escrow request
 - Select tasks from fixed menu
 - Use `X-01 Custom Task`
 - Add project metadata
@@ -615,7 +615,7 @@ From Trustless Work’s perspective, moving from testnet to mainnet is primarily
 
 The product should rely on Trustless Work API capabilities, including:
 
-- Create escrow
+- Create Escrow
 - Initialize escrow
 - Get escrows by role
 - Update milestone status

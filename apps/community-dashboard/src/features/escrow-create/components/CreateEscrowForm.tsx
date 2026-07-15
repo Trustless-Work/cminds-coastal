@@ -123,7 +123,7 @@ export const CreateEscrowForm = () => {
           Back to dashboard
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          Create escrow
+          Create Escrow
         </h1>
         <p className="max-w-xl text-sm text-muted-foreground">
           Build the project on the left. The draft on the right updates as you

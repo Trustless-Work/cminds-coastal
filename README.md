@@ -15,23 +15,23 @@ Community creates escrow → Funders deposit USDC → Community submits evidence
         → CMinds approves milestone → Release signer releases funds → Public transparency
 ```
 
-| Step | Actor | App |
-| --- | --- | --- |
-| Create escrow, select tasks, set milestone amounts | Community Implementer | `community-dashboard` |
-| Review evidence, approve or dispute milestones | CMinds operator | `cminds-dashboard` |
-| Fund escrow with USDC (direct or copy address) | Funder | `funding-dashboard` |
-| View progress, funding, and evidence links | Observer / public | `public-viewer` |
-| Off-chain metadata, evidence URLs, audit logs | Backend API | `core-api` |
+| Step                                               | Actor                 | App                   |
+| -------------------------------------------------- | --------------------- | --------------------- |
+| Create Escrow, select tasks, set milestone amounts | Community Implementer | `community-dashboard` |
+| Review evidence, approve or dispute milestones     | CMinds operator       | `cminds-dashboard`    |
+| Fund escrow with USDC (direct or copy address)     | Funder                | `funding-dashboard`   |
+| View progress, funding, and evidence links         | Observer / public     | `public-viewer`       |
+| Off-chain metadata, evidence URLs, audit logs      | Backend API           | `core-api`            |
 
 ### Tech stack
 
-| Layer | Technology |
-| --- | --- |
-| Monorepo | pnpm workspaces + Turborepo |
-| Frontend | Next.js 16, React 19, Tailwind CSS 4, TypeScript |
-| Backend | NestJS, Prisma, Supabase PostgreSQL |
+| Layer      | Technology                                                 |
+| ---------- | ---------------------------------------------------------- |
+| Monorepo   | pnpm workspaces + Turborepo                                |
+| Frontend   | Next.js 16, React 19, Tailwind CSS 4, TypeScript           |
+| Backend    | NestJS, Prisma, Supabase PostgreSQL                        |
 | Blockchain | Stellar, USDC, Freighter wallet, Trustless Work escrow SDK |
-| Shared UI | `@repo/ui` (shadcn / design system) |
+| Shared UI  | `@repo/ui` (shadcn / design system)                        |
 
 ### Repository layout
 
@@ -57,20 +57,20 @@ cminds/
 
 ## Apps
 
-| App | Package | Dev port | Description |
-| --- | --- | --- | --- |
-| Core API | `core-api` | 3000 | NestJS backend for off-chain data |
-| CMinds Dashboard | `cminds-dashboard` | 3001 | Review and approve milestones |
-| Community Dashboard | `community-dashboard` | 3002 | Create escrows and submit evidence |
-| Funding Dashboard | `funding-dashboard` | 3003 | Fund escrows with USDC |
-| Public Viewer | `public-viewer` | 3004 | Public transparency page |
+| App                 | Package               | Dev port | Description                        |
+| ------------------- | --------------------- | -------- | ---------------------------------- |
+| Core API            | `core-api`            | 3000     | NestJS backend for off-chain data  |
+| CMinds Dashboard    | `cminds-dashboard`    | 3001     | Review and approve milestones      |
+| Community Dashboard | `community-dashboard` | 3002     | Create escrows and submit evidence |
+| Funding Dashboard   | `funding-dashboard`   | 3003     | Fund escrows with USDC             |
+| Public Viewer       | `public-viewer`       | 3004     | Public transparency page           |
 
 ## Packages
 
-| Package | Description |
-| --- | --- |
-| `@repo/ui` | Shared React components |
-| `@repo/eslint-config` | Shared ESLint configuration |
+| Package                   | Description                     |
+| ------------------------- | ------------------------------- |
+| `@repo/ui`                | Shared React components         |
+| `@repo/eslint-config`     | Shared ESLint configuration     |
 | `@repo/typescript-config` | Shared TypeScript configuration |
 
 ## Prerequisites
