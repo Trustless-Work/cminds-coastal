@@ -30,8 +30,12 @@ export class StorageService {
     const url = serverEnv.supabaseUrl;
     const key = serverEnv.supabaseServiceRoleKey;
     if (!url || !key) {
+      const missing = [
+        !url ? 'SUPABASE_URL' : null,
+        !key ? 'SUPABASE_SERVICE_ROLE_KEY' : null,
+      ].filter(Boolean);
       throw new ServiceUnavailableException(
-        'Supabase storage is not configured (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY)',
+        `Supabase storage is not configured (missing: ${missing.join(', ')})`,
       );
     }
     if (!this.client) {

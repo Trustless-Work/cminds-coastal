@@ -88,9 +88,15 @@ export const FundingEscrowListView = () => {
 
       <section className="mt-12 sm:mt-16">
         <header className="mb-8 flex items-end justify-between gap-4 sm:mb-10">
-          <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Open escrows
-          </h2>
+          <div className="flex flex-col gap-2">
+            <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+              Open Opportunities
+            </h2>
+            <h3 className="text-sm text-muted-foreground">
+              Support coastal conservation projects across the United States.
+            </h3>
+          </div>
+
           <button
             type="button"
             className="shrink-0 text-sm text-muted-foreground transition-opacity hover:opacity-70"
@@ -126,10 +132,16 @@ export const FundingEscrowListView = () => {
         {isLoading ? (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="space-y-3">
+              <div
+                key={index}
+                className="flex flex-col overflow-hidden rounded-[24px] border border-border bg-background p-3 sm:p-4"
+              >
                 <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
-                <Skeleton className="h-7 w-3/4 rounded-md" />
-                <Skeleton className="h-4 w-1/2 rounded-md" />
+                <div className="mt-3 flex flex-col gap-2 px-1 pb-1 sm:mt-4">
+                  <Skeleton className="h-6 w-4/5 rounded-md" />
+                  <Skeleton className="h-4 w-3/5 rounded-md" />
+                  <Skeleton className="h-4 w-2/5 rounded-md" />
+                </div>
               </div>
             ))}
           </div>

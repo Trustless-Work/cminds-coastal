@@ -83,7 +83,7 @@ export const ResolveDisputeDialog = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center">
-                      Milestone
+                      Task
                       <span className="text-destructive ml-1">*</span>
                     </FormLabel>
                     <FormControl>
@@ -94,12 +94,12 @@ export const ResolveDisputeDialog = ({
                         }}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select milestone" />
+                          <SelectValue placeholder="Select task" />
                         </SelectTrigger>
                         <SelectContent>
                           {(selectedEscrow?.milestones || []).map((m, idx) => (
                             <SelectItem key={`ms-${idx}`} value={String(idx)}>
-                              {m?.description || `Milestone ${idx + 1}`}
+                              {m?.description || `Task ${idx + 1}`}
                             </SelectItem>
                           ))}
                         </SelectContent>

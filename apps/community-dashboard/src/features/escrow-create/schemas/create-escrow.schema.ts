@@ -43,7 +43,7 @@ export const createEscrowSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["receivers", taskId],
-          message: "Select a receiver for this milestone",
+          message: "Select a receiver for this task",
         });
         continue;
       }

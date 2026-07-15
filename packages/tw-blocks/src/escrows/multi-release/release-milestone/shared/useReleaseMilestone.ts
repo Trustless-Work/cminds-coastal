@@ -68,7 +68,7 @@ export function useReleaseMilestone({
         address: walletAddress || "",
       });
 
-      toast.success("Milestone released successfully");
+      toast.success("Task released successfully");
 
       // Ensure amounts are up to date for the success dialog
       if (selectedEscrow) {

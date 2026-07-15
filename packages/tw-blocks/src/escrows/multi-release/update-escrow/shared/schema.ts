@@ -84,7 +84,7 @@ export const useUpdateEscrowSchema = () => {
                 message: "Receiver address must be a valid wallet.",
               }),
             description: z.string().min(1, {
-              message: "Milestone description is required.",
+              message: "Task description is required.",
             }),
             amount: z
               .union([z.string(), z.number()])
@@ -100,7 +100,7 @@ export const useUpdateEscrowSchema = () => {
                   return val > 0;
                 },
                 {
-                  message: "Milestone amount must be greater than 0.",
+                  message: "Task amount must be greater than 0.",
                 }
               )
               .refine(
@@ -122,12 +122,12 @@ export const useUpdateEscrowSchema = () => {
                 },
                 {
                   message:
-                    "Milestone amount can have a maximum of 2 decimal places.",
+                    "Task amount can have a maximum of 2 decimal places.",
                 }
               ),
           })
         )
-        .min(1, { message: "At least one milestone is required." }),
+        .min(1, { message: "At least one task is required." }),
     });
   };
 

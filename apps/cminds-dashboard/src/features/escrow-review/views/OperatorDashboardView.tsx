@@ -61,7 +61,7 @@ export const OperatorDashboardView = () => {
         <div>
           <h2 className="text-lg font-medium">Review queue</h2>
           <p className="text-sm text-muted-foreground">
-            Approve or dispute milestones with evidence ready for review.
+            Approve or dispute tasks with evidence ready for review.
           </p>
         </div>
         <MilestoneReviewQueue items={reviewQueue} isLoading={isLoading} />

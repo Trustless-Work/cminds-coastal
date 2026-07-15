@@ -1,11 +1,15 @@
 import 'reflect-metadata';
-import 'dotenv/config';
+import { config as loadEnv } from 'dotenv';
+import { resolve } from 'node:path';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { serverEnv } from '@repo/config';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+
+// Always load apps/core-api/.env (not process.cwd()), so turbo/root starts work.
+loadEnv({ path: resolve(__dirname, '../.env') });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

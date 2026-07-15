@@ -52,7 +52,7 @@ export const UpdateEscrowForm = () => {
               <h2 className="text-xl font-semibold">Multi Release Escrow</h2>
             </div>
             <p className="text-muted-foreground mt-1">
-              Update escrow details and milestones
+              Update escrow details and tasks
             </p>
             {isEscrowLocked && (
               <div className="flex flex-col gap-2 text-sm bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded-md border border-yellow-200 dark:border-yellow-800 mt-3 px-4">
@@ -65,7 +65,7 @@ export const UpdateEscrowForm = () => {
 
                 <p className="text-muted-foreground font-medium">
                   When the escrow has balance, it cannot be updated in all
-                  fields, just adding new milestones is allowed.
+                  fields, just adding new tasks is allowed.
                 </p>
               </div>
             )}
@@ -350,7 +350,7 @@ export const UpdateEscrowForm = () => {
 
         <div className="space-y-4">
           <FormLabel className="flex items-center">
-            Milestones<span className="text-destructive ml-1">*</span>
+            Tasks<span className="text-destructive ml-1">*</span>
           </FormLabel>
           {milestones.map((milestone, index) => (
             <div key={index} className="space-y-4">
@@ -372,7 +372,7 @@ export const UpdateEscrowForm = () => {
 
                 <div className="md:col-span-4">
                   <Input
-                    placeholder="Milestone description"
+                    placeholder="Task description"
                     value={milestone.description}
                     disabled={isEscrowLocked && index < initialMilestonesCount}
                     onChange={(e) => {

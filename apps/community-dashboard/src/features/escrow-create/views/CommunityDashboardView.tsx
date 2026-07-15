@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { formatAddress, formatCurrency } from "@repo/helpers";
+import { formatAddress } from "@repo/helpers";
+import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { Badge } from "@repo/ui/components/badge";
 import {
   Card,
@@ -109,7 +110,8 @@ export const CommunityDashboardView = () => {
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">{escrow.status}</Badge>
                     <span className="text-muted-foreground">
-                      {escrow.milestones.length} milestones
+                      {escrow.milestones.length}{" "}
+                      {escrow.milestones.length === 1 ? "task" : "tasks"}
                     </span>
                   </div>
                   <p className="font-mono text-xs text-muted-foreground">
@@ -167,8 +169,8 @@ export const CommunityDashboardView = () => {
                       <TableCell className="font-mono text-xs">
                         {formatAddress(escrow.escrow_id)}
                       </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {formatCurrency(total, "USDC")}
+                      <TableCell className="text-right">
+                        <UsdcAmount amount={total} size="sm" className="justify-end" />
                       </TableCell>
                     </TableRow>
                   );

@@ -141,7 +141,7 @@ export function useResolveDispute({
       setIsSubmitting(true);
 
       if (!isExactMatch) {
-        toast.error("The total distributions must equal the milestone amount");
+        toast.error("The total distributions must equal the task amount");
         return;
       }
 

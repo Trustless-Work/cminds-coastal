@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { formatAddress, formatCurrency } from "@repo/helpers";
+import { formatAddress } from "@repo/helpers";
+import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { UpdateEscrowDialog } from "@repo/tw-blocks/escrows/multi-release/update-escrow/dialog/UpdateEscrow";
 import {
   Card,
@@ -58,11 +59,14 @@ export const EscrowDetail = ({ escrow }: EscrowDetailProps) => {
             <span>
               Funding: <strong>{fundingLabel(escrow)}</strong>
             </span>
-            <span>
+            <span className="inline-flex items-center gap-1.5">
               Balance:{" "}
-              <strong className="tabular-nums">
-                {formatCurrency(escrow.balance ?? 0, symbol)}
-              </strong>
+              <UsdcAmount
+                amount={escrow.balance ?? 0}
+                currency={symbol}
+                size="sm"
+                className="font-semibold"
+              />
             </span>
           </div>
         </div>
@@ -70,7 +74,7 @@ export const EscrowDetail = ({ escrow }: EscrowDetailProps) => {
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-medium">Milestones</h2>
+        <h2 className="text-lg font-medium">Tasks</h2>
         <div className="space-y-3">
           {escrow.milestones.map((milestone, milestoneIndex) => {
             const status = getMilestoneReviewStatus(milestone);
@@ -83,7 +87,7 @@ export const EscrowDetail = ({ escrow }: EscrowDetailProps) => {
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
                       <CardTitle className="text-base">
-                        Milestone {milestoneIndex + 1}
+                        Task {milestoneIndex + 1}
                       </CardTitle>
                       <CardDescription>
                         {milestone.description}
@@ -95,10 +99,16 @@ export const EscrowDetail = ({ escrow }: EscrowDetailProps) => {
                 <CardContent className="grid gap-3 sm:grid-cols-2">
                   <div>
                     <p className="text-xs text-muted-foreground">Amount</p>
-                    <p className="font-medium tabular-nums">
-                      {amount === null
-                        ? "—"
-                        : formatCurrency(amount, symbol)}
+                    <p className="font-medium">
+                      {amount === null ? (
+                        "—"
+                      ) : (
+                        <UsdcAmount
+                          amount={amount}
+                          currency={symbol}
+                          size="sm"
+                        />
+                      )}
                     </p>
                   </div>
                   <div>

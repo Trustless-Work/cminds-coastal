@@ -4,10 +4,11 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { formatAddress, formatCurrency } from "@repo/helpers";
+import { formatAddress } from "@repo/helpers";
 import { fetchEscrow } from "@repo/features/escrow/services/escrows.service";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useWalletContext } from "@repo/providers/WalletProvider";
+import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { ChangeMilestoneStatusDialog } from "@repo/tw-blocks/escrows/single-multi-release/change-milestone-status/dialog/ChangeMilestoneStatus";
 import { ReleaseMilestoneButton } from "@repo/tw-blocks/escrows/multi-release/release-milestone/button/ReleaseMilestone";
 import { useEscrowsByContractIdsQuery } from "@repo/tw-blocks/tanstack/useEscrowsByContractIdsQuery";
@@ -113,14 +114,14 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
           {metadata.description}
         </p>
         {chainEscrow ? (
-          <p className="text-sm">
-            On-chain balance:{" "}
-            <strong className="tabular-nums">
-              {formatCurrency(
-                chainEscrow.balance ?? 0,
-                chainEscrow.trustline?.symbol ?? "USDC",
-              )}
-            </strong>
+          <p className="flex flex-wrap items-center gap-1.5 text-sm">
+            <span>On-chain balance:</span>
+            <UsdcAmount
+              amount={chainEscrow.balance ?? 0}
+              currency={chainEscrow.trustline?.symbol ?? "USDC"}
+              size="sm"
+              className="font-semibold"
+            />
           </p>
         ) : (
           <p className="text-sm text-muted-foreground">
@@ -130,7 +131,7 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-medium">Milestones</h2>
+        <h2 className="text-lg font-medium">Tasks</h2>
         <div className="space-y-3">
           {metadata.milestones.map((milestone) => {
             const chainMilestone =
@@ -166,9 +167,11 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
                           milestone.task.expected_deliverable}
                       </CardDescription>
                     </div>
-                    <p className="font-medium tabular-nums">
-                      {formatCurrency(Number(milestone.amount), "USDC")}
-                    </p>
+                    <UsdcAmount
+                      amount={Number(milestone.amount)}
+                      size="sm"
+                      className="font-medium"
+                    />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">

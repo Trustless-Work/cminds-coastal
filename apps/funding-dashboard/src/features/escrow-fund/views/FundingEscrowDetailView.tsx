@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
-import { formatCurrency } from "@repo/helpers";
+import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { fetchFundingEscrow } from "@repo/features/escrow/services/escrows.service";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useWalletContext } from "@repo/providers/WalletProvider";
@@ -108,12 +108,15 @@ export const FundingEscrowDetailView = ({
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">{metadata.status}</Badge>
-              <span className="text-sm tabular-nums text-muted-foreground">
-                {formatCurrency(total, "USDC")} total milestones
+              <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                <UsdcAmount amount={total} size="sm" />
+                <span>total tasks</span>
               </span>
               {chainEscrow?.balance !== undefined ? (
-                <span className="text-sm tabular-nums text-muted-foreground">
-                  · Balance {String(chainEscrow.balance)} USDC
+                <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <span aria-hidden>·</span>
+                  <span>Balance</span>
+                  <UsdcAmount amount={chainEscrow.balance} size="sm" />
                 </span>
               ) : null}
             </div>
@@ -159,7 +162,7 @@ export const FundingEscrowDetailView = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Milestones</CardTitle>
+          <CardTitle className="text-base">Tasks</CardTitle>
           <CardDescription>
             Fixed task menu amounts for this coastal conservation escrow.
           </CardDescription>
@@ -178,9 +181,11 @@ export const FundingEscrowDetailView = ({
                   {milestone.task.category}
                 </p>
               </div>
-              <p className="shrink-0 text-sm font-medium tabular-nums">
-                {formatCurrency(Number(milestone.amount), "USDC")}
-              </p>
+              <UsdcAmount
+                amount={Number(milestone.amount)}
+                size="sm"
+                className="shrink-0 font-medium"
+              />
             </div>
           ))}
         </CardContent>

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import type { EscrowRecord } from "@repo/features/escrow/services/escrows.service";
-import { formatCurrency } from "@repo/helpers";
+import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { cn } from "@repo/ui/lib/utils";
 
 type EscrowImageCardProps = {
@@ -36,41 +36,61 @@ export const EscrowImageCard = ({
       href={`/dashboard/escrows/${escrow.escrow_id}`}
       style={style}
       className={cn(
-        "group block transition-transform duration-[250ms] ease-out hover:-translate-y-1 hover:scale-[1.02]",
+        "group flex h-full min-w-0 flex-col overflow-hidden rounded-[24px] border border-border bg-background p-3 sm:p-4",
         className,
       )}
     >
-      <article>
-        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-          {isLocal ? (
-            <Image
-              src={imageSrc}
-              alt=""
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.02]"
-            />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element -- remote escrow covers may use any storage host
-            <img
-              src={imageSrc}
-              alt=""
-              className="absolute inset-0 size-full object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.02]"
-            />
-          )}
-        </div>
-        <div className="mt-3 space-y-1 px-0.5">
-          <h3 className="text-[22px] font-semibold leading-snug tracking-tight text-foreground sm:text-[26px]">
-            {escrow.title}
-          </h3>
-          <p className="text-sm text-muted-foreground sm:text-[15px]">
+      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-2xl bg-background-secondary">
+        {isLocal ? (
+          <Image
+            src={imageSrc}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.03]"
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element -- remote escrow covers may use any storage host
+          <img
+            src={imageSrc}
+            alt=""
+            className="absolute inset-0 size-full object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.03]"
+          />
+        )}
+      </div>
+
+      <div className="mt-3 flex min-w-0 flex-1 flex-col gap-2 px-1 pb-1 sm:mt-4">
+        <h3 className="line-clamp-2 break-words text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl">
+          {escrow.title}
+        </h3>
+
+        <div className="mt-auto flex min-w-0 flex-col gap-1">
+          <p className="truncate text-sm text-muted-foreground">
             {escrow.community_name}
-            {area ? ` · ${area}` : ""}
-            {` · ${milestoneCount} milestone${milestoneCount === 1 ? "" : "s"}`}
-            {` · ${formatCurrency(total, "USDC")}`}
+            {area ? (
+              <>
+                <span className="mx-1.5 text-border" aria-hidden>
+                  ·
+                </span>
+                <span>{area}</span>
+              </>
+            ) : null}
+          </p>
+          <p className="flex min-w-0 items-center gap-1.5 truncate text-sm text-muted-foreground">
+            <span className="shrink-0">
+              {milestoneCount} task{milestoneCount === 1 ? "" : "s"}
+            </span>
+            <span className="shrink-0 text-border" aria-hidden>
+              ·
+            </span>
+            <UsdcAmount
+              amount={total}
+              size="sm"
+              className="font-medium text-foreground"
+            />
           </p>
         </div>
-      </article>
+      </div>
     </Link>
   );
 };

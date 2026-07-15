@@ -11,7 +11,7 @@ export default function Home() {
           CMinds Dashboard
         </h1>
         <p className="max-w-sm text-sm text-muted-foreground">
-          Review milestones and manage coastal conservation escrows.
+          Review tasks and manage coastal conservation escrows.
         </p>
       </div>
       <Link href="/login" className={cn(buttonVariants())}>

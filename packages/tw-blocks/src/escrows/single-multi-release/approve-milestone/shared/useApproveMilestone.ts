@@ -48,7 +48,7 @@ export function useApproveMilestone({
         address: walletAddress || "",
       });
 
-      toast.success("Milestone approved flag updated successfully");
+      toast.success("Task approved successfully");
 
       onSuccess?.();
 

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
-import { formatAddress, formatCurrency } from "@repo/helpers";
+import { formatAddress } from "@repo/helpers";
+import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import {
   Card,
   CardContent,
@@ -43,7 +44,7 @@ export const MilestoneReviewQueue = ({
         <CardHeader>
           <CardTitle>Review queue empty</CardTitle>
           <CardDescription>
-            Milestones marked ready for review or in dispute will show up here.
+            Tasks marked ready for review or in dispute will show up here.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -94,7 +95,7 @@ function QueueSection({
                       </Link>
                     </CardTitle>
                     <CardDescription>
-                      Milestone {item.milestoneIndex + 1} ·{" "}
+                      Task {item.milestoneIndex + 1} ·{" "}
                       {formatAddress(item.escrow.contractId)}
                     </CardDescription>
                   </div>
@@ -106,10 +107,16 @@ function QueueSection({
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <p className="text-muted-foreground">Amount</p>
-                    <p className="font-medium tabular-nums">
-                      {item.amount === null
-                        ? "—"
-                        : formatCurrency(item.amount, symbol)}
+                    <p className="font-medium">
+                      {item.amount === null ? (
+                        "—"
+                      ) : (
+                        <UsdcAmount
+                          amount={item.amount}
+                          currency={symbol}
+                          size="sm"
+                        />
+                      )}
                     </p>
                   </div>
                   <div>

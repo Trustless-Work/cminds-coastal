@@ -65,7 +65,7 @@ export function useChangeMilestoneStatus({
         address: walletAddress || "",
       });
 
-      toast.success("Milestone status updated successfully");
+      toast.success("Task status updated successfully");
 
       onSuccess?.();
 

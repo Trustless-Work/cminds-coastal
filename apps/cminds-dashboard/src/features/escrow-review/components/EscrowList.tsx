@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { formatAddress, formatCurrency } from "@repo/helpers";
+import { formatAddress } from "@repo/helpers";
+import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { Badge } from "@repo/ui/components/badge";
 import {
   Card,
@@ -40,12 +41,19 @@ function EscrowMeta({ escrow }: { escrow: Escrow }) {
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline">{fundingLabel(escrow)}</Badge>
         <span className="text-xs text-muted-foreground">
-          {milestoneCount} milestone{milestoneCount === 1 ? "" : "s"}
+          {milestoneCount} task{milestoneCount === 1 ? "" : "s"}
         </span>
       </div>
-      <p className="text-sm text-muted-foreground">
-        Balance {formatCurrency(escrow.balance ?? 0, symbol)} · Milestone total{" "}
-        {formatCurrency(totalAmount, symbol)}
+      <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-muted-foreground">
+        <span>Balance</span>
+        <UsdcAmount
+          amount={escrow.balance ?? 0}
+          currency={symbol}
+          size="sm"
+        />
+        <span aria-hidden>·</span>
+        <span>Task total</span>
+        <UsdcAmount amount={totalAmount} currency={symbol} size="sm" />
       </p>
     </>
   );
@@ -112,7 +120,7 @@ export const EscrowList = ({ escrows, isLoading }: EscrowListProps) => {
               <TableHead>Contract</TableHead>
               <TableHead>Funding</TableHead>
               <TableHead className="text-right">Balance</TableHead>
-              <TableHead className="text-right">Milestones</TableHead>
+              <TableHead className="text-right">Tasks</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -134,8 +142,13 @@ export const EscrowList = ({ escrows, isLoading }: EscrowListProps) => {
                   <TableCell>
                     <Badge variant="outline">{fundingLabel(escrow)}</Badge>
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {formatCurrency(escrow.balance ?? 0, symbol)}
+                  <TableCell className="text-right">
+                    <UsdcAmount
+                      amount={escrow.balance ?? 0}
+                      currency={symbol}
+                      size="sm"
+                      className="justify-end"
+                    />
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {escrow.milestones.length}

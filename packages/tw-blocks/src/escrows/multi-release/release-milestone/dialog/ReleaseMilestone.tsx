@@ -37,12 +37,12 @@ export const ReleaseMilestoneDialog = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button type="button" className="cursor-pointer w-full">
-          Release Milestone
+          Release Task
         </Button>
       </DialogTrigger>
       <DialogContent className="!w-full sm:!max-w-md">
         <DialogHeader>
-          <DialogTitle>Release Milestone</DialogTitle>
+          <DialogTitle>Release Task</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit}>
@@ -52,7 +52,7 @@ export const ReleaseMilestoneDialog = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center">
-                    Milestone
+                    Task
                     <span className="text-destructive ml-1">*</span>
                   </FormLabel>
                   <FormControl>
@@ -63,12 +63,12 @@ export const ReleaseMilestoneDialog = () => {
                       }}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select milestone" />
+                        <SelectValue placeholder="Select task" />
                       </SelectTrigger>
                       <SelectContent>
                         {(selectedEscrow?.milestones || []).map((m, idx) => (
                           <SelectItem key={`ms-${idx}`} value={String(idx)}>
-                            {m?.description || `Milestone ${idx + 1}`}
+                            {m?.description || `Task ${idx + 1}`}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -91,7 +91,7 @@ export const ReleaseMilestoneDialog = () => {
                     <span className="ml-2">Releasing...</span>
                   </div>
                 ) : (
-                  "Release Milestone"
+                  "Release Task"
                 )}
               </Button>
             </div>

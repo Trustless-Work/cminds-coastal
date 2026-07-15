@@ -12,6 +12,7 @@ import { Skeleton } from "@repo/ui/components/skeleton";
 import { cn } from "@repo/ui/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { usePollarBootstrap } from "../hooks/usePollarBootstrap";
 import { useSyncUser } from "../hooks/useSyncUser";
 import {
   fetchAllowedEmailDomains,
@@ -80,12 +81,13 @@ function SignInViewInner({
   ...props
 }: SignInViewProps) {
   const router = useRouter();
+  const { bootstrapped } = usePollarBootstrap();
   const { isAuthenticated, verified, wallet, login, logout, getClient } =
     usePollar();
   const address = wallet?.address ?? "";
-  const { isReady, syncing, error } = useSyncUser({
+  const { isReady, error } = useSyncUser({
     role: appRole,
-    enabled: isAuthenticated && verified && Boolean(address),
+    enabled: bootstrapped && isAuthenticated && verified && Boolean(address),
   });
 
   const showGoogle = providers.includes("google");
@@ -101,10 +103,20 @@ function SignInViewInner({
   );
 
   useEffect(() => {
+    if (!bootstrapped) {
+      return;
+    }
     if (isAuthenticated && verified && isReady) {
       router.replace(dashboardHref);
     }
-  }, [dashboardHref, isAuthenticated, isReady, router, verified]);
+  }, [
+    bootstrapped,
+    dashboardHref,
+    isAuthenticated,
+    isReady,
+    router,
+    verified,
+  ]);
 
   useEffect(() => {
     const client = getClient() as PollarAuthClient;
@@ -210,22 +222,14 @@ function SignInViewInner({
     setLocalError(null);
   }
 
-  if (isAuthenticated && (!verified || syncing || (!isReady && !error))) {
+  if (!bootstrapped || (isAuthenticated && (!verified || (!isReady && !error)))) {
     return (
       <div className={cn("w-full max-w-sm", className)} {...props}>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col items-center gap-1.5 text-center">
-            <h1 className="text-xl font-semibold tracking-tight text-foreground">
-              One moment
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {!verified ? "Verifying your session…" : "Syncing your account…"}
-            </p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <Skeleton className="h-10 w-full rounded-md" />
-            <Skeleton className="mx-auto h-4 w-3/4" />
-          </div>
+        <div className="flex flex-col gap-3">
+          <Skeleton className="mx-auto h-7 w-40" />
+          <Skeleton className="mx-auto h-4 w-56 max-w-full" />
+          <Skeleton className="mt-2 h-12 w-full rounded-md" />
+          <Skeleton className="h-12 w-full rounded-md" />
         </div>
       </div>
     );

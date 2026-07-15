@@ -5,6 +5,10 @@ import { ApiError, setAuthTokenProvider } from "@repo/config";
 import { useEffect, useRef, useState } from "react";
 import { syncUser } from "../services/users.service";
 import type { AuthProvider, SyncableUserRole, UserProfile } from "../types";
+import {
+  readCachedUserProfile,
+  writeCachedUserProfile,
+} from "../utils/profile-cache";
 
 type UseSyncUserOptions = {
   role: SyncableUserRole;
@@ -99,36 +103,67 @@ export function useSyncUser({
   const [error, setError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
   const inFlight = useRef(false);
+  const syncedKeyRef = useRef<string | null>(null);
+  const identityRef = useRef<string | null>(null);
+  const profileRef = useRef<UserProfile | null>(null);
+
+  profileRef.current = profile;
 
   useEffect(() => {
     if (!enabled || !isAuthenticated || !verified || !wallet?.address) {
       setIsReady(false);
+      syncedKeyRef.current = null;
       return;
     }
 
+    const walletAddress = wallet.address;
+    const syncKey = `${walletAddress.toLowerCase()}:${role}`;
     const client = getClient() as PollarClientLike;
+
+    if (identityRef.current !== null && identityRef.current !== syncKey) {
+      setProfile(null);
+      setIsReady(false);
+      setError(null);
+      syncedKeyRef.current = null;
+      profileRef.current = null;
+    }
+    identityRef.current = syncKey;
 
     setAuthTokenProvider(() => readAccessToken(client));
 
     const userProfile = client.getUserProfile();
     setPollarAvatar(readPollarAvatar(userProfile));
 
-    if (inFlight.current || profile) {
-      if (profile) {
+    let hasProfile = Boolean(profileRef.current);
+    if (!hasProfile) {
+      const cached = readCachedUserProfile(walletAddress, role);
+      if (cached) {
+        setProfile(cached);
         setIsReady(true);
+        hasProfile = true;
+        profileRef.current = cached;
       }
+    } else {
+      setIsReady(true);
+    }
+
+    if (syncedKeyRef.current === syncKey || inFlight.current) {
       return;
     }
 
     const accessToken = readAccessToken(client);
     if (!accessToken) {
-      setIsReady(false);
+      if (!hasProfile) {
+        setIsReady(false);
+      }
       return;
     }
 
     const email = userProfile?.mail?.trim();
     if (!email || !userProfile) {
-      setError("Pollar profile email is unavailable");
+      if (!hasProfile) {
+        setError("Pollar profile email is unavailable");
+      }
       return;
     }
 
@@ -140,22 +175,30 @@ export function useSyncUser({
     const authProviders = deriveAuthProviders(userProfile, client.getWallet());
 
     inFlight.current = true;
-    setSyncing(true);
+    if (!hasProfile) {
+      setSyncing(true);
+    }
     setError(null);
 
     void syncUser({
       email,
       display_name: displayName || undefined,
       avatar_url: avatarUrl ?? undefined,
-      wallet_address: wallet.address,
+      wallet_address: walletAddress,
       role,
       auth_providers: authProviders.length > 0 ? authProviders : undefined,
     })
       .then((result) => {
+        syncedKeyRef.current = syncKey;
         setProfile(result);
         setIsReady(true);
+        writeCachedUserProfile(walletAddress, role, result);
       })
       .catch((err: unknown) => {
+        if (profileRef.current) {
+          syncedKeyRef.current = syncKey;
+          return;
+        }
         const message =
           err instanceof ApiError
             ? err.message
@@ -173,7 +216,6 @@ export function useSyncUser({
     enabled,
     getClient,
     isAuthenticated,
-    profile,
     role,
     verified,
     wallet?.address,

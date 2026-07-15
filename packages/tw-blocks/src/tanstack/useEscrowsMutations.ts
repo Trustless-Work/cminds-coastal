@@ -39,8 +39,8 @@ import { signTransaction as signWithWalletKit } from "../wallet-kit/wallet-kit";
  * - Deploy Escrow
  * - Update Escrow
  * - Fund Escrow
- * - Change Milestone Status
- * - Approve Milestone
+ * - Change Task Status
+ * - Approve Task
  * - Start Dispute
  * - Release Funds
  * - Resolve Dispute
@@ -201,7 +201,7 @@ export const useEscrowsMutations = () => {
   });
 
   /**
-   * Approve Milestone
+   * Approve Task
    */
   const approveMilestoneMutation = useMutation({
     mutationFn: async ({
@@ -231,7 +231,7 @@ export const useEscrowsMutations = () => {
   });
 
   /**
-   * Change Milestone Status
+   * Change Task Status
    */
   const changeMilestoneStatusMutation = useMutation({
     mutationFn: async ({

@@ -5,6 +5,7 @@ import { clearAuthToken } from "@repo/config";
 import { Button } from "@repo/ui/components/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { clearCachedUserProfiles } from "../utils/profile-cache";
 
 type LogoutButtonProps = {
   loginHref?: string;
@@ -19,6 +20,7 @@ export function LogoutButton({ loginHref = "/login" }: LogoutButtonProps) {
     setLoading(true);
     try {
       clearAuthToken();
+      clearCachedUserProfiles();
       await logout();
       router.replace(loginHref);
     } finally {

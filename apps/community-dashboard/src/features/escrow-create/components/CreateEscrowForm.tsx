@@ -176,7 +176,7 @@ export const CreateEscrowForm = () => {
         <div>
           <h2 className="text-lg font-medium">Tasks</h2>
           <p className="text-sm text-muted-foreground">
-            Each selected task becomes a multi-release milestone with its own
+            Each selected task becomes a funded multi-release item with its own
             receiver.
           </p>
         </div>
