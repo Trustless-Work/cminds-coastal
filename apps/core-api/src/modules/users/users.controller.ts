@@ -65,7 +65,7 @@ export class UsersController {
   @Get('search')
   @ApiOperation({
     summary:
-      'Search users by email; optionally filter by role (escrow role pickers)',
+      'Browse/search users with wallets (paginated); optional role and email filter for escrow role pickers',
   })
   @ApiResponse({ status: 200, description: 'Matching users with wallets' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -74,6 +74,8 @@ export class UsersController {
     return this.usersService.searchByRoleAndEmail({
       role: query.role,
       q: query.q,
+      page: query.page,
+      pageSize: query.pageSize,
     });
   }
 }

@@ -8,12 +8,12 @@ import { clearCachedUserProfiles } from "./profile-cache";
  * (expired token, missing profile email after long idle, etc.).
  */
 export async function endStalePollarSession(
-  logout: () => Promise<void>,
+  logout: () => void | Promise<void>,
 ): Promise<void> {
   clearAuthToken();
   clearCachedUserProfiles();
   try {
-    await logout();
+    await Promise.resolve(logout());
   } catch {
     // Still redirect to login even if Pollar logout fails.
   }

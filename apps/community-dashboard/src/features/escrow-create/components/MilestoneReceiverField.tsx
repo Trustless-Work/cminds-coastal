@@ -41,7 +41,7 @@ export const MilestoneReceiverField = ({
           }}
         />
         <span className="text-sm font-medium leading-none">
-          Select receiver by email
+          Select Receiver By Email
         </span>
       </div>
 
@@ -62,7 +62,7 @@ export const MilestoneReceiverField = ({
       ) : (
         <div className="space-y-2">
           <Label htmlFor={`receiver-wallet-${taskId}`}>
-            Receiver wallet
+            Receiver Wallet
           </Label>
           <Input
             id={`receiver-wallet-${taskId}`}
@@ -74,7 +74,7 @@ export const MilestoneReceiverField = ({
                 walletAddress: event.target.value.trim(),
               })
             }
-            placeholder="G…"
+            placeholder="G… Stellar public key"
             autoComplete="off"
             spellCheck={false}
           />

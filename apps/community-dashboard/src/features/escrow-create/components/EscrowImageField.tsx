@@ -33,7 +33,7 @@ export const EscrowImageField = ({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="escrow-image">Escrow image</Label>
+      <Label htmlFor="escrow-image">Escrow Image</Label>
       <p className="text-sm text-muted-foreground">
         Cover photo stored in Supabase (jpeg, png, webp, or gif · max 5MB).
       </p>
@@ -66,7 +66,7 @@ export const EscrowImageField = ({
           )}
         >
           <ImageIcon className="size-8 text-muted-foreground" />
-          <span className="text-sm font-medium">Choose an image</span>
+          <span className="text-sm font-medium">Choose An Image</span>
           <span className="text-xs text-muted-foreground">
             Click to browse your files
           </span>

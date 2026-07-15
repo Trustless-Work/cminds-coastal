@@ -54,6 +54,7 @@ describe('UsersService', () => {
       findUnique: jest.fn(),
       findUniqueOrThrow: jest.fn(),
       findMany: jest.fn(),
+      count: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
     },
@@ -460,6 +461,7 @@ describe('UsersService', () => {
 
   describe('searchByRoleAndEmail', () => {
     it('returns users with wallets matching role and email', async () => {
+      prismaMock.user.count.mockResolvedValueOnce(1);
       prismaMock.user.findMany.mockResolvedValueOnce([
         {
           ...mockUser,
@@ -472,14 +474,21 @@ describe('UsersService', () => {
           role: UserRole.CMINDS_OPERATOR,
           q: 'test',
         }),
-      ).resolves.toEqual([
-        {
-          user_id: mockUser.user_id,
-          email: mockUser.email,
-          display_name: mockUser.display_name,
-          wallet_address: mockUser.wallets[0].address,
-        },
-      ]);
+      ).resolves.toEqual({
+        items: [
+          {
+            user_id: mockUser.user_id,
+            email: mockUser.email,
+            display_name: mockUser.display_name,
+            avatar_url: mockUser.avatar_url,
+            wallet_address: mockUser.wallets[0].address,
+          },
+        ],
+        page: 1,
+        pageSize: 20,
+        total: 1,
+        hasMore: false,
+      });
     });
 
     it('throws ForbiddenException for non-searchable roles', async () => {
@@ -489,31 +498,72 @@ describe('UsersService', () => {
     });
 
     it('searches all roles when role is omitted', async () => {
+      prismaMock.user.count.mockResolvedValueOnce(1);
       prismaMock.user.findMany.mockResolvedValueOnce([mockUser]);
 
       await expect(
         service.searchByRoleAndEmail({ q: 'test' }),
-      ).resolves.toEqual([
-        {
-          user_id: mockUser.user_id,
-          email: mockUser.email,
-          display_name: mockUser.display_name,
-          wallet_address: mockUser.wallets[0].address,
-        },
-      ]);
+      ).resolves.toEqual({
+        items: [
+          {
+            user_id: mockUser.user_id,
+            email: mockUser.email,
+            display_name: mockUser.display_name,
+            avatar_url: mockUser.avatar_url,
+            wallet_address: mockUser.wallets[0].address,
+          },
+        ],
+        page: 1,
+        pageSize: 20,
+        total: 1,
+        hasMore: false,
+      });
 
       expect(prismaMock.user.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             is_active: true,
+            wallets: { some: {} },
             email: { contains: 'test', mode: 'insensitive' },
           }) as Record<string, unknown>,
+          skip: 0,
+          take: 20,
         }),
       );
       const findManyCalls = prismaMock.user.findMany.mock.calls as Array<
         [{ where: { roles?: unknown } }]
       >;
       expect(findManyCalls[0]?.[0].where.roles).toBeUndefined();
+    });
+
+    it('paginates browse results without a query', async () => {
+      prismaMock.user.count.mockResolvedValueOnce(45);
+      prismaMock.user.findMany.mockResolvedValueOnce([mockUser]);
+
+      await expect(
+        service.searchByRoleAndEmail({ page: 2, pageSize: 20 }),
+      ).resolves.toEqual({
+        items: [
+          {
+            user_id: mockUser.user_id,
+            email: mockUser.email,
+            display_name: mockUser.display_name,
+            avatar_url: mockUser.avatar_url,
+            wallet_address: mockUser.wallets[0].address,
+          },
+        ],
+        page: 2,
+        pageSize: 20,
+        total: 45,
+        hasMore: true,
+      });
+
+      expect(prismaMock.user.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 20,
+          take: 20,
+        }),
+      );
     });
   });
 });

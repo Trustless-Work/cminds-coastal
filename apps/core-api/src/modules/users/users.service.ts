@@ -208,8 +208,9 @@ export class UsersService {
   async searchByRoleAndEmail(params: {
     role?: UserRole;
     q?: string;
-    limit?: number;
-  }): Promise<UserSearchResult[]> {
+    page?: number;
+    pageSize?: number;
+  }): Promise<UserSearchPage> {
     const allowedSearchRoles: UserRole[] = [
       UserRoleEnum.CMINDS_OPERATOR,
       UserRoleEnum.COMMUNITY_IMPLEMENTER,
@@ -220,38 +221,57 @@ export class UsersService {
       );
     }
 
-    const limit = params.limit ?? 10;
+    const page = params.page && params.page > 0 ? params.page : 1;
+    const pageSize =
+      params.pageSize && params.pageSize > 0
+        ? Math.min(params.pageSize, 50)
+        : 20;
     const query = params.q?.trim().toLowerCase();
 
-    const users = await this.prisma.user.findMany({
-      where: {
-        is_active: true,
-        ...(params.role ? { roles: { has: params.role } } : {}),
-        ...(query
-          ? {
-              email: { contains: query, mode: 'insensitive' as const },
-            }
-          : {}),
-      },
-      include: { wallets: true },
-      orderBy: { email: 'asc' },
-      take: limit,
-    });
+    const where = {
+      is_active: true,
+      wallets: { some: {} },
+      ...(params.role ? { roles: { has: params.role } } : {}),
+      ...(query
+        ? {
+            email: { contains: query, mode: 'insensitive' as const },
+          }
+        : {}),
+    };
 
-    return users
-      .map((user) => {
-        const wallet = user.wallets[0];
-        if (!wallet) {
-          return null;
-        }
-        return {
-          user_id: user.user_id,
-          email: user.email,
-          display_name: user.display_name,
-          wallet_address: wallet.address,
-        };
-      })
-      .filter((row): row is UserSearchResult => row !== null);
+    const [total, users] = await Promise.all([
+      this.prisma.user.count({ where }),
+      this.prisma.user.findMany({
+        where,
+        include: { wallets: true },
+        orderBy: { email: 'asc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+    ]);
+
+    const items: UserSearchResult[] = [];
+    for (const user of users) {
+      const wallet = user.wallets[0];
+      if (!wallet) {
+        continue;
+      }
+      items.push({
+        user_id: user.user_id,
+        email: user.email,
+        display_name: user.display_name,
+        avatar_url: user.avatar_url,
+        wallet_address: wallet.address,
+      });
+    }
+
+    return {
+      items,
+      page,
+      pageSize,
+      total,
+      hasMore: page * pageSize < total,
+    };
   }
 
   private normalizeAvatarUrl(avatarUrl: string | undefined): string | null {
@@ -282,5 +302,14 @@ export type UserSearchResult = {
   user_id: string;
   email: string;
   display_name: string | null;
+  avatar_url: string | null;
   wallet_address: string;
+};
+
+export type UserSearchPage = {
+  items: UserSearchResult[];
+  page: number;
+  pageSize: number;
+  total: number;
+  hasMore: boolean;
 };
