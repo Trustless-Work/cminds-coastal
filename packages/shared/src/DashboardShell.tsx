@@ -4,6 +4,7 @@ import { cn } from "@repo/ui/lib/utils";
 import type { ReactNode } from "react";
 
 import { Navbar, type NavLink } from "./Navbar";
+import { SiteFooter } from "./SiteFooter";
 
 type DashboardShellProps = {
   title: string;
@@ -14,6 +15,7 @@ type DashboardShellProps = {
   navLinks?: NavLink[];
   children: ReactNode;
   className?: string;
+  footerTagline?: string;
 };
 
 export function DashboardShell({
@@ -25,6 +27,7 @@ export function DashboardShell({
   navLinks,
   children,
   className,
+  footerTagline,
 }: DashboardShellProps) {
   return (
     <div className="flex min-h-svh flex-col bg-background">
@@ -37,6 +40,12 @@ export function DashboardShell({
         navLinks={navLinks}
       />
       <div className={cn("flex flex-1 flex-col", className)}>{children}</div>
+      <SiteFooter
+        logoSrc={logoSrc}
+        logoAlt="CMinds"
+        brandName="CMinds"
+        tagline={footerTagline}
+      />
     </div>
   );
 }

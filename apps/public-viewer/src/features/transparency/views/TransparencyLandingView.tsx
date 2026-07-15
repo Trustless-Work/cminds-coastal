@@ -3,6 +3,7 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import type { EscrowRecord } from "@repo/features/escrow/services/escrows.service";
 import { Navbar } from "@repo/shared/Navbar";
+import { SiteFooter } from "@repo/shared/SiteFooter";
 import { Skeleton } from "@repo/ui/components/skeleton";
 
 import { EscrowImageCard } from "../components/EscrowImageCard";
@@ -81,7 +82,7 @@ export const TransparencyLandingView = () => {
     <div className="flex min-h-svh flex-col bg-background">
       <Navbar title="CMinds" logoSrc="/logos/dark-en-logo.png" logoHref="/" />
 
-      <div className="mx-auto w-full max-w-[1320px] px-6 pb-24 pt-6 sm:px-10">
+      <div className="mx-auto w-full max-w-[1320px] flex-1 px-6 pb-16 pt-6 sm:px-10">
         <TransparencyHero headline="Coastal Progress">
           <TransparencyFilterCard
             values={draftFilters}
@@ -175,6 +176,8 @@ export const TransparencyLandingView = () => {
 
         <LandingInfoSections />
       </div>
+
+      <SiteFooter logoSrc="/logos/dark-en-logo.png" />
     </div>
   );
 };

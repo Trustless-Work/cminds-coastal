@@ -6,6 +6,7 @@
     "./Navbar": "./src/Navbar.tsx",
     "./DashboardShell": "./src/DashboardShell.tsx",
     "./LoginShell": "./src/LoginShell.tsx",
+    "./SiteFooter": "./src/SiteFooter.tsx",
     "./UsdcAmount": "./src/UsdcAmount.tsx",
     "./security-headers": "./src/security-headers.ts"
   },

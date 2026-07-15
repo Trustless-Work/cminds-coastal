@@ -11,6 +11,7 @@ import {
 } from "@repo/features/escrow/services/escrows.service";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { Navbar } from "@repo/shared/Navbar";
+import { SiteFooter } from "@repo/shared/SiteFooter";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { BalanceProgressDonut } from "@repo/tw-blocks/escrows/indicators/balance-progress/donut/BalanceProgress";
 import { useEscrowsByContractIdsQuery } from "@repo/tw-blocks/tanstack/useEscrowsByContractIdsQuery";
@@ -71,7 +72,7 @@ export const TransparencyEscrowDetailView = ({
     <div className="flex min-h-svh flex-col bg-background">
       <Navbar title="CMinds" logoSrc="/logos/dark-en-logo.png" logoHref="/" />
 
-      <div className="mx-auto w-full max-w-[1320px] px-6 pb-24 pt-6 sm:px-10">
+      <div className="mx-auto w-full max-w-[1320px] flex-1 px-6 pb-16 pt-6 sm:px-10">
         {metadataQuery.isLoading ? (
           <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
             <div className="space-y-6 lg:col-span-7 xl:col-span-8">
@@ -112,6 +113,8 @@ export const TransparencyEscrowDetailView = ({
           />
         ) : null}
       </div>
+
+      <SiteFooter logoSrc="/logos/dark-en-logo.png" />
     </div>
   );
 };
