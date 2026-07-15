@@ -1,44 +1,46 @@
 "use client";
 
 import { ApiError } from "@repo/config";
-import { DashboardShell } from "@repo/shared/DashboardShell";
-import type { NavLink } from "@repo/shared/Navbar";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
+import { AdminShell } from "@/features/admin-shell/components/AdminShell";
+
 import { useSupabaseAuth } from "../hooks/useSupabaseAuth";
 import { fetchAdminMe } from "../services/admin-users.service";
 import { isSupabaseConfigured } from "../services/supabase-browser";
-import { AdminLogoutButton } from "./AdminLogoutButton";
-
 type AdminAuthGateProps = {
   children: ReactNode;
-  appTitle?: string;
-  appSubtitle?: string;
   logoSrc?: string;
   logoHref?: string;
-  navLinks?: NavLink[];
 };
 
-function DashboardContentSkeleton() {
+function AdminShellSkeleton({
+  logoSrc,
+  logoHref,
+}: {
+  logoSrc: string;
+  logoHref: string;
+}) {
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-6 sm:p-8">
-      <Skeleton className="h-8 w-48" />
-      <Skeleton className="h-4 w-72 max-w-full" />
-      <Skeleton className="h-48 rounded-xl" />
-    </div>
+    <AdminShell logoSrc={logoSrc} logoHref={logoHref}>
+      <div className="flex flex-1 flex-col gap-8">
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-80 max-w-full" />
+        </div>
+        <Skeleton className="min-h-48 flex-1 rounded-2xl" />
+      </div>
+    </AdminShell>
   );
 }
 
 export function AdminAuthGate({
   children,
-  appTitle = "Admin",
-  appSubtitle = "Platform administration",
   logoSrc = "/logos/dark-en-logo.png",
   logoHref = "/dashboard",
-  navLinks = [],
 }: AdminAuthGateProps) {
   const router = useRouter();
   const configured = isSupabaseConfigured();
@@ -92,27 +94,18 @@ export function AdminAuthGate({
 
   if (!configured) {
     return (
-      <DashboardShell
-        title={appTitle}
-        subtitle={appSubtitle}
-        logoSrc={logoSrc}
-        logoHref={logoHref}
-        navLinks={navLinks}
-        showFooter={false}
-      >
-        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
+      <AdminShell logoSrc={logoSrc} logoHref={logoHref}>
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16 text-center">
           <p className="text-sm font-medium">Admin auth unavailable</p>
           <p className="max-w-sm text-sm text-muted-foreground">
             Configure NEXT_PUBLIC_SUPABASE_URL and
             NEXT_PUBLIC_SUPABASE_ANON_KEY.
           </p>
         </div>
-      </DashboardShell>
+      </AdminShell>
     );
   }
 
-  // Stay on the dashboard shell while hydrating or waiting for profile.
-  // Never flash login / MFA chrome from this route.
   const waitingForAuth = status === "loading";
   const waitingForRedirect =
     status === "ready" &&
@@ -125,18 +118,7 @@ export function AdminAuthGate({
     profileQuery.isPending;
 
   if (waitingForAuth || waitingForRedirect || waitingForProfile) {
-    return (
-      <DashboardShell
-        title={appTitle}
-        subtitle={appSubtitle}
-        logoSrc={logoSrc}
-        logoHref={logoHref}
-        navLinks={navLinks}
-        showFooter={false}
-      >
-        <DashboardContentSkeleton />
-      </DashboardShell>
-    );
+    return <AdminShellSkeleton logoSrc={logoSrc} logoHref={logoHref} />;
   }
 
   if (profileQuery.error) {
@@ -146,16 +128,12 @@ export function AdminAuthGate({
         : "Unable to load admin profile";
 
     return (
-      <DashboardShell
-        title={appTitle}
-        subtitle={appSubtitle}
+      <AdminShell
+        email={session?.user.email}
         logoSrc={logoSrc}
         logoHref={logoHref}
-        navLinks={navLinks}
-        leading={<AdminLogoutButton />}
-        showFooter={false}
       >
-        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16 text-center">
           <p className="text-sm font-medium">Access denied</p>
           <p className="max-w-sm text-sm text-destructive">{message}</p>
           <p className="max-w-sm text-sm text-muted-foreground">
@@ -163,30 +141,17 @@ export function AdminAuthGate({
             row in users with the same email and role ADMIN.
           </p>
         </div>
-      </DashboardShell>
+      </AdminShell>
     );
   }
 
-  const profile = profileQuery.data;
-
   return (
-    <DashboardShell
-      title={appTitle}
-      subtitle={appSubtitle}
+    <AdminShell
+      email={profileQuery.data?.email}
       logoSrc={logoSrc}
       logoHref={logoHref}
-      navLinks={navLinks}
-      showFooter={false}
-      leading={
-        <div className="flex items-center gap-3">
-          <span className="hidden text-sm text-muted-foreground sm:inline">
-            {profile?.email}
-          </span>
-          <AdminLogoutButton />
-        </div>
-      }
     >
       {children}
-    </DashboardShell>
+    </AdminShell>
   );
 }
