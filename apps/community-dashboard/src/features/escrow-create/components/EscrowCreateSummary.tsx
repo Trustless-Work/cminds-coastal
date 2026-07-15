@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { UserSearchResult } from "@repo/features/auth/services/users-search.service";
 import type { TaskRecord } from "@repo/features/escrow/services/tasks.service";
+import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { Badge } from "@repo/ui/components/badge";
 import { cn } from "@repo/ui/lib/utils";
 import { ImageIcon, MapPin } from "lucide-react";
@@ -166,13 +167,11 @@ export const EscrowCreateSummary = ({
             <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
               Milestones
             </p>
-            <span className="text-sm font-semibold tabular-nums">
-              {totalUsdc > 0
-                ? `${totalUsdc.toLocaleString(undefined, {
-                    maximumFractionDigits: 2,
-                  })} USDC`
-                : "0 USDC"}
-            </span>
+            <UsdcAmount
+              amount={totalUsdc}
+              size="sm"
+              className="font-semibold text-foreground"
+            />
           </div>
 
           {selectedTasks.length === 0 ? (
@@ -184,12 +183,8 @@ export const EscrowCreateSummary = ({
               {selectedTasks.map((task) => {
                 const raw = amounts[task.task_id]?.trim() ?? "";
                 const amount = Number(raw);
-                const amountLabel =
-                  raw && Number.isFinite(amount) && amount > 0
-                    ? `${amount.toLocaleString(undefined, {
-                        maximumFractionDigits: 2,
-                      })} USDC`
-                    : "Amount pending";
+                const hasAmount =
+                  Boolean(raw) && Number.isFinite(amount) && amount > 0;
                 return (
                   <li
                     key={task.task_id}
@@ -205,16 +200,17 @@ export const EscrowCreateSummary = ({
                         </span>
                       </div>
                     </div>
-                    <span
-                      className={cn(
-                        "shrink-0 text-sm tabular-nums",
-                        raw && Number.isFinite(amount) && amount > 0
-                          ? "font-medium text-foreground"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      {amountLabel}
-                    </span>
+                    {hasAmount ? (
+                      <UsdcAmount
+                        amount={amount}
+                        size="sm"
+                        className="shrink-0 font-medium text-foreground"
+                      />
+                    ) : (
+                      <span className="shrink-0 text-sm text-muted-foreground">
+                        Amount Pending
+                      </span>
+                    )}
                   </li>
                 );
               })}
