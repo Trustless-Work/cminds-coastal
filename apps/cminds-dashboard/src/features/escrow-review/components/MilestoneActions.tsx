@@ -23,7 +23,7 @@ export const MilestoneActions = ({
 
   if (status === "ready_for_review") {
     return (
-      <div className="flex w-full flex-col gap-2 sm:flex-row">
+      <div className="grid w-full gap-2 sm:grid-cols-2">
         <ApproveMilestoneButton milestoneIndex={milestoneIndex} />
         <DisputeMilestoneButton milestoneIndex={milestoneIndex} />
       </div>
