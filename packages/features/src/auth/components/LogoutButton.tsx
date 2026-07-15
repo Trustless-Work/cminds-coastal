@@ -30,7 +30,8 @@ export function LogoutButton({ loginHref = "/login" }: LogoutButtonProps) {
     <Button
       type="button"
       variant="outline"
-      size="sm"
+      size="default"
+      className="h-11 shrink-0"
       disabled={loading}
       onClick={() => {
         void handleLogout();

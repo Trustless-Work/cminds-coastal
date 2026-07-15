@@ -2,13 +2,8 @@
 
 import { AuthGate } from "@repo/features/auth/components/AuthGate";
 
+import { FUNDING_NAV } from "../../features/escrow-fund/constants/nav";
 import { FundingEscrowListView } from "../../features/escrow-fund/views/FundingEscrowListView";
-
-const FUNDING_NAV = [
-  { href: "/dashboard", label: "Home" },
-  { href: "/dashboard", label: "Escrows" },
-  { href: "/dashboard", label: "Fund" },
-];
 
 export default function DashboardPage() {
   return (

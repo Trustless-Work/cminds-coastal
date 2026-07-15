@@ -9,6 +9,15 @@ import {
   Search,
 } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/select";
 import { cn } from "@repo/ui/lib/utils";
 
 export type FundingFilterValues = {
@@ -25,6 +34,8 @@ type FundingFilterCardProps = {
   onSearch: () => void;
   className?: string;
 };
+
+const ALL_VALUE = "all";
 
 const Field = ({
   icon,
@@ -65,6 +76,14 @@ function filterSummary(values: FundingFilterValues): string {
   return parts.join(" · ");
 }
 
+function formatStatusLabel(status: string): string {
+  return status
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export const FundingFilterCard = ({
   values,
   statusOptions,
@@ -78,47 +97,67 @@ export const FundingFilterCard = ({
 
   function renderStatusSelect(): ReactNode {
     return (
-      <select
-        aria-label="Filter by status"
-        value={values.status}
-        onChange={(event) =>
-          onChange({ ...values, status: event.target.value })
-        }
-        className="w-full cursor-pointer truncate bg-transparent text-sm text-muted-foreground outline-none"
+      <Select
+        value={values.status || ALL_VALUE}
+        onValueChange={(next) => {
+          const status = !next || next === ALL_VALUE ? "" : String(next);
+          onChange({ ...values, status });
+        }}
       >
-        <option value="">All statuses</option>
-        {statusOptions.map((status) => (
-          <option key={status} value={status}>
-            {status}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger
+          variant="ghost"
+          aria-label="Filter by status"
+          className="w-full min-w-0"
+        >
+          <SelectValue placeholder="All statuses" />
+        </SelectTrigger>
+        <SelectContent alignItemWithTrigger={false} className="min-w-48">
+          <SelectGroup>
+            <SelectItem value={ALL_VALUE}>All statuses</SelectItem>
+            {statusOptions.map((status) => (
+              <SelectItem key={status} value={status}>
+                {formatStatusLabel(status)}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
     );
   }
 
   function renderCommunitySelect(): ReactNode {
     return (
-      <select
-        aria-label="Filter by community"
-        value={values.community}
-        onChange={(event) =>
-          onChange({ ...values, community: event.target.value })
-        }
-        className="w-full cursor-pointer truncate bg-transparent text-sm text-muted-foreground outline-none"
+      <Select
+        value={values.community || ALL_VALUE}
+        onValueChange={(next) => {
+          const community = !next || next === ALL_VALUE ? "" : String(next);
+          onChange({ ...values, community });
+        }}
       >
-        <option value="">All communities</option>
-        {communityOptions.map((community) => (
-          <option key={community} value={community}>
-            {community}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger
+          variant="ghost"
+          aria-label="Filter by community"
+          className="w-full min-w-0"
+        >
+          <SelectValue placeholder="All communities" />
+        </SelectTrigger>
+        <SelectContent alignItemWithTrigger={false} className="min-w-52">
+          <SelectGroup>
+            <SelectItem value={ALL_VALUE}>All communities</SelectItem>
+            {communityOptions.map((community) => (
+              <SelectItem key={community} value={community}>
+                {community}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
     );
   }
 
   function renderSearchInput(collapseOnEnter: boolean): ReactNode {
     return (
-      <input
+      <Input
         type="search"
         aria-label="Search escrows"
         placeholder="Title or area…"
@@ -130,7 +169,7 @@ export const FundingFilterCard = ({
             if (collapseOnEnter) setOpen(false);
           }
         }}
-        className="w-full bg-transparent text-sm text-muted-foreground outline-none placeholder:text-muted-foreground"
+        className="h-auto min-h-0 rounded-none border-0 bg-transparent p-0 text-sm shadow-none placeholder:text-muted-foreground focus-visible:border-transparent focus-visible:ring-0"
       />
     );
   }
@@ -191,7 +230,7 @@ export const FundingFilterCard = ({
           )}
         >
           <div className="min-h-0 overflow-hidden">
-            <div className="space-y-1 border-t border-border px-2 pb-3 pt-1">
+            <div className="flex flex-col gap-1 border-t border-border px-2 pb-3 pt-1">
               <Field icon={<ListFilter strokeWidth={2} />} label="Status">
                 {renderStatusSelect()}
               </Field>

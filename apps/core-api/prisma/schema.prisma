@@ -19,6 +19,11 @@ enum UserRole {
   FUNDER
 }
 
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+}
+
 enum EscrowStatus {
   DRAFT
   INITIALIZED
@@ -34,15 +39,16 @@ enum EscrowStatus {
 // =============================================
 
 model User {
-  user_id        String     @id @default(uuid()) @db.Uuid
-  pollar_user_id String     @unique
-  email          String     @unique
+  user_id        String         @id @default(uuid()) @db.Uuid
+  pollar_user_id String         @unique
+  email          String         @unique
   display_name   String?
   avatar_url     String?
+  auth_providers AuthProvider[] @default([])
   roles          UserRole[]
-  is_active      Boolean    @default(true)
-  created_at     DateTime   @default(now())
-  updated_at     DateTime   @updatedAt
+  is_active      Boolean        @default(true)
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
 
   wallets                  Wallet[]
   initialized_escrows      Escrow[] @relation("EscrowInitializer")

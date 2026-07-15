@@ -4,7 +4,7 @@ import { usePollar } from "@pollar/react";
 import { ApiError, setAuthTokenProvider } from "@repo/config";
 import { useEffect, useRef, useState } from "react";
 import { syncUser } from "../services/users.service";
-import type { SyncableUserRole, UserProfile } from "../types";
+import type { AuthProvider, SyncableUserRole, UserProfile } from "../types";
 
 type UseSyncUserOptions = {
   role: SyncableUserRole;
@@ -13,10 +13,32 @@ type UseSyncUserOptions = {
 
 type UseSyncUserResult = {
   profile: UserProfile | null;
+  pollarAvatar: string | null;
   syncing: boolean;
   error: string | null;
   isReady: boolean;
 };
+
+type PollarProviders = {
+  email: { address: string } | null;
+  google: { id: string } | null;
+  github: { id: string } | null;
+  wallet: { address: string } | null;
+};
+
+type PollarUserProfileLike = {
+  mail: string;
+  first_name: string;
+  last_name: string;
+  avatar: string;
+  providers: PollarProviders;
+};
+
+type PollarWalletLike = {
+  custody: string;
+  address: string;
+  provider: string | null;
+} | null;
 
 type PollarClientLike = {
   getAuthState: () => {
@@ -24,12 +46,8 @@ type PollarClientLike = {
     verified?: boolean;
     session?: { token: { accessToken: string } };
   };
-  getUserProfile: () => {
-    mail: string;
-    first_name: string;
-    last_name: string;
-    avatar: string;
-  } | null;
+  getUserProfile: () => PollarUserProfileLike | null;
+  getWallet: () => PollarWalletLike;
 };
 
 function readAccessToken(client: PollarClientLike): string | undefined {
@@ -40,12 +58,43 @@ function readAccessToken(client: PollarClientLike): string | undefined {
   return state.session?.token.accessToken;
 }
 
+function deriveAuthProviders(
+  profile: PollarUserProfileLike,
+  wallet: PollarWalletLike,
+): AuthProvider[] {
+  const providers = new Set<AuthProvider>();
+
+  if (profile.providers.email) {
+    providers.add("EMAIL");
+  }
+  if (profile.providers.google) {
+    providers.add("GOOGLE");
+  }
+
+  if (wallet?.custody === "internal") {
+    if (wallet.provider === "email") {
+      providers.add("EMAIL");
+    }
+    if (wallet.provider === "google") {
+      providers.add("GOOGLE");
+    }
+  }
+
+  return [...providers];
+}
+
+function readPollarAvatar(profile: PollarUserProfileLike | null): string | null {
+  const avatar = profile?.avatar?.trim();
+  return avatar || null;
+}
+
 export function useSyncUser({
   role,
   enabled = true,
 }: UseSyncUserOptions): UseSyncUserResult {
   const { isAuthenticated, verified, wallet, getClient } = usePollar();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [pollarAvatar, setPollarAvatar] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -61,6 +110,9 @@ export function useSyncUser({
 
     setAuthTokenProvider(() => readAccessToken(client));
 
+    const userProfile = client.getUserProfile();
+    setPollarAvatar(readPollarAvatar(userProfile));
+
     if (inFlight.current || profile) {
       if (profile) {
         setIsReady(true);
@@ -74,17 +126,18 @@ export function useSyncUser({
       return;
     }
 
-    const userProfile = client.getUserProfile();
     const email = userProfile?.mail?.trim();
-    if (!email) {
+    if (!email || !userProfile) {
       setError("Pollar profile email is unavailable");
       return;
     }
 
-    const displayName = [userProfile?.first_name, userProfile?.last_name]
+    const displayName = [userProfile.first_name, userProfile.last_name]
       .filter(Boolean)
       .join(" ")
       .trim();
+    const avatarUrl = readPollarAvatar(userProfile);
+    const authProviders = deriveAuthProviders(userProfile, client.getWallet());
 
     inFlight.current = true;
     setSyncing(true);
@@ -93,9 +146,10 @@ export function useSyncUser({
     void syncUser({
       email,
       display_name: displayName || undefined,
-      avatar_url: userProfile?.avatar || undefined,
+      avatar_url: avatarUrl ?? undefined,
       wallet_address: wallet.address,
       role,
+      auth_providers: authProviders.length > 0 ? authProviders : undefined,
     })
       .then((result) => {
         setProfile(result);
@@ -125,5 +179,5 @@ export function useSyncUser({
     wallet?.address,
   ]);
 
-  return { profile, syncing, error, isReady };
+  return { profile, pollarAvatar, syncing, error, isReady };
 }

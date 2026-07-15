@@ -5,6 +5,8 @@ export type SyncableUserRole =
 
 export type UserRole = SyncableUserRole | "RELEASE_SIGNER";
 
+export type AuthProvider = "EMAIL" | "GOOGLE";
+
 export type SyncUserPayload = {
   email: string;
   display_name?: string;
@@ -12,6 +14,7 @@ export type SyncUserPayload = {
   wallet_address: string;
   pollar_wallet_id?: string;
   role: SyncableUserRole;
+  auth_providers?: AuthProvider[];
 };
 
 export type UserWallet = {
@@ -29,6 +32,7 @@ export type UserProfile = {
   email: string;
   display_name: string | null;
   avatar_url: string | null;
+  auth_providers: AuthProvider[];
   roles: UserRole[];
   is_active: boolean;
   created_at: string;

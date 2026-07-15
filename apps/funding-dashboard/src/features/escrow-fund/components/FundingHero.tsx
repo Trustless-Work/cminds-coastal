@@ -11,8 +11,8 @@ type FundingHeroProps = {
 };
 
 export const FundingHero = ({
-  headline = "Fund",
-  imageSrc = "/assets/funding.jpeg",
+  headline = "Support Coastal Work",
+  imageSrc = "/assets/funding.webp",
   imageAlt = "Coastal conservation funding — progress chart by the sea",
   children,
 }: FundingHeroProps) => {

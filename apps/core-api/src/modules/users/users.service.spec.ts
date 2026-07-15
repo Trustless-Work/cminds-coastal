@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserRole } from '../../generated/prisma/enums';
+import { AuthProvider, UserRole } from '../../generated/prisma/enums';
 import type { AuthenticatedUser } from '../../auth/interfaces/authenticated-user';
 import { AllowedEmailDomainsService } from '../allowed-email-domains/allowed-email-domains.service';
 import { UsersService } from './users.service';
@@ -30,6 +30,7 @@ describe('UsersService', () => {
     email: 'test@example.com',
     display_name: null,
     avatar_url: null,
+    auth_providers: [] as AuthProvider[],
     roles: [UserRole.COMMUNITY_IMPLEMENTER],
     is_active: true,
     created_at: new Date(),
@@ -249,6 +250,155 @@ describe('UsersService', () => {
         UserRole.COMMUNITY_IMPLEMENTER,
         UserRole.FUNDER,
       ]);
+    });
+
+    it('links email user to Google and unions auth_providers', async () => {
+      const priorUser = {
+        ...mockUser,
+        pollar_user_id: 'usr_email_only',
+        auth_providers: [AuthProvider.EMAIL],
+      };
+      const linkedUser = {
+        ...priorUser,
+        pollar_user_id: 'usr_test_1',
+        auth_providers: [AuthProvider.EMAIL, AuthProvider.GOOGLE],
+        avatar_url: 'https://lh3.googleusercontent.com/a/photo',
+      };
+
+      prismaMock.user.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(priorUser);
+      prismaMock.user.update.mockResolvedValueOnce({
+        ...linkedUser,
+        wallets: undefined,
+      });
+      prismaMock.wallet.findUnique.mockResolvedValueOnce(priorUser.wallets[0]);
+      prismaMock.wallet.update.mockResolvedValueOnce(priorUser.wallets[0]);
+      prismaMock.user.findUniqueOrThrow.mockResolvedValueOnce(linkedUser);
+
+      const result = await service.sync(authUser, {
+        email: 'test@example.com',
+        wallet_address:
+          'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
+        role: UserRole.COMMUNITY_IMPLEMENTER,
+        auth_providers: [AuthProvider.GOOGLE],
+        avatar_url: 'https://lh3.googleusercontent.com/a/photo',
+      });
+
+      expect(prismaMock.user.update).toHaveBeenCalledWith({
+        where: { user_id: priorUser.user_id },
+        data: expect.objectContaining({
+          pollar_user_id: 'usr_test_1',
+          auth_providers: [AuthProvider.EMAIL, AuthProvider.GOOGLE],
+          avatar_url: 'https://lh3.googleusercontent.com/a/photo',
+        }),
+      });
+      expect(result.auth_providers).toEqual([
+        AuthProvider.EMAIL,
+        AuthProvider.GOOGLE,
+      ]);
+    });
+
+    it('keeps existing avatar when incoming avatar is empty', async () => {
+      const priorUser = {
+        ...mockUser,
+        avatar_url: 'https://lh3.googleusercontent.com/a/photo',
+        auth_providers: [AuthProvider.GOOGLE],
+      };
+
+      prismaMock.user.findUnique.mockResolvedValueOnce(priorUser);
+      prismaMock.user.update.mockResolvedValueOnce({
+        ...priorUser,
+        wallets: undefined,
+      });
+      prismaMock.wallet.findUnique.mockResolvedValueOnce(priorUser.wallets[0]);
+      prismaMock.wallet.update.mockResolvedValueOnce(priorUser.wallets[0]);
+      prismaMock.user.findUniqueOrThrow.mockResolvedValueOnce(priorUser);
+
+      await service.sync(authUser, {
+        email: 'test@example.com',
+        wallet_address:
+          'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
+        role: UserRole.COMMUNITY_IMPLEMENTER,
+        auth_providers: [AuthProvider.EMAIL],
+      });
+
+      expect(prismaMock.user.update).toHaveBeenCalledWith({
+        where: { user_id: priorUser.user_id },
+        data: expect.objectContaining({
+          avatar_url: 'https://lh3.googleusercontent.com/a/photo',
+        }),
+      });
+    });
+
+    it('fills null avatar when Google provides an avatar url', async () => {
+      const priorUser = {
+        ...mockUser,
+        avatar_url: null,
+        auth_providers: [AuthProvider.EMAIL],
+      };
+      const googleAvatar = 'https://lh3.googleusercontent.com/a/new-photo';
+
+      prismaMock.user.findUnique.mockResolvedValueOnce(priorUser);
+      prismaMock.user.update.mockResolvedValueOnce({
+        ...priorUser,
+        avatar_url: googleAvatar,
+        wallets: undefined,
+      });
+      prismaMock.wallet.findUnique.mockResolvedValueOnce(priorUser.wallets[0]);
+      prismaMock.wallet.update.mockResolvedValueOnce(priorUser.wallets[0]);
+      prismaMock.user.findUniqueOrThrow.mockResolvedValueOnce({
+        ...priorUser,
+        avatar_url: googleAvatar,
+      });
+
+      await service.sync(authUser, {
+        email: 'test@example.com',
+        wallet_address:
+          'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
+        role: UserRole.COMMUNITY_IMPLEMENTER,
+        auth_providers: [AuthProvider.GOOGLE],
+        avatar_url: googleAvatar,
+      });
+
+      expect(prismaMock.user.update).toHaveBeenCalledWith({
+        where: { user_id: priorUser.user_id },
+        data: expect.objectContaining({
+          avatar_url: googleAvatar,
+        }),
+      });
+    });
+
+    it('does not drop GOOGLE when a later EMAIL-only sync arrives', async () => {
+      const priorUser = {
+        ...mockUser,
+        auth_providers: [AuthProvider.EMAIL, AuthProvider.GOOGLE],
+        avatar_url: 'https://lh3.googleusercontent.com/a/photo',
+      };
+
+      prismaMock.user.findUnique.mockResolvedValueOnce(priorUser);
+      prismaMock.user.update.mockResolvedValueOnce({
+        ...priorUser,
+        wallets: undefined,
+      });
+      prismaMock.wallet.findUnique.mockResolvedValueOnce(priorUser.wallets[0]);
+      prismaMock.wallet.update.mockResolvedValueOnce(priorUser.wallets[0]);
+      prismaMock.user.findUniqueOrThrow.mockResolvedValueOnce(priorUser);
+
+      await service.sync(authUser, {
+        email: 'test@example.com',
+        wallet_address:
+          'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
+        role: UserRole.COMMUNITY_IMPLEMENTER,
+        auth_providers: [AuthProvider.EMAIL],
+      });
+
+      expect(prismaMock.user.update).toHaveBeenCalledWith({
+        where: { user_id: priorUser.user_id },
+        data: expect.objectContaining({
+          auth_providers: [AuthProvider.EMAIL, AuthProvider.GOOGLE],
+        }),
+      });
     });
   });
 

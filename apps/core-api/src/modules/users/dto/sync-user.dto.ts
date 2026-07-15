@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  ArrayUnique,
+  IsArray,
   IsEmail,
   IsIn,
   IsNotEmpty,
@@ -8,7 +10,7 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
-import { UserRole } from '../../../generated/prisma/enums';
+import { AuthProvider, UserRole } from '../../../generated/prisma/enums';
 
 export const SYNCABLE_ROLES = [
   UserRole.COMMUNITY_IMPLEMENTER,
@@ -17,6 +19,13 @@ export const SYNCABLE_ROLES = [
 ] as const;
 
 export type SyncableRole = (typeof SYNCABLE_ROLES)[number];
+
+export const SYNCABLE_AUTH_PROVIDERS = [
+  AuthProvider.EMAIL,
+  AuthProvider.GOOGLE,
+] as const;
+
+export type SyncableAuthProvider = (typeof SYNCABLE_AUTH_PROVIDERS)[number];
 
 export class SyncUserDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -58,4 +67,15 @@ export class SyncUserDto {
   })
   @IsIn(SYNCABLE_ROLES)
   role!: SyncableRole;
+
+  @ApiPropertyOptional({
+    enum: SYNCABLE_AUTH_PROVIDERS,
+    isArray: true,
+    example: [AuthProvider.EMAIL, AuthProvider.GOOGLE],
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsIn(SYNCABLE_AUTH_PROVIDERS, { each: true })
+  auth_providers?: SyncableAuthProvider[];
 }

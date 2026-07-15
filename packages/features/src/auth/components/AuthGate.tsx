@@ -60,7 +60,7 @@ function AuthGateInner({
 }: AuthGateProps) {
   const router = useRouter();
   const { isAuthenticated, verified, wallet } = usePollar();
-  const { profile, isReady, syncing, error } = useSyncUser({
+  const { profile, pollarAvatar, isReady, syncing, error } = useSyncUser({
     role: appRole,
     enabled: isAuthenticated && verified,
   });
@@ -69,6 +69,7 @@ function AuthGateInner({
   const showAuthLeading = Boolean(isAuthenticated && profile);
   const walletAddress =
     wallet?.address ?? profile?.wallets[0]?.address ?? null;
+  const avatarUrl = profile?.avatar_url ?? pollarAvatar ?? null;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -80,7 +81,8 @@ function AuthGateInner({
     <>
       <UserCard
         displayName={profile?.display_name ?? null}
-        avatarUrl={profile?.avatar_url ?? null}
+        avatarUrl={avatarUrl}
+        subtitle={profile?.email ?? null}
         walletAddress={walletAddress}
       />
       <LogoutButton loginHref={loginHref} />

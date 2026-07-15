@@ -26,7 +26,7 @@ export const EscrowImageCard = ({
   style,
 }: EscrowImageCardProps) => {
   const total = escrowTotal(escrow);
-  const imageSrc = escrow.image_url ?? "/assets/funding.jpeg";
+  const imageSrc = escrow.image_url ?? "/assets/funding.webp";
   const isLocal = imageSrc.startsWith("/");
   const milestoneCount = escrow.milestones.length;
   const area = escrow.geographic_area?.trim();

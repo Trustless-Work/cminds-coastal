@@ -5,14 +5,6 @@ import { usePollar } from "@pollar/react";
 import { clientEnv } from "@repo/config";
 import { formatAddress } from "@repo/helpers";
 import { Button } from "@repo/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/card";
 import { Field, FieldGroup } from "@repo/ui/components/field";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
@@ -55,16 +47,14 @@ export function SignInView({
   if (!clientEnv.pollarApiKey) {
     return (
       <div className={cn("w-full max-w-sm", className)} {...props}>
-        <Card className="border-border/60 shadow-sm">
-          <CardHeader className="items-center text-center">
-            <CardTitle className="text-xl font-semibold tracking-tight">
-              Wallet auth unavailable
-            </CardTitle>
-            <CardDescription>
-              Set NEXT_PUBLIC_POLLAR_API_KEY to enable sign-in for this app.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <div className="flex flex-col items-center gap-1.5 text-center">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            Wallet auth unavailable
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Set NEXT_PUBLIC_POLLAR_API_KEY to enable sign-in for this app.
+          </p>
+        </div>
       </div>
     );
   }
@@ -223,20 +213,20 @@ function SignInViewInner({
   if (isAuthenticated && (!verified || syncing || (!isReady && !error))) {
     return (
       <div className={cn("w-full max-w-sm", className)} {...props}>
-        <Card className="border-border/60 shadow-sm">
-          <CardHeader className="items-center text-center">
-            <CardTitle className="text-xl font-semibold tracking-tight">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col items-center gap-1.5 text-center">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">
               One moment
-            </CardTitle>
-            <CardDescription>
+            </h1>
+            <p className="text-sm text-muted-foreground">
               {!verified ? "Verifying your session…" : "Syncing your account…"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3">
+            </p>
+          </div>
+          <div className="flex flex-col gap-3">
             <Skeleton className="h-10 w-full rounded-md" />
             <Skeleton className="mx-auto h-4 w-3/4" />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -244,65 +234,60 @@ function SignInViewInner({
   if (isAuthenticated && address) {
     return (
       <div className={cn("w-full max-w-sm", className)} {...props}>
-        <Card className="border-border/60 shadow-sm">
-          <CardHeader className="items-center text-center">
-            <CardTitle className="text-xl font-semibold tracking-tight">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col items-center gap-1.5 text-center">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">
               Signed in
-            </CardTitle>
-            <CardDescription>
+            </h1>
+            <p className="text-sm text-muted-foreground">
               Connected as{" "}
               <span className="font-mono text-foreground">
                 {formatAddress(address)}
               </span>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {error ? (
-              <p className="mb-4 text-center text-sm text-destructive">
-                {error}
-              </p>
-            ) : null}
-            <FieldGroup>
-              <Field>
-                <Button
-                  className="w-full"
-                  variant="outline"
-                  type="button"
-                  onClick={() => {
-                    void logout();
-                  }}
-                >
-                  Sign out
-                </Button>
-              </Field>
-            </FieldGroup>
-          </CardContent>
-        </Card>
+            </p>
+          </div>
+          {error ? (
+            <p className="text-center text-sm text-destructive">{error}</p>
+          ) : null}
+          <FieldGroup>
+            <Field>
+              <Button
+                className="h-12 w-full"
+                variant="outline"
+                type="button"
+                onClick={() => {
+                  void logout();
+                }}
+              >
+                Sign out
+              </Button>
+            </Field>
+          </FieldGroup>
+        </div>
       </div>
     );
   }
 
   const description =
     showEmail && showGoogle
-      ? "Sign in with Google or email to access your Stellar wallet and continue."
+      ? "Sign in with Google or email to continue."
       : showEmail
-        ? "Sign in with your organization email to access your Stellar wallet and continue."
-        : "Sign in with Google to access your Stellar wallet and continue.";
+        ? "Sign in with your organization email to continue."
+        : "Sign in with Google to continue.";
 
   return (
     <div className={cn("w-full max-w-sm", className)} {...props}>
-      <Card className="border-border/60 shadow-sm transition-shadow hover:shadow-md">
-        <CardHeader className="items-center gap-3 text-center">
-          <div className="flex flex-col gap-1.5">
-            <CardTitle className="text-xl font-semibold tracking-tight">
-              Welcome
-            </CardTitle>
-            <CardDescription className="text-balance">
-              {description}
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col items-center gap-1.5 text-center">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            Welcome
+          </h1>
+          <p className="text-balance text-sm text-muted-foreground">
+            {description}
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4">
           {localError ? (
             <p className="text-center text-sm text-destructive">{localError}</p>
           ) : null}
@@ -314,9 +299,9 @@ function SignInViewInner({
             <FieldGroup>
               <Field>
                 <Button
-                  className="w-full"
+                  className="h-12 w-full"
                   type="button"
-                  variant={showEmail ? "outline" : "default"}
+                  variant="outline"
                   disabled={emailBusy}
                   onClick={() => {
                     setLocalError(null);
@@ -335,7 +320,7 @@ function SignInViewInner({
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-border" />
               </div>
-              <span className="relative bg-card px-2 text-xs text-muted-foreground">
+              <span className="relative bg-white px-2 text-xs text-muted-foreground">
                 or
               </span>
             </div>
@@ -362,7 +347,7 @@ function SignInViewInner({
                 </Field>
                 <Field>
                   <Button
-                    className="w-full"
+                    className="h-12 w-full"
                     type="button"
                     disabled={emailBusy || !otpCode.trim()}
                     onClick={handleVerifyCode}
@@ -400,7 +385,7 @@ function SignInViewInner({
                 </Field>
                 <Field>
                   <Button
-                    className="w-full"
+                    className="h-12 w-full"
                     type="button"
                     disabled={
                       emailBusy ||
@@ -418,27 +403,26 @@ function SignInViewInner({
               </FieldGroup>
             )
           ) : null}
-        </CardContent>
-        <CardFooter className="justify-center">
-          <p className="text-center text-xs text-muted-foreground">
-            By continuing, you agree to our{" "}
-            <a
-              href="#"
-              className="underline underline-offset-4 transition-colors hover:text-foreground"
-            >
-              Terms
-            </a>{" "}
-            and{" "}
-            <a
-              href="#"
-              className="underline underline-offset-4 transition-colors hover:text-foreground"
-            >
-              Privacy Policy
-            </a>
-            .
-          </p>
-        </CardFooter>
-      </Card>
+        </div>
+
+        <p className="text-center text-xs text-muted-foreground">
+          By continuing, you agree to our{" "}
+          <a
+            href="#"
+            className="underline underline-offset-4 transition-colors hover:text-foreground"
+          >
+            Terms
+          </a>{" "}
+          and{" "}
+          <a
+            href="#"
+            className="underline underline-offset-4 transition-colors hover:text-foreground"
+          >
+            Privacy Policy
+          </a>
+          .
+        </p>
+      </div>
     </div>
   );
 }

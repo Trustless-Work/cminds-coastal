@@ -76,7 +76,7 @@ export const FundingEscrowListView = () => {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pb-24 pt-6 sm:px-10">
-      <FundingHero headline="Fund">
+      <FundingHero headline="Support Coastal Work">
         <FundingFilterCard
           values={draftFilters}
           statusOptions={statusOptions}
