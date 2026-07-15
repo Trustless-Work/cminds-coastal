@@ -1,12 +1,11 @@
 "use client";
 
 import { usePollar } from "@pollar/react";
-import { clearAuthToken } from "@repo/config";
 import { Button } from "@repo/ui/components/button";
 import { LogOutIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { clearCachedUserProfiles } from "../utils/profile-cache";
+import { endStalePollarSession } from "../utils/end-stale-session";
 
 type LogoutButtonProps = {
   loginHref?: string;
@@ -20,9 +19,7 @@ export function LogoutButton({ loginHref = "/login" }: LogoutButtonProps) {
   async function handleLogout(): Promise<void> {
     setLoading(true);
     try {
-      clearAuthToken();
-      clearCachedUserProfiles();
-      await logout();
+      await endStalePollarSession(logout);
       router.replace(loginHref);
     } finally {
       setLoading(false);

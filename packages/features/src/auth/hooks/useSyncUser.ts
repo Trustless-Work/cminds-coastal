@@ -5,6 +5,7 @@ import { ApiError, setAuthTokenProvider } from "@repo/config";
 import { useEffect, useRef, useState } from "react";
 import { syncUser } from "../services/users.service";
 import type { AuthProvider, SyncableUserRole, UserProfile } from "../types";
+import { endStalePollarSession } from "../utils/end-stale-session";
 import {
   readCachedUserProfile,
   writeCachedUserProfile,
@@ -96,13 +97,14 @@ export function useSyncUser({
   role,
   enabled = true,
 }: UseSyncUserOptions): UseSyncUserResult {
-  const { isAuthenticated, verified, wallet, getClient } = usePollar();
+  const { isAuthenticated, verified, wallet, getClient, logout } = usePollar();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [pollarAvatar, setPollarAvatar] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
   const inFlight = useRef(false);
+  const endingSession = useRef(false);
   const syncedKeyRef = useRef<string | null>(null);
   const identityRef = useRef<string | null>(null);
   const profileRef = useRef<UserProfile | null>(null);
@@ -113,12 +115,28 @@ export function useSyncUser({
     if (!enabled || !isAuthenticated || !verified || !wallet?.address) {
       setIsReady(false);
       syncedKeyRef.current = null;
+      endingSession.current = false;
       return;
     }
 
     const walletAddress = wallet.address;
     const syncKey = `${walletAddress.toLowerCase()}:${role}`;
     const client = getClient() as PollarClientLike;
+
+    async function dropStaleSession(): Promise<void> {
+      if (endingSession.current) {
+        return;
+      }
+      endingSession.current = true;
+      setError(null);
+      setProfile(null);
+      setIsReady(false);
+      setSyncing(false);
+      syncedKeyRef.current = null;
+      profileRef.current = null;
+      inFlight.current = false;
+      await endStalePollarSession(logout);
+    }
 
     if (identityRef.current !== null && identityRef.current !== syncKey) {
       setProfile(null);
@@ -153,8 +171,9 @@ export function useSyncUser({
 
     const accessToken = readAccessToken(client);
     if (!accessToken) {
+      // No usable token and nothing cached → half-dead session after idle.
       if (!hasProfile) {
-        setIsReady(false);
+        void dropStaleSession();
       }
       return;
     }
@@ -162,7 +181,9 @@ export function useSyncUser({
     const email = userProfile?.mail?.trim();
     if (!email || !userProfile) {
       if (!hasProfile) {
-        setError("Pollar profile email is unavailable");
+        // Half-dead Pollar session after long idle: SDK still "authenticated"
+        // but profile/email is gone — end session so AuthGate can show login.
+        void dropStaleSession();
       }
       return;
     }
@@ -199,6 +220,12 @@ export function useSyncUser({
           syncedKeyRef.current = syncKey;
           return;
         }
+        const unauthorized =
+          err instanceof ApiError && (err.status === 401 || err.status === 403);
+        if (unauthorized) {
+          void dropStaleSession();
+          return;
+        }
         const message =
           err instanceof ApiError
             ? err.message
@@ -216,6 +243,7 @@ export function useSyncUser({
     enabled,
     getClient,
     isAuthenticated,
+    logout,
     role,
     verified,
     wallet?.address,

@@ -6,10 +6,11 @@ import { DashboardShell } from "@repo/shared/DashboardShell";
 import type { NavLink } from "@repo/shared/Navbar";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePollarBootstrap } from "../hooks/usePollarBootstrap";
 import { useSyncUser } from "../hooks/useSyncUser";
 import type { SyncableUserRole } from "../types";
+import { endStalePollarSession } from "../utils/end-stale-session";
 import { LogoutButton } from "./LogoutButton";
 import { UserCard } from "./UserCard";
 
@@ -49,16 +50,7 @@ export function AuthGate(props: AuthGateProps) {
   return <AuthGateInner {...props} />;
 }
 
-function AuthContentSkeleton({ error }: { error: string | null }) {
-  if (error) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
-        <p className="text-sm font-medium text-foreground">Session error</p>
-        <p className="max-w-sm text-sm text-destructive">{error}</p>
-      </div>
-    );
-  }
-
+function AuthContentSkeleton() {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-6 sm:p-8">
       <div className="flex flex-col gap-2">
@@ -86,11 +78,12 @@ function AuthGateInner({
 }: AuthGateProps) {
   const router = useRouter();
   const { bootstrapped } = usePollarBootstrap();
-  const { isAuthenticated, verified, wallet } = usePollar();
+  const { isAuthenticated, verified, wallet, logout } = usePollar();
   const { profile, pollarAvatar, isReady, syncing, error } = useSyncUser({
     role: appRole,
     enabled: bootstrapped && isAuthenticated && verified,
   });
+  const endingBrokenSession = useRef(false);
 
   const hasAppRole = Boolean(profile?.roles.includes(appRole));
   const showAuthLeading = Boolean(isAuthenticated && profile);
@@ -102,16 +95,28 @@ function AuthGateInner({
     !isAuthenticated ||
     !verified ||
     syncing ||
-    !isReady;
+    !isReady ||
+    Boolean(error);
 
   useEffect(() => {
     if (!bootstrapped) {
       return;
     }
     if (!isAuthenticated) {
+      endingBrokenSession.current = false;
       router.replace(loginHref);
     }
   }, [bootstrapped, isAuthenticated, loginHref, router]);
+
+  useEffect(() => {
+    if (!error || endingBrokenSession.current) {
+      return;
+    }
+    endingBrokenSession.current = true;
+    void endStalePollarSession(logout).then(() => {
+      router.replace(loginHref);
+    });
+  }, [error, loginHref, logout, router]);
 
   const authLeading = showAuthLeading ? (
     <div className="flex w-full min-w-0 items-center gap-2 md:w-auto md:justify-end md:gap-3">
@@ -137,7 +142,7 @@ function AuthGateInner({
         navLinks={navLinks}
         leading={authLeading}
       >
-        <AuthContentSkeleton error={error} />
+        <AuthContentSkeleton />
       </DashboardShell>
     );
   }
