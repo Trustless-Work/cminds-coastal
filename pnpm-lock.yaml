@@ -153,6 +153,9 @@ importers:
 
   apps/cminds-dashboard:
     dependencies:
+      '@repo/config':
+        specifier: workspace:^
+        version: link:../../packages/config
       '@repo/features':
         specifier: workspace:*
         version: link:../../packages/features
@@ -171,6 +174,9 @@ importers:
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@tanstack/react-query':
+        specifier: ^5.101.2
+        version: 5.101.2(react@19.2.4)
       '@trustless-work/escrow':
         specifier: ^3.0.5
         version: 3.0.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)

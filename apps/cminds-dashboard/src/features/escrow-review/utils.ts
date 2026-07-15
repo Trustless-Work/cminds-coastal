@@ -1,3 +1,4 @@
+import type { EscrowRecord } from "@repo/features/escrow/services/escrows.service";
 import type {
   GetEscrowsFromIndexerResponse as Escrow,
   MultiReleaseMilestone,
@@ -100,7 +101,10 @@ export function parseEvidenceLinks(evidence: string | undefined): string[] {
   return [];
 }
 
-export function buildReviewQueue(escrows: Escrow[]): ReviewQueueItem[] {
+export function buildReviewQueue(
+  escrows: Escrow[],
+  metadataByContractId?: Map<string, EscrowRecord | null>,
+): ReviewQueueItem[] {
   const items: ReviewQueueItem[] = [];
 
   for (const escrow of escrows) {
@@ -115,6 +119,10 @@ export function buildReviewQueue(escrows: Escrow[]): ReviewQueueItem[] {
         amount: getMilestoneAmount(milestone),
         evidence: milestone.evidence,
         status,
+        metadata:
+          escrow.contractId !== undefined
+            ? (metadataByContractId?.get(escrow.contractId) ?? null)
+            : null,
       });
     });
   }
@@ -144,8 +152,7 @@ export function computeOperatorStats(escrows: Escrow[]): OperatorEscrowStats {
   };
 }
 
-export function fundingLabel(escrow: Escrow): string {
-  const balance = escrow.balance ?? 0;
-  if (balance <= 0) return "Unfunded";
+export function fundingLabelFromBalance(balance: number | undefined): string {
+  if (!balance || balance <= 0) return "Unfunded";
   return "Funded";
 }

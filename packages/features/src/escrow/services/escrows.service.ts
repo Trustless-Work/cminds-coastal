@@ -94,6 +94,20 @@ export async function fetchMyEscrows(): Promise<EscrowRecord[]> {
   return data;
 }
 
+export type ParticipatingRole =
+  | "initializer"
+  | "approver"
+  | "release_signer";
+
+export async function fetchParticipatingEscrows(
+  as: ParticipatingRole,
+): Promise<EscrowRecord[]> {
+  const { data } = await http.get<EscrowRecord[]>("/escrows/participating", {
+    params: { as },
+  });
+  return data;
+}
+
 export async function fetchEscrow(escrowId: string): Promise<EscrowRecord> {
   const { data } = await http.get<EscrowRecord>(
     `/escrows/${encodeURIComponent(escrowId)}`,

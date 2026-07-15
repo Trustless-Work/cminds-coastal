@@ -15,6 +15,7 @@ import {
   PUBLIC_FUNDING_STATUSES,
   type ListFundingEscrowsQueryDto,
 } from './dto/list-funding-escrows-query.dto';
+import type { ParticipatingRole } from './dto/list-participating-escrows-query.dto';
 
 type FundingCursorPayload = {
   createdAt: string;
@@ -35,6 +36,14 @@ const COMMUNITY_SELECT = {
 } as const;
 
 const FUNDING_LIST_INCLUDE = {
+  community: { select: COMMUNITY_SELECT },
+  milestones: {
+    include: { task: true },
+    orderBy: { milestone_index: 'asc' as const },
+  },
+} satisfies Prisma.EscrowInclude;
+
+const PARTICIPATING_LIST_INCLUDE = {
   community: { select: COMMUNITY_SELECT },
   milestones: {
     include: { task: true },
@@ -197,17 +206,21 @@ export class EscrowsService {
   }
 
   async findMine(authUser: AuthenticatedUser) {
+    return this.findParticipating(authUser, 'initializer');
+  }
+
+  async findParticipating(
+    authUser: AuthenticatedUser,
+    as: ParticipatingRole,
+  ) {
     const user = await this.usersService.requireSyncedUser(authUser);
+    this.assertParticipatingRole(user.roles, as);
+
+    const where = this.buildParticipatingWhere(user.user_id, as);
 
     return this.prisma.escrow.findMany({
-      where: { initializer_user_id: user.user_id },
-      include: {
-        community: { select: COMMUNITY_SELECT },
-        milestones: {
-          include: { task: true },
-          orderBy: { milestone_index: 'asc' },
-        },
-      },
+      where,
+      include: PARTICIPATING_LIST_INCLUDE,
       orderBy: { created_at: 'desc' },
     });
   }
@@ -236,12 +249,67 @@ export class EscrowsService {
     }
 
     const isOwner = escrow.initializer_user_id === user.user_id;
+    const isAssignedApprover = escrow.approver_user_id === user.user_id;
+    const isAssignedReleaseSigner =
+      escrow.release_signer_user_id === user.user_id;
     const isCminds = user.roles.includes(UserRole.CMINDS_OPERATOR);
-    if (!isOwner && !isCminds) {
+
+    if (
+      !isOwner &&
+      !isAssignedApprover &&
+      !isAssignedReleaseSigner &&
+      !isCminds
+    ) {
       throw new ForbiddenException('Not allowed to view this escrow');
     }
 
     return escrow;
+  }
+
+  private assertParticipatingRole(
+    roles: UserRole[],
+    as: ParticipatingRole,
+  ): void {
+    if (as === 'approver') {
+      if (!roles.includes(UserRole.CMINDS_OPERATOR)) {
+        throw new ForbiddenException(
+          'Only CMINDS_OPERATOR can list escrows as approver',
+        );
+      }
+      return;
+    }
+
+    if (as === 'initializer') {
+      if (!roles.includes(UserRole.COMMUNITY_IMPLEMENTER)) {
+        throw new ForbiddenException(
+          'Only COMMUNITY_IMPLEMENTER can list escrows as initializer',
+        );
+      }
+      return;
+    }
+
+    const canRelease =
+      roles.includes(UserRole.COMMUNITY_IMPLEMENTER) ||
+      roles.includes(UserRole.RELEASE_SIGNER);
+    if (!canRelease) {
+      throw new ForbiddenException(
+        'Only COMMUNITY_IMPLEMENTER or RELEASE_SIGNER can list escrows as release signer',
+      );
+    }
+  }
+
+  private buildParticipatingWhere(
+    userId: string,
+    as: ParticipatingRole,
+  ): Prisma.EscrowWhereInput {
+    switch (as) {
+      case 'initializer':
+        return { initializer_user_id: userId };
+      case 'approver':
+        return { approver_user_id: userId };
+      case 'release_signer':
+        return { release_signer_user_id: userId };
+    }
   }
 
   /**

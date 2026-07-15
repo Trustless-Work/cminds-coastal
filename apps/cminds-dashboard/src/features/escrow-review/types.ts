@@ -1,3 +1,4 @@
+import type { EscrowRecord } from "@repo/features/escrow/services/escrows.service";
 import type { GetEscrowsFromIndexerResponse as Escrow } from "@trustless-work/escrow/types";
 
 export type MilestoneReviewStatus =
@@ -16,6 +17,7 @@ export type ReviewQueueItem = {
   amount: number | null;
   evidence: string | undefined;
   status: MilestoneReviewStatus;
+  metadata?: EscrowRecord | null;
 };
 
 export type OperatorEscrowStats = {
@@ -23,4 +25,11 @@ export type OperatorEscrowStats = {
   pendingReview: number;
   disputed: number;
   approved: number;
+};
+
+export type EnrichedOperatorEscrow = {
+  metadata: EscrowRecord;
+  chain?: Escrow;
+  pendingReviewCount: number;
+  disputedCount: number;
 };

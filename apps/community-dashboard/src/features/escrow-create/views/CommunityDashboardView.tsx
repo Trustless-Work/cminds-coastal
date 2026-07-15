@@ -1,28 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { formatAddress } from "@repo/helpers";
+import type { CSSProperties } from "react";
 import { NoData } from "@repo/shared/NoData";
-import { UsdcAmount } from "@repo/shared/UsdcAmount";
-import { Badge } from "@repo/ui/components/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@repo/ui/components/table";
 import { FileStack } from "lucide-react";
 
+import { CommunityBanner } from "../components/CommunityBanner";
+import { CommunityEscrowImageCard } from "../components/CommunityEscrowImageCard";
+import { CommunityStatsCards } from "../components/CommunityStatsCards";
 import { useCommunityEscrows } from "../hooks/useCommunityEscrows";
 
 export const CommunityDashboardView = () => {
@@ -30,157 +16,106 @@ export const CommunityDashboardView = () => {
     useCommunityEscrows();
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-medium">Your escrows</h2>
-          <p className="text-sm text-muted-foreground">
-            Multi-release escrows you initialized for community tasks.
-          </p>
+    <div className="mx-auto w-full max-w-[1320px] px-6 pb-24 pt-6 sm:px-10">
+      <CommunityBanner headline="Your coastal work" />
+
+      <div className="mt-10 grid items-start gap-8 sm:mt-12 lg:grid-cols-12 lg:gap-12">
+        <header className="flex flex-col gap-4 lg:col-span-5">
+          <div className="space-y-3">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Your coastal escrows
+            </h2>
+            <p className="max-w-xl text-base text-muted-foreground">
+              Escrows you initialized or signed as release signer — create
+              tasks, submit evidence, and release approved funds.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/escrows/new"
+            className="inline-flex h-11 w-fit shrink-0 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Create escrow
+          </Link>
+        </header>
+
+        <div className="lg:col-span-7">
+          <CommunityStatsCards escrows={data} isLoading={isLoading} />
         </div>
-        <Link
-          href="/dashboard/escrows/new"
-          className="inline-flex h-8 items-center justify-center rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/80"
-        >
-          Create escrow
-        </Link>
       </div>
 
       {isError ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Could not load escrows</CardTitle>
-            <CardDescription>
-              {error instanceof Error ? error.message : "Unknown error"}
-            </CardDescription>
-            <button
-              type="button"
-              className="w-fit text-sm text-primary hover:underline"
-              onClick={() => {
-                void refetch();
-              }}
-            >
-              Retry
-            </button>
-          </CardHeader>
-        </Card>
+        <div className="mt-10 rounded-2xl border border-border bg-background-secondary px-6 py-10 text-center">
+          <p className="text-base font-semibold text-foreground">
+            Could not load escrows
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+          <button
+            type="button"
+            className="mt-4 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+            onClick={() => {
+              void refetch();
+            }}
+          >
+            Retry
+          </button>
+        </div>
       ) : null}
 
-      {isLoading ? (
-        <>
-          <div className="space-y-3 md:hidden">
-            {Array.from({ length: 2 }).map((_, index) => (
-              <Skeleton key={index} className="h-32 rounded-xl" />
-            ))}
-          </div>
-          <Skeleton className="hidden h-48 rounded-xl md:block" />
-        </>
-      ) : data.length === 0 ? (
-        <NoData
-          title="No escrows yet"
-          description="Create an escrow from the fixed task menu to get started."
-          icon={<FileStack />}
-          link="/dashboard/escrows/new"
-          linkText="Create escrow"
-        />
-      ) : (
-        <>
-          <div className="space-y-3 md:hidden">
-            {data.map((escrow) => (
-              <Card key={escrow.escrow_id} className="overflow-hidden">
-                {escrow.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={escrow.image_url}
-                    alt=""
-                    className="aspect-video w-full object-cover"
-                  />
-                ) : null}
-                <CardHeader>
-                  <CardTitle className="text-base">
-                    <Link
-                      href={`/dashboard/escrows/${escrow.escrow_id}`}
-                      className="hover:underline"
-                    >
-                      {escrow.title}
-                    </Link>
-                  </CardTitle>
-                  <CardDescription>{escrow.community.name}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline">{escrow.status}</Badge>
-                    <span className="text-muted-foreground">
-                      {escrow.milestones.length}{" "}
-                      {escrow.milestones.length === 1 ? "task" : "tasks"}
-                    </span>
+      <section className="mt-12 sm:mt-14">
+        {isLoading ? (
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="flex flex-col overflow-hidden rounded-[24px] border border-border bg-background p-3 sm:p-4"
+              >
+                <Skeleton className="aspect-[16/10] w-full rounded-2xl" />
+                <div className="mt-3 flex flex-col gap-2 px-1 pb-1 sm:mt-4">
+                  <Skeleton className="h-6 w-4/5 rounded-md" />
+                  <Skeleton className="h-4 w-3/5 rounded-md" />
+                  <Skeleton className="mt-2 h-px w-full rounded-none" />
+                  <div className="mt-1 grid grid-cols-2 gap-3">
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md" />
                   </div>
-                  <p className="font-mono text-xs text-muted-foreground">
-                    {formatAddress(escrow.escrow_id)}
-                  </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
+        ) : null}
 
-          <div className="hidden overflow-x-auto rounded-xl ring-1 ring-foreground/10 md:block">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-14"> </TableHead>
-                  <TableHead>Escrow</TableHead>
-                  <TableHead>Community</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Contract</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((escrow) => {
-                  const total = escrow.milestones.reduce(
-                    (sum, milestone) => sum + Number(milestone.amount),
-                    0,
-                  );
-                  return (
-                    <TableRow key={escrow.escrow_id}>
-                      <TableCell>
-                        {escrow.image_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={escrow.image_url}
-                            alt=""
-                            className="size-10 rounded-md object-cover"
-                          />
-                        ) : (
-                          <div className="size-10 rounded-md bg-muted" />
-                        )}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        <Link
-                          href={`/dashboard/escrows/${escrow.escrow_id}`}
-                          className="hover:underline"
-                        >
-                          {escrow.title}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{escrow.community.name}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{escrow.status}</Badge>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {formatAddress(escrow.escrow_id)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <UsdcAmount amount={total} size="sm" className="justify-end" />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+        {!isLoading && !isError && data.length === 0 ? (
+          <NoData
+            title="No escrows yet"
+            description="Create an escrow from the fixed task menu to get started."
+            icon={<FileStack />}
+            link="/dashboard/escrows/new"
+            linkText="Create escrow"
+          />
+        ) : null}
+
+        {!isLoading && data.length > 0 ? (
+          <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-3">
+            {data.map((escrow, index) => {
+              const style: CSSProperties = {
+                animationDelay: `${Math.min(index, 8) * 60}ms`,
+              };
+              return (
+                <CommunityEscrowImageCard
+                  key={escrow.escrow_id}
+                  escrow={escrow}
+                  className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500"
+                  style={style}
+                />
+              );
+            })}
           </div>
-        </>
-      )}
+        ) : null}
+      </section>
     </div>
   );
 };

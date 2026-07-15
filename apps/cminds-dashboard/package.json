@@ -10,12 +10,14 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@repo/config": "workspace:^",
     "@repo/features": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/providers": "workspace:*",
     "@repo/shared": "workspace:*",
     "@repo/tw-blocks": "workspace:*",
     "@repo/ui": "workspace:*",
+    "@tanstack/react-query": "^5.101.2",
     "@trustless-work/escrow": "^3.0.5",
     "lucide-react": "^1.24.0",
     "next": "catalog:",

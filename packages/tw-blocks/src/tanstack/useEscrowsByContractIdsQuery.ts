@@ -18,13 +18,13 @@ export const useEscrowsByContractIdsQuery = ({
   // Get the escrow by contract ids
   const { getEscrowByContractIds } = useGetEscrowFromIndexerByContractIds();
 
+  const hasContractIds = Boolean(contractIds && contractIds.length > 0);
+
   return useQuery({
     queryKey: ["escrows", "contract-ids", contractIds, validateOnChain],
     queryFn: async (): Promise<Escrow[]> => {
-      if (!contractIds) {
-        throw new Error(
-          "Contract IDs are required to fetch escrows by contract IDs"
-        );
+      if (!contractIds || contractIds.length === 0) {
+        return [];
       }
 
       /**
@@ -44,7 +44,7 @@ export const useEscrowsByContractIdsQuery = ({
 
       return escrows;
     },
-    enabled: !!contractIds,
+    enabled: hasContractIds,
     staleTime: 1000 * 60 * 5,
   });
 };

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EscrowStatus, UserRole } from '../../generated/prisma/enums';
@@ -26,6 +27,12 @@ describe('EscrowsService', () => {
   const initializer = {
     user_id: '11111111-1111-1111-1111-111111111111',
     roles: [UserRole.COMMUNITY_IMPLEMENTER],
+    is_active: true,
+  };
+
+  const cmindsOperator = {
+    user_id: '22222222-2222-2222-2222-222222222222',
+    roles: [UserRole.CMINDS_OPERATOR],
     is_active: true,
   };
 
@@ -276,5 +283,135 @@ describe('EscrowsService', () => {
     await expect(service.findFundingPublicByContract('C123')).rejects.toThrow(
       'Escrow C123 not found',
     );
+  });
+
+  describe('findParticipating', () => {
+    it('should list escrows for initializer', async () => {
+      prismaMock.escrow.findMany.mockResolvedValue([]);
+
+      await service.findParticipating(authUser, 'initializer');
+
+      expect(prismaMock.escrow.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { initializer_user_id: initializer.user_id },
+          orderBy: { created_at: 'desc' },
+        }),
+      );
+    });
+
+    it('should list escrows for approver', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+      prismaMock.escrow.findMany.mockResolvedValue([]);
+
+      await service.findParticipating(authUser, 'approver');
+
+      expect(prismaMock.escrow.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { approver_user_id: cmindsOperator.user_id },
+        }),
+      );
+    });
+
+    it('should list escrows for release signer', async () => {
+      prismaMock.escrow.findMany.mockResolvedValue([]);
+
+      await service.findParticipating(authUser, 'release_signer');
+
+      expect(prismaMock.escrow.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { release_signer_user_id: initializer.user_id },
+        }),
+      );
+    });
+
+    it('should throw ForbiddenException when funder lists as approver', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue({
+        ...initializer,
+        roles: [UserRole.FUNDER],
+      });
+
+      await expect(
+        service.findParticipating(authUser, 'approver'),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw ForbiddenException when operator lists as initializer', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+
+      await expect(
+        service.findParticipating(authUser, 'initializer'),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should allow RELEASE_SIGNER role for release_signer list', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue({
+        user_id: '33333333-3333-3333-3333-333333333333',
+        roles: [UserRole.RELEASE_SIGNER],
+        is_active: true,
+      });
+      prismaMock.escrow.findMany.mockResolvedValue([]);
+
+      await service.findParticipating(authUser, 'release_signer');
+
+      expect(prismaMock.escrow.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            release_signer_user_id: '33333333-3333-3333-3333-333333333333',
+          },
+        }),
+      );
+    });
+  });
+
+  describe('findOne', () => {
+    const baseEscrow = {
+      escrow_id: 'C-ESCROW',
+      initializer_user_id: initializer.user_id,
+      approver_user_id: cmindsOperator.user_id,
+      release_signer_user_id: '33333333-3333-3333-3333-333333333333',
+    };
+
+    it('should allow assigned approver to view escrow', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+      prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
+
+      await expect(service.findOne(authUser, 'C-ESCROW')).resolves.toEqual(
+        baseEscrow,
+      );
+    });
+
+    it('should allow assigned release signer to view escrow', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue({
+        user_id: '33333333-3333-3333-3333-333333333333',
+        roles: [UserRole.RELEASE_SIGNER],
+        is_active: true,
+      });
+      prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
+
+      await expect(service.findOne(authUser, 'C-ESCROW')).resolves.toEqual(
+        baseEscrow,
+      );
+    });
+
+    it('should forbid unrelated funder', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue({
+        user_id: '99999999-9999-9999-9999-999999999999',
+        roles: [UserRole.FUNDER],
+        is_active: true,
+      });
+      prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
+
+      await expect(service.findOne(authUser, 'C-ESCROW')).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('should throw NotFoundException when missing', async () => {
+      prismaMock.escrow.findUnique.mockResolvedValue(null);
+
+      await expect(service.findOne(authUser, 'missing')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
   });
 });

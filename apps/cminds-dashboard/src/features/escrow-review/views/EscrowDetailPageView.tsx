@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo } from "react";
+import Link from "next/link";
 import {
   Card,
   CardDescription,
@@ -20,34 +20,39 @@ type EscrowDetailPageViewProps = {
 export const EscrowDetailPageView = ({
   contractId,
 }: EscrowDetailPageViewProps) => {
-  const { walletAddress, escrows, isLoading, isError, error, refetch } =
-    useOperatorEscrows();
+  const {
+    records,
+    chainByContractId,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useOperatorEscrows();
 
-  const escrow = useMemo(
-    () => escrows.find((item) => item.contractId === contractId),
-    [contractId, escrows],
+  const metadata = useMemo(
+    () => records.find((item) => item.escrow_id === contractId),
+    [contractId, records],
   );
+  const chainEscrow = chainByContractId.get(contractId);
 
-  if (!walletAddress) {
+  if (isLoading && !metadata) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Connect your wallet</CardTitle>
-          <CardDescription>
-            Sign in with Pollar to open this escrow.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+        <div className="space-y-6 lg:col-span-7 xl:col-span-8">
+          <Skeleton className="aspect-[16/10] w-full rounded-[24px]" />
+          <Skeleton className="h-10 w-2/3 rounded-xl" />
+          <Skeleton className="h-24 w-full rounded-xl" />
+        </div>
+        <div className="lg:col-span-5 xl:col-span-4">
+          <Skeleton className="h-80 w-full rounded-[24px]" />
+        </div>
+      </div>
     );
   }
 
-  if (isLoading) {
-    return <Skeleton className="h-96 rounded-xl" />;
-  }
-
-  if (isError) {
+  if (isError && !metadata) {
     return (
-      <Card>
+      <Card className="rounded-[24px]">
         <CardHeader>
           <CardTitle>Could not load escrow</CardTitle>
           <CardDescription>
@@ -67,15 +72,18 @@ export const EscrowDetailPageView = ({
     );
   }
 
-  if (!escrow) {
+  if (!isLoading && !metadata) {
     return (
-      <Card>
+      <Card className="rounded-[24px]">
         <CardHeader>
           <CardTitle>Escrow not found</CardTitle>
           <CardDescription>
             No escrow with this contract id was found for your approver role.
           </CardDescription>
-          <Link href="/dashboard" className="text-sm text-primary hover:underline">
+          <Link
+            href="/dashboard"
+            className="text-sm text-primary hover:underline"
+          >
             Back to dashboard
           </Link>
         </CardHeader>
@@ -83,5 +91,15 @@ export const EscrowDetailPageView = ({
     );
   }
 
-  return <EscrowDetail escrow={escrow} />;
+  if (!metadata) {
+    return null;
+  }
+
+  return (
+    <EscrowDetail
+      contractId={contractId}
+      metadata={metadata}
+      initialEscrow={chainEscrow}
+    />
+  );
 };

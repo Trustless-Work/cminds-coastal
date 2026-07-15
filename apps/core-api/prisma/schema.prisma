@@ -162,6 +162,8 @@ model Escrow {
 
   @@index([community_id])
   @@index([initializer_user_id])
+  @@index([approver_user_id])
+  @@index([release_signer_user_id])
   @@index([status])
   @@map("escrow")
 }

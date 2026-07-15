@@ -16,6 +16,7 @@ import {
   ApiConsumes,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -25,6 +26,7 @@ import { UserRole } from '../../generated/prisma/enums';
 import { StorageService } from '../storage/storage.service';
 import { CreateEscrowDto } from './dto/create-escrow.dto';
 import { ListFundingEscrowsQueryDto } from './dto/list-funding-escrows-query.dto';
+import { ListParticipatingEscrowsQueryDto } from './dto/list-participating-escrows-query.dto';
 import { EscrowsService } from './escrows.service';
 
 @ApiTags('escrows')
@@ -109,10 +111,37 @@ export class EscrowsController {
 
   @Get('mine')
   @Roles(UserRole.COMMUNITY_IMPLEMENTER)
-  @ApiOperation({ summary: 'List escrows initialized by the current user' })
+  @ApiOperation({
+    summary: 'List escrows initialized by the current user',
+    deprecated: true,
+    description: 'Prefer GET /escrows/participating?as=initializer',
+  })
   @ApiResponse({ status: 200, description: 'Escrow list' })
   findMine(@CurrentUser() user: AuthenticatedUser) {
     return this.escrowsService.findMine(user);
+  }
+
+  @Get('participating')
+  @Roles(
+    UserRole.CMINDS_OPERATOR,
+    UserRole.COMMUNITY_IMPLEMENTER,
+    UserRole.RELEASE_SIGNER,
+  )
+  @ApiOperation({
+    summary:
+      'List escrows where the current user participates in the given role',
+  })
+  @ApiQuery({
+    name: 'as',
+    enum: ['initializer', 'approver', 'release_signer'],
+    required: true,
+  })
+  @ApiResponse({ status: 200, description: 'Escrow list' })
+  findParticipating(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListParticipatingEscrowsQueryDto,
+  ) {
+    return this.escrowsService.findParticipating(user, query.as);
   }
 
   @Get(':escrowId')

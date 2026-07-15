@@ -1,80 +1,145 @@
 "use client";
 
-import { Card, CardDescription, CardHeader, CardTitle } from "@repo/ui/components/card";
+import type { CSSProperties } from "react";
+import { NoData } from "@repo/shared/NoData";
+import { Skeleton } from "@repo/ui/components/skeleton";
+import { FileStack } from "lucide-react";
 
 import { useOperatorEscrows } from "../hooks/useOperatorEscrows";
-import { EscrowList } from "../components/EscrowList";
-import { MilestoneReviewQueue } from "../components/MilestoneReviewQueue";
-import { StatsCards } from "../components/StatsCards";
+import { EscrowImageCard } from "../components/EscrowImageCard";
+import { OperatorBanner } from "../components/OperatorBanner";
+import { OperatorStatsCards } from "../components/OperatorStatsCards";
+import { ReviewQueueCarousel } from "../components/ReviewQueueCarousel";
 
 export const OperatorDashboardView = () => {
   const {
-    walletAddress,
-    escrows,
+    enrichedEscrows,
     reviewQueue,
     stats,
     isLoading,
+    isChainLoading,
     isError,
     error,
     refetch,
   } = useOperatorEscrows();
 
-  if (!walletAddress) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Connect your wallet</CardTitle>
-          <CardDescription>
-            Sign in with Pollar so we can load escrows where you are the
-            approver.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
-
   return (
-    <div className="space-y-8">
-      <StatsCards stats={stats} isLoading={isLoading} />
+    <div className="mx-auto w-full max-w-[1320px] px-6 pb-24 pt-6 sm:px-10">
+      <OperatorBanner headline="Operator Review" />
+
+      <div className="mt-10 grid items-start gap-8 sm:mt-12 lg:grid-cols-12 lg:gap-12">
+        <header className="space-y-3 lg:col-span-5">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            Coastal Escrow Oversight
+          </h2>
+          <p className="max-w-xl text-base text-muted-foreground">
+            Review evidence, approve or dispute milestones, and monitor escrows
+            where you are the assigned approver.
+          </p>
+        </header>
+
+        <div className="lg:col-span-7">
+          <OperatorStatsCards
+            stats={stats}
+            isLoading={isLoading || isChainLoading}
+          />
+        </div>
+      </div>
 
       {isError ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Could not load escrows</CardTitle>
-            <CardDescription>
-              {error instanceof Error ? error.message : "Unknown error"}
-            </CardDescription>
-            <button
-              type="button"
-              className="w-fit text-sm text-primary hover:underline"
-              onClick={() => {
-                void refetch();
-              }}
-            >
-              Retry
-            </button>
-          </CardHeader>
-        </Card>
+        <div className="mt-10 rounded-2xl border border-border bg-background-secondary px-6 py-10 text-center">
+          <p className="text-base font-semibold text-foreground">
+            Could not load escrows
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+          <button
+            type="button"
+            className="mt-4 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+            onClick={() => {
+              void refetch();
+            }}
+          >
+            Retry
+          </button>
+        </div>
       ) : null}
 
-      <section className="space-y-3">
-        <div>
-          <h2 className="text-lg font-medium">Review queue</h2>
+      <section className="mt-14 scroll-mt-24 sm:mt-16">
+        <header className="mb-6 flex flex-col gap-2 sm:mb-8">
+          <h3 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Review Queue
+          </h3>
           <p className="text-sm text-muted-foreground">
-            Approve or dispute tasks with evidence ready for review.
+            Approve or dispute evidence ready for CMinds review.
           </p>
-        </div>
-        <MilestoneReviewQueue items={reviewQueue} isLoading={isLoading} />
+        </header>
+        <ReviewQueueCarousel
+          items={reviewQueue}
+          isLoading={isLoading || isChainLoading}
+        />
       </section>
 
-      <section className="space-y-3">
-        <div>
-          <h2 className="text-lg font-medium">Your escrows</h2>
+      <section className="mt-16 scroll-mt-24 sm:mt-20">
+        <header className="mb-6 flex flex-col gap-2 sm:mb-8">
+          <h3 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Assigned Escrows
+          </h3>
           <p className="text-sm text-muted-foreground">
-            Multi-release escrows where your wallet is the approver.
+            Escrows where your account is the on-record approver.
           </p>
-        </div>
-        <EscrowList escrows={escrows} isLoading={isLoading} />
+        </header>
+
+        {isLoading ? (
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="flex flex-col overflow-hidden rounded-[24px] border border-border bg-background p-3 sm:p-4"
+              >
+                <Skeleton className="aspect-[16/10] w-full rounded-2xl" />
+                <div className="mt-3 flex flex-col gap-2 px-1 pb-1 sm:mt-4">
+                  <Skeleton className="h-6 w-4/5 rounded-md" />
+                  <Skeleton className="h-4 w-3/5 rounded-md" />
+                  <Skeleton className="mt-2 h-px w-full rounded-none" />
+                  <div className="mt-1 grid grid-cols-2 gap-3">
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        {!isLoading && !isError && enrichedEscrows.length === 0 ? (
+          <NoData
+            title="No assigned escrows"
+            description="Escrows that list you as approver will appear here after communities initialize them."
+            icon={<FileStack />}
+          />
+        ) : null}
+
+        {!isLoading && enrichedEscrows.length > 0 ? (
+          <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-3">
+            {enrichedEscrows.map((item, index) => {
+              const style: CSSProperties = {
+                animationDelay: `${Math.min(index, 8) * 60}ms`,
+              };
+              return (
+                <EscrowImageCard
+                  key={item.metadata.escrow_id}
+                  item={item}
+                  className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500"
+                  style={style}
+                />
+              );
+            })}
+          </div>
+        ) : null}
       </section>
     </div>
   );
