@@ -34,7 +34,8 @@ const DEFAULT_PAGE_SIZE = 12;
 function parseFilters(searchParams: URLSearchParams): EscrowListFilters {
   return {
     status: searchParams.get("status") ?? "",
-    community: searchParams.get("community") ?? "",
+    community:
+      searchParams.get("community_id") ?? searchParams.get("community") ?? "",
     query: searchParams.get("q") ?? "",
   };
 }
@@ -42,7 +43,7 @@ function parseFilters(searchParams: URLSearchParams): EscrowListFilters {
 function filtersToSearchParams(filters: EscrowListFilters): string {
   const params = new URLSearchParams();
   if (filters.status) params.set("status", filters.status);
-  if (filters.community) params.set("community", filters.community);
+  if (filters.community) params.set("community_id", filters.community);
   const trimmedQuery = filters.query.trim();
   if (trimmedQuery) params.set("q", trimmedQuery);
   return params.toString();
@@ -99,7 +100,7 @@ export function useFundingEscrowsInfinite(filters: EscrowListFilters) {
         limit: DEFAULT_PAGE_SIZE,
         cursor: pageParam,
         status: filters.status || undefined,
-        community: filters.community || undefined,
+        community_id: filters.community || undefined,
         q: filters.query.trim() || undefined,
       }),
     initialPageParam: undefined,

@@ -4,6 +4,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   MaxLength,
   Min,
@@ -60,13 +61,11 @@ export class ListFundingEscrowsQueryDto {
   status?: (typeof PUBLIC_FUNDING_STATUSES)[number];
 
   @ApiPropertyOptional({
-    description: 'Exact community_name match',
+    description: 'Exact community_id match',
   })
   @IsOptional()
-  @IsString()
-  @MinLength(1)
-  @MaxLength(255)
-  community?: string;
+  @IsUUID()
+  community_id?: string;
 
   @ApiPropertyOptional({
     description:

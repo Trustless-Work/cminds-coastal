@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { formatAddress } from "@repo/helpers";
+import { NoData } from "@repo/shared/NoData";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { Badge } from "@repo/ui/components/badge";
 import {
@@ -21,6 +22,7 @@ import {
   TableRow,
 } from "@repo/ui/components/table";
 import type { GetEscrowsFromIndexerResponse as Escrow } from "@trustless-work/escrow/types";
+import { FileStack } from "lucide-react";
 
 import { fundingLabel } from "../utils";
 
@@ -75,15 +77,11 @@ export const EscrowList = ({ escrows, isLoading }: EscrowListProps) => {
 
   if (escrows.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>No escrows</CardTitle>
-          <CardDescription>
-            Escrows where you are the approver will appear here once they are
-            initialized on-chain.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <NoData
+        title="No escrows"
+        description="Escrows where you are the approver will appear here once they are initialized on-chain."
+        icon={<FileStack />}
+      />
     );
   }
 

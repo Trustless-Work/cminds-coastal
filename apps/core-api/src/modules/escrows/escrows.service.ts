@@ -27,7 +27,15 @@ const FUNDING_EXCLUDED_STATUSES: EscrowStatus[] = [
   EscrowStatus.CANCELLED,
 ];
 
+const COMMUNITY_SELECT = {
+  community_id: true,
+  name: true,
+  description: true,
+  is_active: true,
+} as const;
+
 const FUNDING_LIST_INCLUDE = {
+  community: { select: COMMUNITY_SELECT },
   milestones: {
     include: { task: true },
     orderBy: { milestone_index: 'asc' as const },
@@ -124,6 +132,15 @@ export class EscrowsService {
       throw new BadRequestException('Duplicate task_id in milestones');
     }
 
+    const community = await this.prisma.community.findUnique({
+      where: { community_id: dto.community_id },
+    });
+    if (!community?.is_active) {
+      throw new BadRequestException(
+        'community_id must reference an active community',
+      );
+    }
+
     const tasks = await this.prisma.task.findMany({
       where: { task_id: { in: taskIds }, is_active: true },
     });
@@ -144,7 +161,7 @@ export class EscrowsService {
       data: {
         escrow_id: dto.escrow_id,
         title: dto.title.trim(),
-        community_name: dto.community_name.trim(),
+        community_id: dto.community_id,
         description: dto.description.trim(),
         geographic_area: dto.geographic_area?.trim() || null,
         image_url: dto.image_url?.trim() || null,
@@ -164,6 +181,7 @@ export class EscrowsService {
         },
       },
       include: {
+        community: { select: COMMUNITY_SELECT },
         milestones: {
           include: { task: true },
           orderBy: { milestone_index: 'asc' },
@@ -184,6 +202,7 @@ export class EscrowsService {
     return this.prisma.escrow.findMany({
       where: { initializer_user_id: user.user_id },
       include: {
+        community: { select: COMMUNITY_SELECT },
         milestones: {
           include: { task: true },
           orderBy: { milestone_index: 'asc' },
@@ -198,6 +217,7 @@ export class EscrowsService {
     const escrow = await this.prisma.escrow.findUnique({
       where: { escrow_id: escrowId },
       include: {
+        community: { select: COMMUNITY_SELECT },
         milestones: {
           include: { task: true },
           orderBy: { milestone_index: 'asc' },
@@ -251,18 +271,15 @@ export class EscrowsService {
   }
 
   async findFundingPublicFacets() {
-    const communities = await this.prisma.escrow.findMany({
-      where: {
-        status: { notIn: FUNDING_EXCLUDED_STATUSES },
-      },
-      select: { community_name: true },
-      distinct: ['community_name'],
-      orderBy: { community_name: 'asc' },
+    const communities = await this.prisma.community.findMany({
+      where: { is_active: true },
+      select: { community_id: true, name: true },
+      orderBy: { name: 'asc' },
     });
 
     return {
       statuses: [...PUBLIC_FUNDING_STATUSES],
-      communities: communities.map((row) => row.community_name),
+      communities,
     };
   }
 
@@ -284,8 +301,8 @@ export class EscrowsService {
         : { status: { notIn: FUNDING_EXCLUDED_STATUSES } },
     ];
 
-    if (query.community) {
-      and.push({ community_name: query.community });
+    if (query.community_id) {
+      and.push({ community_id: query.community_id });
     }
 
     if (query.q) {
@@ -293,7 +310,11 @@ export class EscrowsService {
       and.push({
         OR: [
           { title: { contains: q, mode: 'insensitive' } },
-          { community_name: { contains: q, mode: 'insensitive' } },
+          {
+            community: {
+              name: { contains: q, mode: 'insensitive' },
+            },
+          },
           { geographic_area: { contains: q, mode: 'insensitive' } },
           { description: { contains: q, mode: 'insensitive' } },
           { escrow_id: { contains: q, mode: 'insensitive' } },
@@ -324,6 +345,7 @@ export class EscrowsService {
     const escrow = await this.prisma.escrow.findUnique({
       where: { escrow_id: contractId },
       include: {
+        community: { select: COMMUNITY_SELECT },
         milestones: {
           include: { task: true },
           orderBy: { milestone_index: 'asc' },

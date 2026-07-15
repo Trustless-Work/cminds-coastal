@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database';
 import { AllowedEmailDomainsModule } from './modules/allowed-email-domains/allowed-email-domains.module';
+import { CommunitiesModule } from './modules/communities/communities.module';
 import { EscrowsModule } from './modules/escrows/escrows.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { UsersModule } from './modules/users/users.module';
@@ -23,6 +24,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     AllowedEmailDomainsModule,
     UsersModule,
+    CommunitiesModule,
     TasksModule,
     EscrowsModule,
   ],

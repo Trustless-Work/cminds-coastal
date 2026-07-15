@@ -13,6 +13,9 @@ describe('TasksService', () => {
   const prismaMock = {
     task: {
       findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
     },
   };
 
@@ -35,5 +38,31 @@ describe('TasksService', () => {
       where: { is_active: true },
       orderBy: [{ category: 'asc' }, { code: 'asc' }],
     });
+  });
+
+  it('should soft-delete a task', async () => {
+    prismaMock.task.findUnique.mockResolvedValueOnce({
+      task_id: 't1',
+      code: 'G-01',
+      category: 'Management',
+      name: 'Task',
+      expected_deliverable: 'Doc',
+      is_active: true,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+    prismaMock.task.update.mockResolvedValueOnce({
+      task_id: 't1',
+      code: 'G-01',
+      category: 'Management',
+      name: 'Task',
+      expected_deliverable: 'Doc',
+      is_active: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+
+    const result = await service.softDelete('t1');
+    expect(result.is_active).toBe(false);
   });
 });

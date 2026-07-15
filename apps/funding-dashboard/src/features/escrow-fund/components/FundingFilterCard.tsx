@@ -26,10 +26,15 @@ export type FundingFilterValues = {
   query: string;
 };
 
+export type FundingCommunityOption = {
+  community_id: string;
+  name: string;
+};
+
 type FundingFilterCardProps = {
   values: FundingFilterValues;
   statusOptions: string[];
-  communityOptions: string[];
+  communityOptions: FundingCommunityOption[];
   onChange: (next: FundingFilterValues) => void;
   onSearch: () => void;
   className?: string;
@@ -67,10 +72,18 @@ function activeFilterCount(values: FundingFilterValues): number {
     .length;
 }
 
-function filterSummary(values: FundingFilterValues): string {
+function filterSummary(
+  values: FundingFilterValues,
+  communityOptions: FundingCommunityOption[],
+): string {
   const parts: string[] = [];
   if (values.status) parts.push(values.status);
-  if (values.community) parts.push(values.community);
+  if (values.community) {
+    const match = communityOptions.find(
+      (item) => item.community_id === values.community,
+    );
+    parts.push(match?.name ?? values.community);
+  }
   if (values.query.trim()) parts.push(`“${values.query.trim()}”`);
   if (parts.length === 0) return "Tap to refine results";
   return parts.join(" · ");
@@ -94,6 +107,10 @@ export const FundingFilterCard = ({
 }: FundingFilterCardProps) => {
   const [open, setOpen] = useState(false);
   const count = useMemo(() => activeFilterCount(values), [values]);
+  const summary = useMemo(
+    () => filterSummary(values, communityOptions),
+    [values, communityOptions],
+  );
 
   function renderStatusSelect(): ReactNode {
     return (
@@ -145,8 +162,11 @@ export const FundingFilterCard = ({
           <SelectGroup>
             <SelectItem value={ALL_VALUE}>All communities</SelectItem>
             {communityOptions.map((community) => (
-              <SelectItem key={community} value={community}>
-                {community}
+              <SelectItem
+                key={community.community_id}
+                value={community.community_id}
+              >
+                {community.name}
               </SelectItem>
             ))}
           </SelectGroup>
@@ -209,7 +229,7 @@ export const FundingFilterCard = ({
               ) : null}
             </span>
             <span className="mt-0.5 block truncate text-sm text-muted-foreground">
-              {filterSummary(values)}
+              {summary}
             </span>
           </span>
           <ChevronDown

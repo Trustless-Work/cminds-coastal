@@ -60,11 +60,9 @@ export class CreateEscrowDto {
   @MaxLength(200)
   title!: string;
 
-  @ApiProperty()
-  @IsString()
-  @MinLength(1)
-  @MaxLength(200)
-  community_name!: string;
+  @ApiProperty({ description: 'Active community UUID' })
+  @IsUUID()
+  community_id!: string;
 
   @ApiProperty()
   @IsString()

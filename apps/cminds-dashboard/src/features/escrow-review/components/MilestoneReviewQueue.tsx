@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ClipboardList, ExternalLink } from "lucide-react";
 import { formatAddress } from "@repo/helpers";
+import { NoData } from "@repo/shared/NoData";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import {
   Card,
@@ -40,14 +41,11 @@ export const MilestoneReviewQueue = ({
 
   if (items.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Review queue empty</CardTitle>
-          <CardDescription>
-            Tasks marked ready for review or in dispute will show up here.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <NoData
+        title="Review queue empty"
+        description="Tasks marked ready for review or in dispute will show up here."
+        icon={<ClipboardList />}
+      />
     );
   }
 

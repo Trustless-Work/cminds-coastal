@@ -42,7 +42,7 @@ export function useCreateEscrowForm() {
     resolver: zodResolver(createEscrowSchema),
     defaultValues: {
       title: "",
-      communityName: "",
+      communityId: "",
       description: "",
       geographicArea: "",
       engagementId: "",
@@ -257,7 +257,7 @@ export function useCreateEscrowForm() {
       await createEscrow({
         escrow_id: contractId,
         title: values.title,
-        community_name: values.communityName,
+        community_id: values.communityId,
         description: values.description,
         geographic_area: values.geographicArea || undefined,
         image_url,

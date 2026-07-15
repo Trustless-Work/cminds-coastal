@@ -91,7 +91,7 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
               {metadata.title}
             </h1>
             <p className="break-words text-sm text-muted-foreground">
-              {metadata.community_name}
+              {metadata.community.name}
               {metadata.geographic_area
                 ? ` · ${metadata.geographic_area}`
                 : ""}

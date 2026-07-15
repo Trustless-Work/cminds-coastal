@@ -7,8 +7,9 @@ import {
   useFundingEscrowsInfinite,
   useLoadMoreOnIntersect,
 } from "@repo/features/escrow/hooks/useFundingEscrowsInfinite";
+import { NoData } from "@repo/shared/NoData";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import { Loader2 } from "lucide-react";
+import { Loader2, SearchX, Wallet } from "lucide-react";
 
 import { EscrowImageCard } from "../components/EscrowImageCard";
 import { FundingFilterCard } from "../components/FundingFilterCard";
@@ -121,16 +122,15 @@ export const FundingEscrowListView = () => {
         ) : null}
 
         {!isLoading && !isError && escrows.length === 0 ? (
-          <div className="rounded-2xl border border-border bg-background-secondary px-6 py-16 text-center">
-            <p className="text-lg font-semibold text-foreground">
-              No escrows to fund
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {hasActiveFilters
+          <NoData
+            title="No escrows to fund"
+            description={
+              hasActiveFilters
                 ? "No escrows match your filters. Try adjusting your search."
-                : "Initialized coastal conservation escrows will appear here."}
-            </p>
-          </div>
+                : "Initialized coastal conservation escrows will appear here."
+            }
+            icon={hasActiveFilters ? <SearchX /> : <Wallet />}
+          />
         ) : null}
 
         {!isLoading && escrows.length > 0 ? (

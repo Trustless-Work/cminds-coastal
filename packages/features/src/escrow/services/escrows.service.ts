@@ -11,7 +11,7 @@ export type CreateEscrowMilestonePayload = {
 export type CreateEscrowPayload = {
   escrow_id: string;
   title: string;
-  community_name: string;
+  community_id: string;
   description: string;
   geographic_area?: string;
   image_url?: string;
@@ -29,6 +29,13 @@ export type EscrowTask = {
   expected_deliverable: string;
 };
 
+export type EscrowCommunity = {
+  community_id: string;
+  name: string;
+  description?: string | null;
+  is_active?: boolean;
+};
+
 export type EscrowMilestoneRecord = {
   escrow_milestone_id: string;
   escrow_id: string;
@@ -43,7 +50,8 @@ export type EscrowMilestoneRecord = {
 export type EscrowRecord = {
   escrow_id: string;
   title: string;
-  community_name: string;
+  community_id: string;
+  community: EscrowCommunity;
   description: string;
   geographic_area: string | null;
   image_url: string | null;
@@ -98,7 +106,7 @@ export type FundingEscrowsQuery = {
   limit?: number;
   cursor?: string;
   status?: string;
-  community?: string;
+  community_id?: string;
   q?: string;
 };
 
@@ -108,9 +116,14 @@ export type FundingEscrowsPage = {
   hasMore: boolean;
 };
 
+export type FundingCommunityFacet = {
+  community_id: string;
+  name: string;
+};
+
 export type FundingEscrowFacets = {
   statuses: string[];
-  communities: string[];
+  communities: FundingCommunityFacet[];
 };
 
 export async function fetchFundingEscrowsPage(
@@ -121,7 +134,7 @@ export async function fetchFundingEscrowsPage(
       ...(params.limit !== undefined ? { limit: params.limit } : {}),
       ...(params.cursor ? { cursor: params.cursor } : {}),
       ...(params.status ? { status: params.status } : {}),
-      ...(params.community ? { community: params.community } : {}),
+      ...(params.community_id ? { community_id: params.community_id } : {}),
       ...(params.q ? { q: params.q } : {}),
     },
   });

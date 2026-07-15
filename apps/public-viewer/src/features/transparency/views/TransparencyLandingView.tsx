@@ -8,9 +8,10 @@ import {
   useLoadMoreOnIntersect,
 } from "@repo/features/escrow/hooks/useFundingEscrowsInfinite";
 import { Navbar } from "@repo/shared/Navbar";
+import { NoData } from "@repo/shared/NoData";
 import { SiteFooter } from "@repo/shared/SiteFooter";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import { Loader2 } from "lucide-react";
+import { Loader2, SearchX, Waves } from "lucide-react";
 
 import { EscrowImageCard } from "../components/EscrowImageCard";
 import { LandingInfoSections } from "../components/LandingInfoSections";
@@ -127,16 +128,15 @@ export const TransparencyLandingView = () => {
           ) : null}
 
           {!isLoading && !isError && escrows.length === 0 ? (
-            <div className="rounded-2xl border border-border bg-background-secondary px-6 py-16 text-center">
-              <p className="text-lg font-semibold text-foreground">
-                No escrows to show
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {hasActiveFilters
+            <NoData
+              title="No escrows to show"
+              description={
+                hasActiveFilters
                   ? "No escrows match your filters. Try adjusting your search."
-                  : "Initialized coastal conservation escrows will appear here."}
-              </p>
-            </div>
+                  : "Initialized coastal conservation escrows will appear here."
+              }
+              icon={hasActiveFilters ? <SearchX /> : <Waves />}
+            />
           ) : null}
 
           {!isLoading && escrows.length > 0 ? (

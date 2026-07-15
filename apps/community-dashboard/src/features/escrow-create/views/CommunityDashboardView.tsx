@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { formatAddress } from "@repo/helpers";
+import { NoData } from "@repo/shared/NoData";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { Badge } from "@repo/ui/components/badge";
 import {
@@ -20,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/table";
+import { FileStack } from "lucide-react";
 
 import { useCommunityEscrows } from "../hooks/useCommunityEscrows";
 
@@ -74,14 +76,13 @@ export const CommunityDashboardView = () => {
           <Skeleton className="hidden h-48 rounded-xl md:block" />
         </>
       ) : data.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>No escrows yet</CardTitle>
-            <CardDescription>
-              Create an escrow from the fixed task menu to get started.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <NoData
+          title="No escrows yet"
+          description="Create an escrow from the fixed task menu to get started."
+          icon={<FileStack />}
+          link="/dashboard/escrows/new"
+          linkText="Create escrow"
+        />
       ) : (
         <>
           <div className="space-y-3 md:hidden">
@@ -104,7 +105,7 @@ export const CommunityDashboardView = () => {
                       {escrow.title}
                     </Link>
                   </CardTitle>
-                  <CardDescription>{escrow.community_name}</CardDescription>
+                  <CardDescription>{escrow.community.name}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   <div className="flex flex-wrap gap-2">
@@ -162,7 +163,7 @@ export const CommunityDashboardView = () => {
                           {escrow.title}
                         </Link>
                       </TableCell>
-                      <TableCell>{escrow.community_name}</TableCell>
+                      <TableCell>{escrow.community.name}</TableCell>
                       <TableCell>
                         <Badge variant="outline">{escrow.status}</Badge>
                       </TableCell>

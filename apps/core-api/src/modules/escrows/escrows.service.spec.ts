@@ -32,6 +32,7 @@ describe('EscrowsService', () => {
   const prismaMock = {
     user: { findUnique: jest.fn() },
     task: { findMany: jest.fn() },
+    community: { findUnique: jest.fn(), findMany: jest.fn() },
     escrow: {
       findUnique: jest.fn(),
       findMany: jest.fn(),
@@ -69,7 +70,7 @@ describe('EscrowsService', () => {
         escrow_id:
           'CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC',
         title: 'Test',
-        community_name: 'Community',
+        community_id: '55555555-5555-5555-5555-555555555555',
         description: 'Desc',
         engagement_id: 'ENG-1',
         approver_user_id: '22222222-2222-2222-2222-222222222222',
@@ -105,7 +106,7 @@ describe('EscrowsService', () => {
         escrow_id:
           'CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC',
         title: 'Test',
-        community_name: 'Community',
+        community_id: '55555555-5555-5555-5555-555555555555',
         description: 'Desc',
         engagement_id: 'ENG-1',
         approver_user_id: '22222222-2222-2222-2222-222222222222',
@@ -192,7 +193,7 @@ describe('EscrowsService', () => {
 
     await service.findFundingPublic({
       status: EscrowStatus.FUNDED,
-      community: 'Acme',
+      community_id: '55555555-5555-5555-5555-555555555555',
       q: 'mangrove',
     });
 
@@ -201,14 +202,16 @@ describe('EscrowsService', () => {
         where: {
           AND: [
             { status: EscrowStatus.FUNDED },
-            { community_name: 'Acme' },
+            { community_id: '55555555-5555-5555-5555-555555555555' },
             {
               OR: [
                 { title: { contains: 'mangrove', mode: 'insensitive' } },
                 {
-                  community_name: {
-                    contains: 'mangrove',
-                    mode: 'insensitive',
+                  community: {
+                    name: {
+                      contains: 'mangrove',
+                      mode: 'insensitive',
+                    },
                   },
                 },
                 {
@@ -237,15 +240,18 @@ describe('EscrowsService', () => {
     );
   });
 
-  it('should return public funding facets', async () => {
-    prismaMock.escrow.findMany.mockResolvedValue([
-      { community_name: 'Alpha' },
-      { community_name: 'Beta' },
+  it('should return public funding facets from active communities', async () => {
+    prismaMock.community.findMany.mockResolvedValue([
+      { community_id: 'c1', name: 'Alpha' },
+      { community_id: 'c2', name: 'Beta' },
     ]);
 
     const result = await service.findFundingPublicFacets();
 
-    expect(result.communities).toEqual(['Alpha', 'Beta']);
+    expect(result.communities).toEqual([
+      { community_id: 'c1', name: 'Alpha' },
+      { community_id: 'c2', name: 'Beta' },
+    ]);
     expect(result.statuses).toEqual([
       EscrowStatus.INITIALIZED,
       EscrowStatus.FUNDED,

@@ -195,7 +195,7 @@ function TransparencyEscrowDetailContent({
 
             <p className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-base text-muted-foreground">
               <span className="min-w-0 break-words">
-                {metadata.community_name}
+                {metadata.community.name}
               </span>
               {area ? (
                 <>

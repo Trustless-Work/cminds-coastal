@@ -13,7 +13,7 @@ export type TaskReceiverValue = z.infer<typeof taskReceiverSchema>;
 export const createEscrowSchema = z
   .object({
     title: z.string().min(1, "Title is required").max(200),
-    communityName: z.string().min(1, "Community name is required").max(200),
+    communityId: z.string().uuid("Select a community"),
     description: z.string().min(10, "Description must be at least 10 characters"),
     geographicArea: z.string().max(500).optional(),
     engagementId: z.string().min(1, "Engagement id is required").max(100),

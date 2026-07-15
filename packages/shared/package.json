@@ -8,6 +8,7 @@
     "./LoginShell": "./src/LoginShell.tsx",
     "./SiteFooter": "./src/SiteFooter.tsx",
     "./UsdcAmount": "./src/UsdcAmount.tsx",
+    "./NoData": "./src/NoData.tsx",
     "./security-headers": "./src/security-headers.ts"
   },
   "scripts": {
@@ -21,6 +22,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "eslint": "catalog:",
+    "next": "catalog:",
     "typescript": "catalog:"
   },
   "dependencies": {
@@ -28,5 +30,8 @@
     "@repo/ui": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"
+  },
+  "peerDependencies": {
+    "next": ">=15"
   }
 }

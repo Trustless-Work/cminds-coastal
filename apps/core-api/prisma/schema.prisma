@@ -97,6 +97,24 @@ model AllowedEmailDomain {
 }
 
 // =============================================
+// COMMUNITIES
+// =============================================
+
+model Community {
+  community_id String   @id @default(uuid()) @db.Uuid
+  name         String   @unique
+  description  String?
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  escrows Escrow[]
+
+  @@index([is_active])
+  @@map("community")
+}
+
+// =============================================
 // FIXED TASK MENU
 // =============================================
 
@@ -124,7 +142,7 @@ model Task {
 model Escrow {
   escrow_id              String       @id
   title                  String
-  community_name         String
+  community_id           String       @db.Uuid
   description            String
   geographic_area        String?
   image_url              String?
@@ -136,11 +154,13 @@ model Escrow {
   created_at             DateTime     @default(now())
   updated_at             DateTime     @updatedAt
 
+  community      Community         @relation(fields: [community_id], references: [community_id])
   initializer    User              @relation("EscrowInitializer", fields: [initializer_user_id], references: [user_id])
   approver       User?             @relation("EscrowApprover", fields: [approver_user_id], references: [user_id])
   release_signer User?             @relation("EscrowReleaseSigner", fields: [release_signer_user_id], references: [user_id])
   milestones     EscrowMilestone[]
 
+  @@index([community_id])
   @@index([initializer_user_id])
   @@index([status])
   @@map("escrow")

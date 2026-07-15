@@ -95,7 +95,7 @@ export const EscrowImageCard = ({
           </h3>
 
           <p className="truncate text-sm text-muted-foreground">
-            {escrow.community_name}
+            {escrow.community.name}
             {area ? (
               <>
                 <span className="mx-1.5 text-border" aria-hidden>
