@@ -22,18 +22,11 @@ type EscrowCreateSummaryProps = {
   className?: string;
 };
 
-function shortenWallet(address: string): string {
-  if (address.length < 12) {
-    return address;
-  }
-  return `${address.slice(0, 4)}…${address.slice(-4)}`;
-}
-
 function displayPerson(user: UserSearchResult | null): string {
   if (!user) {
-    return "Not set";
+    return "Not Set";
   }
-  return user.display_name?.trim() || user.email || "Not set";
+  return user.email.trim() || "Not Set";
 }
 
 export const EscrowCreateSummary = ({
@@ -154,11 +147,6 @@ export const EscrowCreateSummary = ({
                 {displayPerson(releaseSigner)}
               </span>
             </div>
-            {releaseSigner?.wallet_address ? (
-              <p className="text-right font-mono text-xs text-muted-foreground">
-                {shortenWallet(releaseSigner.wallet_address)}
-              </p>
-            ) : null}
           </div>
         </div>
 
