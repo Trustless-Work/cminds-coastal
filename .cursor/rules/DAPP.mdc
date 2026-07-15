@@ -21,6 +21,7 @@ Product context: `docs/CMINDS_CONTEXT.md`
 | `community-dashboard` | `apps/community-dashboard` | 3002 | Community Implementer / Release Signer | Create escrows, select tasks, submit evidence, release funds |
 | `funding-dashboard` | `apps/funding-dashboard` | 3003 | Funder / Depositor | View escrow detail, fund with USDC, copy escrow address |
 | `public-viewer` | `apps/public-viewer` | 3004 | Observer / public | Transparency page — status, milestones, funding, evidence links |
+| `admin` | `apps/admin` | 3005 | Platform admin | Administration console (scaffold) |
 
 ### Backend
 
@@ -36,7 +37,7 @@ Product context: `docs/CMINDS_CONTEXT.md`
 | `@repo/eslint-config` | `packages/eslint-config` | Shared ESLint |
 | `@repo/typescript-config` | `packages/typescript-config` | Shared TypeScript configs |
 
-Run from repo root: `pnpm dev`, `pnpm dev:api`, `pnpm dev:cminds`, `pnpm dev:community`, `pnpm dev:funding`, `pnpm dev:public`.
+Run from repo root: `pnpm dev`, `pnpm dev:api`, `pnpm dev:cminds`, `pnpm dev:community`, `pnpm dev:funding`, `pnpm dev:public`, `pnpm dev:admin`.
 
 ---
 
