@@ -6,7 +6,7 @@ import {
   MultiReleaseStartDisputePayload,
   MultiReleaseMilestone,
 } from "@trustless-work/escrow/types";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import {
   ErrorResponse,
   handleError,
@@ -54,7 +54,10 @@ export const DisputeMilestoneButton = ({
         address: walletAddress || "",
       });
 
-      toast.success("Task disputed successfully");
+      toastSuccess(
+        "Milestone Disputed",
+        "This milestone is now in dispute and awaiting resolution.",
+      );
 
       updateEscrow({
         ...selectedEscrow,
@@ -72,7 +75,11 @@ export const DisputeMilestoneButton = ({
         }),
       });
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Dispute Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }

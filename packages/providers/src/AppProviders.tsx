@@ -36,7 +36,7 @@ export function AppProviders({
                 <EscrowDialogsProvider>
                   <EscrowAmountProvider>
                     {children}
-                    <Toaster richColors position="top-center" />
+                    <Toaster />
                   </EscrowAmountProvider>
                 </EscrowDialogsProvider>
               </EscrowProvider>

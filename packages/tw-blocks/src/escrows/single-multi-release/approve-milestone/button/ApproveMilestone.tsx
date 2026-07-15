@@ -6,7 +6,7 @@ import {
   ApproveMilestonePayload,
   MultiReleaseMilestone,
 } from "@trustless-work/escrow/types";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import {
   ErrorResponse,
   handleError,
@@ -55,7 +55,10 @@ export const ApproveMilestoneButton = ({
         address: walletAddress || "",
       });
 
-      toast.success("Task approved successfully");
+      toastSuccess(
+        "Milestone Approved",
+        "The community can now release funds for this milestone.",
+      );
 
       updateEscrow({
         ...selectedEscrow,
@@ -77,7 +80,11 @@ export const ApproveMilestoneButton = ({
         }),
       });
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Approval Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }

@@ -3,7 +3,7 @@ import { Button } from "@repo/ui/components/button";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 import { WithdrawRemainingFundsPayload } from "@trustless-work/escrow/types";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import {
   ErrorResponse,
   handleError,
@@ -31,7 +31,10 @@ export const WithdrawRemainingFundsButton = ({
         (d) => !d.address || Number.isNaN(d.amount) || d.amount < 0
       );
       if (hasInvalid) {
-        toast.error("Invalid distributions");
+        toastError(
+          "Invalid Distributions",
+          "Check the distribution amounts and try again.",
+        );
         return;
       }
 
@@ -48,7 +51,10 @@ export const WithdrawRemainingFundsButton = ({
         address: walletAddress || "",
       });
 
-      toast.success("Withdraw successful");
+      toastSuccess(
+        "Withdrawal Complete",
+        "Remaining funds were withdrawn successfully.",
+      );
       const sumDistributed = distributions.reduce(
         (acc, d) => acc + Number(d.amount || 0),
         0
@@ -58,7 +64,11 @@ export const WithdrawRemainingFundsButton = ({
         balance: (selectedEscrow?.balance || 0) - sumDistributed || 0,
       });
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Withdrawal Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }

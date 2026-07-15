@@ -5,7 +5,7 @@ import {
   withdrawRemainingFundsSchema,
   type WithdrawRemainingFundsValues,
 } from "./schema";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import { WithdrawRemainingFundsPayload } from "@trustless-work/escrow";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
@@ -106,7 +106,10 @@ export function useWithdrawRemainingFunds({
       setIsSubmitting(true);
 
       if (!isExactMatch) {
-        toast.error("The total distributions must equal the remaining amount");
+        toastError(
+          "Invalid Distributions",
+          "The total distributions must equal the remaining amount.",
+        );
         return;
       }
 
@@ -124,7 +127,10 @@ export function useWithdrawRemainingFunds({
         address: walletAddress || "",
       });
 
-      toast.success("Withdraw successful");
+      toastSuccess(
+        "Withdrawal Complete",
+        "Remaining funds were withdrawn successfully.",
+      );
 
       onSuccess?.();
 
@@ -138,7 +144,11 @@ export function useWithdrawRemainingFunds({
         balance: (selectedEscrow?.balance || 0) - sumDistributed || 0,
       });
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Withdrawal Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
       form.reset();

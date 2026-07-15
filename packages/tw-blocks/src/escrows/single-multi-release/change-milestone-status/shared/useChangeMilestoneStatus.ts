@@ -5,7 +5,7 @@ import {
   changeMilestoneStatusSchema,
   type ChangeMilestoneStatusValues,
 } from "./schema";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import { ChangeMilestoneStatusPayload } from "@trustless-work/escrow";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
@@ -65,7 +65,10 @@ export function useChangeMilestoneStatus({
         address: walletAddress || "",
       });
 
-      toast.success("Task status updated successfully");
+      toastSuccess(
+        "Task Status Updated",
+        "The milestone status was saved on-chain.",
+      );
 
       onSuccess?.();
 
@@ -83,7 +86,11 @@ export function useChangeMilestoneStatus({
         }),
       });
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Status Update Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
       form.reset();

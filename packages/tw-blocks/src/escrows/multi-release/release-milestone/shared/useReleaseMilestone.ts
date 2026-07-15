@@ -5,7 +5,7 @@ import {
   releaseMilestoneSchema,
   type ReleaseMilestoneValues,
 } from "./schema";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import {
   MultiReleaseReleaseFundsPayload,
   MultiReleaseMilestone,
@@ -68,7 +68,10 @@ export function useReleaseMilestone({
         address: walletAddress || "",
       });
 
-      toast.success("Task released successfully");
+      toastSuccess(
+        "Milestone Released",
+        "Funds for this milestone were released on-chain.",
+      );
 
       // Ensure amounts are up to date for the success dialog
       if (selectedEscrow) {
@@ -105,7 +108,11 @@ export function useReleaseMilestone({
 
       onSuccess?.();
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Release Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
       form.reset();

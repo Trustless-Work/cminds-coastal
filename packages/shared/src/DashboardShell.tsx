@@ -16,6 +16,7 @@ type DashboardShellProps = {
   children: ReactNode;
   className?: string;
   footerTagline?: string;
+  showFooter?: boolean;
 };
 
 export function DashboardShell({
@@ -28,6 +29,7 @@ export function DashboardShell({
   children,
   className,
   footerTagline,
+  showFooter = true,
 }: DashboardShellProps) {
   return (
     <div className="flex min-h-svh flex-col bg-background">
@@ -40,12 +42,14 @@ export function DashboardShell({
         navLinks={navLinks}
       />
       <div className={cn("flex flex-1 flex-col", className)}>{children}</div>
-      <SiteFooter
-        logoSrc={logoSrc}
-        logoAlt="CMinds"
-        brandName="CMinds"
-        tagline={footerTagline}
-      />
+      {showFooter ? (
+        <SiteFooter
+          logoSrc={logoSrc}
+          logoAlt="CMinds"
+          brandName="CMinds"
+          tagline={footerTagline}
+        />
+      ) : null}
     </div>
   );
 }

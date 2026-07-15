@@ -5,7 +5,7 @@ import {
   disputeMilestoneSchema,
   type DisputeMilestoneValues,
 } from "./schema";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import {
   MultiReleaseStartDisputePayload,
   MultiReleaseMilestone,
@@ -63,7 +63,10 @@ export function useDisputeMilestone({
         address: walletAddress || "",
       });
 
-      toast.success("Task disputed successfully");
+      toastSuccess(
+        "Milestone Disputed",
+        "This milestone is now in dispute and awaiting resolution.",
+      );
 
       updateEscrow({
         ...selectedEscrow,
@@ -83,7 +86,11 @@ export function useDisputeMilestone({
 
       onSuccess?.();
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Dispute Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
       form.reset();

@@ -2,7 +2,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { approveMilestoneSchema, type ApproveMilestoneValues } from "./schema";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import {
   ApproveMilestonePayload,
   MultiReleaseMilestone,
@@ -48,7 +48,10 @@ export function useApproveMilestone({
         address: walletAddress || "",
       });
 
-      toast.success("Task approved successfully");
+      toastSuccess(
+        "Milestone Approved",
+        "The community can now release funds for this milestone.",
+      );
 
       onSuccess?.();
 
@@ -72,7 +75,11 @@ export function useApproveMilestone({
         }),
       });
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Approval Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
       form.reset();

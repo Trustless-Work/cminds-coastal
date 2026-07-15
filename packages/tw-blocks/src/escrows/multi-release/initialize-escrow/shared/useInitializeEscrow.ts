@@ -7,7 +7,7 @@ import {
   InitializeMultiReleaseEscrowPayload,
   InitializeMultiReleaseEscrowResponse,
 } from "@trustless-work/escrow/types";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
 import {
@@ -129,7 +129,10 @@ export function useInitializeEscrow({
       );
 
       if (!trustline) {
-        toast.error("Invalid trustline address");
+        toastError(
+          "Invalid Trustline",
+          "The trustline address is not valid. Check the asset configuration.",
+        );
         return;
       }
 
@@ -173,13 +176,20 @@ export function useInitializeEscrow({
           address: walletAddress || "",
         })) as InitializeMultiReleaseEscrowResponse;
 
-      toast.success("Escrow initialized successfully");
+      toastSuccess(
+        "Escrow Initialized",
+        "Your escrow is live and ready to receive USDC funding.",
+      );
 
       setSelectedEscrow({ ...finalPayload, contractId: response.contractId });
 
       onSuccess?.();
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Initialization Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
       form.reset();

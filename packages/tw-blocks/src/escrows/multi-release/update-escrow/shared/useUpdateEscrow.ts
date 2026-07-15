@@ -8,7 +8,7 @@ import {
   UpdateMultiReleaseEscrowResponse,
   MultiReleaseMilestone,
 } from "@trustless-work/escrow/types";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
@@ -247,10 +247,17 @@ export function useUpdateEscrow({
       };
 
       setSelectedEscrow(nextSelectedEscrow);
-      toast.success("Escrow updated successfully");
+      toastSuccess(
+        "Escrow Updated",
+        "Your escrow changes were saved on-chain.",
+      );
       onSuccess?.();
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Update Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }

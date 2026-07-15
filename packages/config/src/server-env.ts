@@ -6,6 +6,7 @@ const DEFAULT_CORS_ORIGINS = [
   "http://localhost:3002",
   "http://localhost:3003",
   "http://localhost:3004",
+  "http://localhost:3005",
 ];
 
 /**
@@ -77,6 +78,14 @@ export class ServerEnv extends EnvConfig {
 
   get supabaseServiceRoleKey(): string | undefined {
     return this.getOptional(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  }
+
+  /**
+   * JWT secret from Supabase Project Settings → API → JWT Secret.
+   * Used to verify access tokens issued by Supabase Auth (admin app).
+   */
+  get supabaseJwtSecret(): string | undefined {
+    return this.getOptional(process.env.SUPABASE_JWT_SECRET);
   }
 
   get supabaseEscrowImagesBucket(): string {

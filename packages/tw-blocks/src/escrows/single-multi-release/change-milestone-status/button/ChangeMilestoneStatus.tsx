@@ -3,7 +3,7 @@ import { Button } from "@repo/ui/components/button";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 import { ChangeMilestoneStatusPayload } from "@trustless-work/escrow/types";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import {
   ErrorResponse,
   handleError,
@@ -30,7 +30,10 @@ export const ChangeMilestoneStatusButton = ({
   async function handleClick() {
     try {
       if (!status || status.trim().length === 0) {
-        toast.error("Status is required");
+        toastError(
+          "Status Required",
+          "Choose a milestone status before continuing.",
+        );
         return;
       }
 
@@ -65,9 +68,16 @@ export const ChangeMilestoneStatusButton = ({
         address: walletAddress || "",
       });
 
-      toast.success("Task status updated successfully");
+      toastSuccess(
+        "Task Status Updated",
+        "The milestone status was saved on-chain.",
+      );
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Status Update Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { fundEscrowSchema, type FundEscrowValues } from "./schema";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import { FundEscrowPayload } from "@trustless-work/escrow";
 import {
   GetEscrowBalancesResponse,
@@ -99,13 +99,20 @@ export function useFundEscrow({ onSuccess }: { onSuccess?: () => void } = {}) {
         },
       );
 
-      toast.success("Escrow funded successfully");
+      toastSuccess(
+        "Escrow Funded",
+        "Your USDC deposit has been recorded on-chain.",
+      );
 
       onSuccess?.();
 
       // do something with the response ...
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Funding Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
       form.reset();

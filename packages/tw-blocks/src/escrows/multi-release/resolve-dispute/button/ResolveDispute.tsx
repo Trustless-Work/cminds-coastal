@@ -6,7 +6,7 @@ import {
   MultiReleaseResolveDisputePayload,
   MultiReleaseMilestone,
 } from "@trustless-work/escrow/types";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import {
   ErrorResponse,
   handleError,
@@ -34,7 +34,10 @@ export const ResolveDisputeButton = ({
         (d) => !d.address || Number.isNaN(d.amount) || d.amount < 0
       );
       if (hasInvalid) {
-        toast.error("Invalid distributions");
+        toastError(
+          "Invalid Distributions",
+          "Check the distribution amounts and try again.",
+        );
         return;
       }
 
@@ -65,7 +68,10 @@ export const ResolveDisputeButton = ({
         address: walletAddress || "",
       });
 
-      toast.success("Dispute resolved successfully");
+      toastSuccess(
+        "Dispute Resolved",
+        "Funds were distributed according to your resolution.",
+      );
       updateEscrow({
         ...selectedEscrow,
         milestones: selectedEscrow?.milestones.map((milestone, index) => {
@@ -86,7 +92,11 @@ export const ResolveDisputeButton = ({
           distributions.reduce((acc, d) => acc + Number(d.amount || 0), 0),
       });
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Resolve Dispute Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }

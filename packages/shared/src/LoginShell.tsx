@@ -11,6 +11,7 @@ type LoginShellProps = {
   imageAlt?: string;
   logoSrc?: string;
   logoAlt?: string;
+  showFooter?: boolean;
 };
 
 export function LoginShell({
@@ -20,6 +21,7 @@ export function LoginShell({
   imageAlt = "Coastal conservation",
   logoSrc,
   logoAlt = "CMinds",
+  showFooter = true,
 }: LoginShellProps) {
   if (!imageSrc) {
     return (
@@ -40,7 +42,9 @@ export function LoginShell({
         >
           {children}
         </main>
-        <SiteFooter logoSrc={logoSrc} logoAlt={logoAlt} />
+        {showFooter ? (
+          <SiteFooter logoSrc={logoSrc} logoAlt={logoAlt} />
+        ) : null}
       </div>
     );
   }
@@ -87,7 +91,7 @@ export function LoginShell({
           </div>
         </div>
       </div>
-      <SiteFooter logoSrc={logoSrc} logoAlt={logoAlt} />
+      {showFooter ? <SiteFooter logoSrc={logoSrc} logoAlt={logoAlt} /> : null}
     </div>
   );
 }

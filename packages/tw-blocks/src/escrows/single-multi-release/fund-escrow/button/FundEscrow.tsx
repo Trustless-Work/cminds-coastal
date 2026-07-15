@@ -3,7 +3,7 @@ import { Button } from "@repo/ui/components/button";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 import { FundEscrowPayload } from "@trustless-work/escrow/types";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import {
   ErrorResponse,
   handleError,
@@ -24,12 +24,18 @@ export const FundEscrowButton = ({ amount }: FundEscrowButtonProps) => {
   async function handleClick() {
     try {
       if (!amount || Number.isNaN(amount)) {
-        toast.error("Amount is required");
+        toastError(
+          "Amount Required",
+          "Enter a USDC amount greater than zero to fund this escrow.",
+        );
         return;
       }
 
       if (amount <= 0) {
-        toast.error("Amount must be greater than 0");
+        toastError(
+          "Invalid Amount",
+          "The funding amount must be greater than zero.",
+        );
         return;
       }
 
@@ -63,9 +69,16 @@ export const FundEscrowButton = ({ amount }: FundEscrowButtonProps) => {
         ...selectedEscrow,
         amount: (selectedEscrow?.amount || 0) + payload.amount,
       });
-      toast.success("Escrow funded successfully");
+      toastSuccess(
+        "Escrow Funded",
+        "Your USDC deposit has been recorded on-chain.",
+      );
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Funding Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }

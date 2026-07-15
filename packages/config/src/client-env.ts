@@ -31,6 +31,16 @@ export class ClientEnv extends EnvConfig {
   get walletConnectProjectId(): string | undefined {
     return this.getOptional(process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID);
   }
+
+  /** Supabase project URL (admin app Auth + core-api token verification). */
+  get supabaseUrl(): string | undefined {
+    return this.getOptional(process.env.NEXT_PUBLIC_SUPABASE_URL);
+  }
+
+  /** Supabase anon / publishable key (browser Auth client). */
+  get supabaseAnonKey(): string | undefined {
+    return this.getOptional(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  }
 }
 
 export const clientEnv = new ClientEnv();

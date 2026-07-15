@@ -2,7 +2,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { resolveDisputeSchema, type ResolveDisputeValues } from "./schema";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import {
   MultiReleaseResolveDisputePayload,
   MultiReleaseMilestone,
@@ -141,7 +141,10 @@ export function useResolveDispute({
       setIsSubmitting(true);
 
       if (!isExactMatch) {
-        toast.error("The total distributions must equal the task amount");
+        toastError(
+          "Invalid Distributions",
+          "The total distributions must equal the task amount.",
+        );
         return;
       }
 
@@ -161,7 +164,10 @@ export function useResolveDispute({
         address: walletAddress || "",
       });
 
-      toast.success("Dispute resolved successfully");
+      toastSuccess(
+        "Dispute Resolved",
+        "Funds were distributed according to your resolution.",
+      );
 
       onSuccess?.();
 
@@ -188,7 +194,11 @@ export function useResolveDispute({
         balance: (selectedEscrow?.balance || 0) - sumDistributed || 0,
       });
     } catch (error) {
-      toast.error(handleError(error as ErrorResponse).message);
+      toastError(
+        "Resolve Dispute Failed",
+        handleError(error as ErrorResponse).message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
       form.reset();
