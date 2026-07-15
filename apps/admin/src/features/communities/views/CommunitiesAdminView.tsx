@@ -10,19 +10,15 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@repo/ui/components/table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Users } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { AdminPageScaffold } from "@/features/admin-shell/components/AdminPageScaffold";
 import { ADMIN_NAV_ITEMS } from "@/features/admin-shell/constants/nav";
+import { AdminDataTable } from "@/features/data-table/components/AdminDataTable";
+import { AdminTablePagination } from "@/features/data-table/components/AdminTablePagination";
+import { ConfirmDialog } from "@/features/data-table/components/ConfirmDialog";
 
 import { CommunityFormDialog } from "../components/CommunityFormDialog";
 import {
@@ -34,11 +30,14 @@ import type { CommunityFormValues } from "../schemas/community.schema";
 
 export const CommunitiesAdminView = () => {
   const nav = ADMIN_NAV_ITEMS[2]!;
-  const { data: communities = [], isLoading } = useAdminCommunities();
+  const { items, meta, pagination, setPagination, isLoading } =
+    useAdminCommunities();
   const { createMutation, updateMutation, deleteMutation } =
     useCommunityMutations();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<CommunityRecord | null>(null);
+  const [pendingDeactivate, setPendingDeactivate] =
+    useState<CommunityRecord | null>(null);
 
   const saving = createMutation.isPending || updateMutation.isPending;
 
@@ -72,16 +71,76 @@ export const CommunitiesAdminView = () => {
     setDialogOpen(true);
   }
 
-  function handleDeactivate(community: CommunityRecord): void {
-    if (
-      !window.confirm(
-        `Deactivate “${community.name}”? It will be hidden from escrow create.`,
-      )
-    ) {
+  async function confirmDeactivate(): Promise<void> {
+    if (!pendingDeactivate) {
       return;
     }
-    void deleteMutation.mutateAsync(community.community_id);
+    await deleteMutation.mutateAsync(pendingDeactivate.community_id);
+    setPendingDeactivate(null);
   }
+
+  const columns = useMemo<ColumnDef<CommunityRecord>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.name}</span>
+        ),
+      },
+      {
+        accessorKey: "description",
+        header: "Description",
+        cell: ({ row }) => (
+          <span className="max-w-sm truncate text-muted-foreground">
+            {row.original.description || "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "is_active",
+        header: "Status",
+        cell: ({ row }) => (
+          <Badge variant="outline">
+            {row.original.is_active ? "Active" : "Inactive"}
+          </Badge>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => {
+          const community = row.original;
+          return (
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => openEdit(community)}
+              >
+                Edit
+              </Button>
+              {community.is_active ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                              onClick={() => setPendingDeactivate(community)}
+                              disabled={deleteMutation.isPending}
+                >
+                  Deactivate
+                </Button>
+              ) : null}
+            </div>
+          );
+        },
+      },
+    ],
+    [deleteMutation.isPending],
+  );
+
+  const showEmpty = !isLoading && meta.total === 0;
 
   return (
     <AdminPageScaffold title={nav.title} description={nav.description}>
@@ -97,7 +156,7 @@ export const CommunitiesAdminView = () => {
             <Skeleton className="h-24 w-full rounded-xl md:hidden" />
             <Skeleton className="hidden h-40 w-full rounded-xl md:block" />
           </div>
-        ) : communities.length === 0 ? (
+        ) : showEmpty ? (
           <NoData
             title="No communities yet"
             description="Create the first coastal community to use in escrow requests."
@@ -111,7 +170,7 @@ export const CommunitiesAdminView = () => {
         ) : (
           <>
             <div className="flex flex-col gap-3 md:hidden">
-              {communities.map((community) => (
+              {items.map((community) => (
                 <Card key={community.community_id}>
                   <CardHeader className="gap-3">
                     <div className="flex items-start justify-between gap-2">
@@ -139,8 +198,8 @@ export const CommunitiesAdminView = () => {
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => handleDeactivate(community)}
-                          disabled={deleteMutation.isPending}
+                              onClick={() => setPendingDeactivate(community)}
+                              disabled={deleteMutation.isPending}
                         >
                           Deactivate
                         </Button>
@@ -149,59 +208,24 @@ export const CommunitiesAdminView = () => {
                   </CardHeader>
                 </Card>
               ))}
+              <AdminTablePagination
+                pagination={pagination}
+                meta={meta}
+                onPageChange={(page) => setPagination({ ...pagination, page })}
+                onPageSizeChange={(pageSize) =>
+                  setPagination({ page: 1, pageSize })
+                }
+              />
             </div>
 
-            <div className="hidden overflow-x-auto rounded-xl border border-border md:block">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {communities.map((community) => (
-                    <TableRow key={community.community_id}>
-                      <TableCell className="font-medium">
-                        {community.name}
-                      </TableCell>
-                      <TableCell className="max-w-sm truncate text-muted-foreground">
-                        {community.description || "—"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {community.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openEdit(community)}
-                          >
-                            Edit
-                          </Button>
-                          {community.is_active ? (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDeactivate(community)}
-                              disabled={deleteMutation.isPending}
-                            >
-                              Deactivate
-                            </Button>
-                          ) : null}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div className="hidden md:block">
+              <AdminDataTable
+                columns={columns}
+                data={items}
+                pagination={pagination}
+                meta={meta}
+                onPaginationChange={setPagination}
+              />
             </div>
           </>
         )}
@@ -216,6 +240,23 @@ export const CommunitiesAdminView = () => {
         community={editing}
         loading={saving}
         onSubmit={handleSubmit}
+      />
+
+      <ConfirmDialog
+        open={pendingDeactivate !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeactivate(null);
+        }}
+        title="Deactivate community?"
+        description={
+          pendingDeactivate
+            ? `“${pendingDeactivate.name}” will be hidden from escrow create. You can reactivate it later from Edit.`
+            : ""
+        }
+        confirmLabel="Deactivate"
+        destructive
+        loading={deleteMutation.isPending}
+        onConfirm={confirmDeactivate}
       />
     </AdminPageScaffold>
   );

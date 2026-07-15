@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -16,6 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Roles } from '../../auth';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { UserRole } from '../../generated/prisma/enums';
 import { CommunitiesService } from './communities.service';
 import { CreateCommunityDto } from './dto/create-community.dto';
@@ -39,10 +41,10 @@ export class CommunitiesController {
 
   @Get('admin')
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'List all communities (admin)' })
-  @ApiResponse({ status: 200, description: 'All communities' })
-  findAllAdmin() {
-    return this.communitiesService.findAllAdmin();
+  @ApiOperation({ summary: 'List communities (admin, paginated)' })
+  @ApiResponse({ status: 200, description: 'Paginated communities' })
+  findAllAdmin(@Query() query: PaginationQueryDto) {
+    return this.communitiesService.findAllAdmin(query);
   }
 
   @Post()

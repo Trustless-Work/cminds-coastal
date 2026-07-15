@@ -16,6 +16,7 @@ describe('TasksService', () => {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      count: jest.fn(),
     },
   };
 
@@ -37,6 +38,42 @@ describe('TasksService', () => {
     expect(prismaMock.task.findMany).toHaveBeenCalledWith({
       where: { is_active: true },
       orderBy: [{ category: 'asc' }, { code: 'asc' }],
+    });
+  });
+
+  it('should list admin tasks paginated', async () => {
+    const items = [
+      {
+        task_id: 't1',
+        code: 'G-01',
+        category: 'Management',
+        name: 'Task',
+        expected_deliverable: 'Doc',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+    ];
+    prismaMock.task.findMany.mockResolvedValueOnce(items);
+    prismaMock.task.count.mockResolvedValueOnce(25);
+
+    await expect(service.findAllAdmin({ page: 1, pageSize: 10 })).resolves.toEqual(
+      {
+        items,
+        total: 25,
+        page: 1,
+        pageSize: 10,
+        totalPages: 3,
+      },
+    );
+    expect(prismaMock.task.findMany).toHaveBeenCalledWith({
+      orderBy: [
+        { is_active: 'desc' },
+        { category: 'asc' },
+        { code: 'asc' },
+      ],
+      skip: 0,
+      take: 10,
     });
   });
 

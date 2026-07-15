@@ -10,19 +10,15 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@repo/ui/components/table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ListChecks } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { AdminPageScaffold } from "@/features/admin-shell/components/AdminPageScaffold";
 import { ADMIN_NAV_ITEMS } from "@/features/admin-shell/constants/nav";
+import { AdminDataTable } from "@/features/data-table/components/AdminDataTable";
+import { AdminTablePagination } from "@/features/data-table/components/AdminTablePagination";
+import { ConfirmDialog } from "@/features/data-table/components/ConfirmDialog";
 
 import { TaskFormDialog } from "../components/TaskFormDialog";
 import {
@@ -34,10 +30,13 @@ import type { TaskFormValues } from "../schemas/task.schema";
 
 export const TasksAdminView = () => {
   const nav = ADMIN_NAV_ITEMS[1]!;
-  const { data: tasks = [], isLoading } = useAdminTasks();
+  const { items, meta, pagination, setPagination, isLoading } = useAdminTasks();
   const { createMutation, updateMutation, deleteMutation } = useTaskMutations();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<TaskRecord | null>(null);
+  const [pendingDeactivate, setPendingDeactivate] = useState<TaskRecord | null>(
+    null,
+  );
 
   const saving = createMutation.isPending || updateMutation.isPending;
 
@@ -75,16 +74,84 @@ export const TasksAdminView = () => {
     setDialogOpen(true);
   }
 
-  function handleDeactivate(task: TaskRecord): void {
-    if (
-      !window.confirm(
-        `Deactivate task ${task.code}? It will be hidden from escrow create.`,
-      )
-    ) {
+  async function confirmDeactivate(): Promise<void> {
+    if (!pendingDeactivate) {
       return;
     }
-    void deleteMutation.mutateAsync(task.task_id);
+    await deleteMutation.mutateAsync(pendingDeactivate.task_id);
+    setPendingDeactivate(null);
   }
+
+  const columns = useMemo<ColumnDef<TaskRecord>[]>(
+    () => [
+      {
+        accessorKey: "code",
+        header: "Code",
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.code}</span>
+        ),
+      },
+      {
+        accessorKey: "category",
+        header: "Category",
+      },
+      {
+        accessorKey: "name",
+        header: "Name",
+      },
+      {
+        accessorKey: "expected_deliverable",
+        header: "Deliverable",
+        cell: ({ row }) => (
+          <span className="max-w-xs truncate text-muted-foreground">
+            {row.original.expected_deliverable}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "is_active",
+        header: "Status",
+        cell: ({ row }) => (
+          <Badge variant="outline">
+            {row.original.is_active ? "Active" : "Inactive"}
+          </Badge>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => {
+          const task = row.original;
+          return (
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => openEdit(task)}
+              >
+                Edit
+              </Button>
+              {task.is_active ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setPendingDeactivate(task)}
+                  disabled={deleteMutation.isPending}
+                >
+                  Deactivate
+                </Button>
+              ) : null}
+            </div>
+          );
+        },
+      },
+    ],
+    [deleteMutation.isPending],
+  );
+
+  const showEmpty = !isLoading && meta.total === 0;
 
   return (
     <AdminPageScaffold title={nav.title} description={nav.description}>
@@ -100,7 +167,7 @@ export const TasksAdminView = () => {
             <Skeleton className="h-24 w-full rounded-xl md:hidden" />
             <Skeleton className="hidden h-40 w-full rounded-xl md:block" />
           </div>
-        ) : tasks.length === 0 ? (
+        ) : showEmpty ? (
           <NoData
             title="No tasks yet"
             description="Add conservation tasks to the fixed menu communities use when creating escrows."
@@ -114,7 +181,7 @@ export const TasksAdminView = () => {
         ) : (
           <>
             <div className="flex flex-col gap-3 md:hidden">
-              {tasks.map((task) => (
+              {items.map((task) => (
                 <Card key={task.task_id}>
                   <CardHeader className="gap-3">
                     <div className="flex items-start justify-between gap-2">
@@ -145,7 +212,7 @@ export const TasksAdminView = () => {
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => handleDeactivate(task)}
+                          onClick={() => setPendingDeactivate(task)}
                           disabled={deleteMutation.isPending}
                         >
                           Deactivate
@@ -155,61 +222,24 @@ export const TasksAdminView = () => {
                   </CardHeader>
                 </Card>
               ))}
+              <AdminTablePagination
+                pagination={pagination}
+                meta={meta}
+                onPageChange={(page) => setPagination({ ...pagination, page })}
+                onPageSizeChange={(pageSize) =>
+                  setPagination({ page: 1, pageSize })
+                }
+              />
             </div>
 
-            <div className="hidden overflow-x-auto rounded-xl border border-border md:block">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Deliverable</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tasks.map((task) => (
-                    <TableRow key={task.task_id}>
-                      <TableCell className="font-medium">{task.code}</TableCell>
-                      <TableCell>{task.category}</TableCell>
-                      <TableCell>{task.name}</TableCell>
-                      <TableCell className="max-w-xs truncate text-muted-foreground">
-                        {task.expected_deliverable}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {task.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openEdit(task)}
-                          >
-                            Edit
-                          </Button>
-                          {task.is_active ? (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDeactivate(task)}
-                              disabled={deleteMutation.isPending}
-                            >
-                              Deactivate
-                            </Button>
-                          ) : null}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div className="hidden md:block">
+              <AdminDataTable
+                columns={columns}
+                data={items}
+                pagination={pagination}
+                meta={meta}
+                onPaginationChange={setPagination}
+              />
             </div>
           </>
         )}
@@ -224,6 +254,23 @@ export const TasksAdminView = () => {
         task={editing}
         loading={saving}
         onSubmit={handleSubmit}
+      />
+
+      <ConfirmDialog
+        open={pendingDeactivate !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeactivate(null);
+        }}
+        title="Deactivate task?"
+        description={
+          pendingDeactivate
+            ? `Task ${pendingDeactivate.code} will be hidden when creating escrows. You can reactivate it later from Edit.`
+            : ""
+        }
+        confirmLabel="Deactivate"
+        destructive
+        loading={deleteMutation.isPending}
+        onConfirm={confirmDeactivate}
       />
     </AdminPageScaffold>
   );

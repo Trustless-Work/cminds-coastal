@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -16,6 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Roles } from '../../auth';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { UserRole } from '../../generated/prisma/enums';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -38,10 +40,10 @@ export class TasksController {
 
   @Get('admin')
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'List all tasks (admin)' })
-  @ApiResponse({ status: 200, description: 'All tasks' })
-  findAllAdmin() {
-    return this.tasksService.findAllAdmin();
+  @ApiOperation({ summary: 'List tasks (admin, paginated)' })
+  @ApiResponse({ status: 200, description: 'Paginated tasks' })
+  findAllAdmin(@Query() query: PaginationQueryDto) {
+    return this.tasksService.findAllAdmin(query);
   }
 
   @Post()

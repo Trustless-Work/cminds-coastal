@@ -26,13 +26,33 @@ export type UpdateTaskPayload = {
   is_active?: boolean;
 };
 
+export type PaginatedResult<T> = {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
+
+export type AdminListQuery = {
+  page: number;
+  pageSize: number;
+};
+
 export async function fetchTasks(): Promise<TaskRecord[]> {
   const { data } = await http.get<TaskRecord[]>("/tasks");
   return data;
 }
 
-export async function fetchAdminTasks(): Promise<TaskRecord[]> {
-  const { data } = await http.get<TaskRecord[]>("/tasks/admin");
+export async function fetchAdminTasks(
+  params: AdminListQuery,
+): Promise<PaginatedResult<TaskRecord>> {
+  const { data } = await http.get<PaginatedResult<TaskRecord>>("/tasks/admin", {
+    params: {
+      page: params.page,
+      pageSize: params.pageSize,
+    },
+  });
   return data;
 }
 

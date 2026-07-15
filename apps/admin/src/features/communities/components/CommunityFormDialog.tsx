@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
+import { Checkbox } from "@repo/ui/components/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -9,8 +10,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@repo/ui/components/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@repo/ui/components/form";
 import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
 import { Textarea } from "@repo/ui/components/textarea";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -64,65 +73,82 @@ export const CommunityFormDialog = ({
             {community ? "Edit community" : "New community"}
           </DialogTitle>
         </DialogHeader>
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={form.handleSubmit(async (values) => {
-            await onSubmit(values);
-          })}
-          noValidate
-        >
-          <div className="space-y-2">
-            <Label htmlFor="community-name">Name</Label>
-            <Input
-              id="community-name"
-              disabled={loading}
-              {...form.register("name")}
+        <Form {...form}>
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={form.handleSubmit(async (values) => {
+              await onSubmit(values);
+            })}
+            noValidate
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="flex flex-col gap-2">
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {form.formState.errors.name ? (
-              <p className="text-xs text-destructive">
-                {form.formState.errors.name.message}
-              </p>
-            ) : null}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="community-description">Description</Label>
-            <Textarea
-              id="community-description"
-              rows={3}
-              disabled={loading}
-              {...form.register("description")}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem className="flex flex-col gap-2">
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea rows={3} disabled={loading} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          {community ? (
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                className="size-4 rounded border-border"
-                checked={form.watch("is_active")}
-                onChange={(event) =>
-                  form.setValue("is_active", event.target.checked, {
-                    shouldDirty: true,
-                  })
-                }
-                disabled={loading}
+            {community ? (
+              <FormField
+                control={form.control}
+                name="is_active"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start gap-3 rounded-lg border border-border p-3">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        disabled={loading}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked === true);
+                        }}
+                      />
+                    </FormControl>
+                    <div className="flex flex-col gap-1">
+                      <FormLabel className="font-medium leading-none">
+                        Active
+                      </FormLabel>
+                      <FormDescription>
+                        Inactive communities are hidden from escrow create.
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
               />
-              Active
-            </label>
-          ) : null}
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={loading}
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Saving…" : community ? "Save" : "Create"}
-            </Button>
-          </DialogFooter>
-        </form>
+            ) : null}
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={loading}
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? "Saving…" : community ? "Save" : "Create"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

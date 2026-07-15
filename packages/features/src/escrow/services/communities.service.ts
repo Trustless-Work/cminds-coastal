@@ -20,13 +20,36 @@ export type UpdateCommunityPayload = {
   is_active?: boolean;
 };
 
+export type PaginatedResult<T> = {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
+
+export type AdminListQuery = {
+  page: number;
+  pageSize: number;
+};
+
 export async function fetchCommunities(): Promise<CommunityRecord[]> {
   const { data } = await http.get<CommunityRecord[]>("/communities");
   return data;
 }
 
-export async function fetchAdminCommunities(): Promise<CommunityRecord[]> {
-  const { data } = await http.get<CommunityRecord[]>("/communities/admin");
+export async function fetchAdminCommunities(
+  params: AdminListQuery,
+): Promise<PaginatedResult<CommunityRecord>> {
+  const { data } = await http.get<PaginatedResult<CommunityRecord>>(
+    "/communities/admin",
+    {
+      params: {
+        page: params.page,
+        pageSize: params.pageSize,
+      },
+    },
+  );
   return data;
 }
 

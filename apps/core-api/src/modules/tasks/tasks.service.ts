@@ -4,6 +4,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import {
+  resolvePagination,
+  toPaginatedResult,
+  type PaginatedResult,
+  type PaginationQueryDto,
+} from '../../common/dto/pagination-query.dto';
 import { PrismaService } from '../../database';
 import type { CreateTaskDto } from './dto/create-task.dto';
 import type { UpdateTaskDto } from './dto/update-task.dto';
@@ -47,14 +53,26 @@ export class TasksService {
     });
   }
 
-  async findAllAdmin(): Promise<TaskRecord[]> {
-    return this.prisma.task.findMany({
-      orderBy: [
-        { is_active: 'desc' },
-        { category: 'asc' },
-        { code: 'asc' },
-      ],
-    });
+  async findAllAdmin(
+    query: PaginationQueryDto,
+  ): Promise<PaginatedResult<TaskRecord>> {
+    const { page, pageSize, skip } = resolvePagination(query);
+    const orderBy = [
+      { is_active: 'desc' as const },
+      { category: 'asc' as const },
+      { code: 'asc' as const },
+    ];
+
+    const [items, total] = await Promise.all([
+      this.prisma.task.findMany({
+        orderBy,
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.task.count(),
+    ]);
+
+    return toPaginatedResult(items, total, page, pageSize);
   }
 
   async create(dto: CreateTaskDto): Promise<TaskRecord> {

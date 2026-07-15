@@ -20,6 +20,7 @@ describe('CommunitiesService', () => {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      count: jest.fn(),
     },
   };
 
@@ -40,6 +41,36 @@ describe('CommunitiesService', () => {
     expect(prismaMock.community.findMany).toHaveBeenCalledWith({
       where: { is_active: true },
       orderBy: { name: 'asc' },
+    });
+  });
+
+  it('lists admin communities paginated', async () => {
+    const items = [
+      {
+        community_id: 'c1',
+        name: 'Alpha',
+        description: null,
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+    ];
+    prismaMock.community.findMany.mockResolvedValueOnce(items);
+    prismaMock.community.count.mockResolvedValueOnce(12);
+
+    await expect(service.findAllAdmin({ page: 2, pageSize: 5 })).resolves.toEqual(
+      {
+        items,
+        total: 12,
+        page: 2,
+        pageSize: 5,
+        totalPages: 3,
+      },
+    );
+    expect(prismaMock.community.findMany).toHaveBeenCalledWith({
+      orderBy: [{ is_active: 'desc' }, { name: 'asc' }],
+      skip: 5,
+      take: 5,
     });
   });
 

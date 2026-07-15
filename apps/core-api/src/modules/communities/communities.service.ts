@@ -4,6 +4,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import {
+  resolvePagination,
+  toPaginatedResult,
+  type PaginatedResult,
+  type PaginationQueryDto,
+} from '../../common/dto/pagination-query.dto';
 import { PrismaService } from '../../database';
 import type { CreateCommunityDto } from './dto/create-community.dto';
 import type { UpdateCommunityDto } from './dto/update-community.dto';
@@ -43,10 +49,22 @@ export class CommunitiesService {
     });
   }
 
-  async findAllAdmin(): Promise<CommunityRecord[]> {
-    return this.prisma.community.findMany({
-      orderBy: [{ is_active: 'desc' }, { name: 'asc' }],
-    });
+  async findAllAdmin(
+    query: PaginationQueryDto,
+  ): Promise<PaginatedResult<CommunityRecord>> {
+    const { page, pageSize, skip } = resolvePagination(query);
+    const orderBy = [{ is_active: 'desc' as const }, { name: 'asc' as const }];
+
+    const [items, total] = await Promise.all([
+      this.prisma.community.findMany({
+        orderBy,
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.community.count(),
+    ]);
+
+    return toPaginatedResult(items, total, page, pageSize);
   }
 
   async create(dto: CreateCommunityDto): Promise<CommunityRecord> {
