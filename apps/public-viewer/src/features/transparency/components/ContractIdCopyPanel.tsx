@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Check, Copy, ExternalLink } from "lucide-react";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import { networkConfig } from "@repo/config";
 import { Button, buttonVariants } from "@repo/ui/components/button";
 import { cn } from "@repo/ui/lib/utils";
@@ -26,10 +26,16 @@ export const ContractIdCopyPanel = ({
     try {
       await navigator.clipboard.writeText(contractId);
       setCopied(true);
-      toast.success("Contract ID copied");
+      toastSuccess(
+        "Contract ID Copied",
+        "You can paste it into Freighter or share it with funders.",
+      );
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Could not copy contract ID");
+      toastError(
+        "Copy Failed",
+        "Could not copy the contract ID. Try again or copy it manually.",
+      );
     }
   };
 

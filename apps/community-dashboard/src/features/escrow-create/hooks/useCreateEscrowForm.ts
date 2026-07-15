@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import { networkConfig } from "@repo/config";
 import { createEscrow, uploadEscrowImage } from "@repo/features/escrow/services/escrows.service";
 import type { UserSearchResult } from "@repo/features/auth/services/users-search.service";
@@ -176,13 +176,19 @@ export function useCreateEscrowForm() {
 
   const onSubmit = form.handleSubmit(async (values) => {
     if (!walletAddress) {
-      toast.error("Connect your Pollar wallet to initialize an escrow");
+      toastError(
+        "Wallet Required",
+        "Connect your Pollar wallet to initialize an escrow.",
+      );
       return;
     }
 
     if (!imageFile) {
       setImageError("Add an escrow image");
-      toast.error("Add an escrow image");
+      toastError(
+        "Image Required",
+        "Add an escrow cover image before initializing.",
+      );
       return;
     }
 
@@ -266,12 +272,18 @@ export function useCreateEscrowForm() {
         })),
       });
 
-      toast.success("Escrow initialized successfully");
+      toastSuccess(
+        "Escrow Initialized",
+        "Your escrow is live and ready to receive USDC funding.",
+      );
       router.push(`/dashboard/escrows/${contractId}`);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to initialize escrow";
-      toast.error(message);
+      toastError(
+        "Initialization Failed",
+        message || "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }
