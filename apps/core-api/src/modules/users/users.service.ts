@@ -9,6 +9,7 @@ import { PrismaService } from '../../database';
 import type { AuthProvider, UserRole } from '../../generated/prisma/enums';
 import { UserRole as UserRoleEnum } from '../../generated/prisma/enums';
 import type { AuthenticatedUser } from '../../auth/interfaces/authenticated-user';
+import { AuthIdentityService } from '../../auth/services/auth-identity.service';
 import { AllowedEmailDomainsService } from '../allowed-email-domains/allowed-email-domains.service';
 import type { SyncUserDto } from './dto/sync-user.dto';
 
@@ -23,7 +24,8 @@ export type UserWallet = {
 
 export type UserProfile = {
   user_id: string;
-  pollar_user_id: string;
+  pollar_user_id: string | null;
+  supabase_user_id: string | null;
   email: string;
   display_name: string | null;
   avatar_url: string | null;
@@ -41,12 +43,21 @@ export class UsersService {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(AllowedEmailDomainsService)
     private readonly allowedEmailDomainsService: AllowedEmailDomainsService,
+    @Inject(AuthIdentityService)
+    private readonly authIdentityService: AuthIdentityService,
   ) {}
 
   async sync(
     authUser: AuthenticatedUser,
     dto: SyncUserDto,
   ): Promise<UserProfile> {
+    const pollarUserId = authUser.pollarUserId;
+    if (!pollarUserId) {
+      throw new UnauthorizedException(
+        'Pollar identity is required for user sync',
+      );
+    }
+
     const email = (authUser.email ?? dto.email).trim().toLowerCase();
     if (!email) {
       throw new UnauthorizedException('Email is required to sync user');
@@ -72,7 +83,7 @@ export class UsersService {
 
     return this.prisma.$transaction(async (tx) => {
       const byPollarId = await tx.user.findUnique({
-        where: { pollar_user_id: authUser.pollarUserId },
+        where: { pollar_user_id: pollarUserId },
         include: { wallets: true },
       });
 
@@ -97,7 +108,7 @@ export class UsersService {
         user = await tx.user.update({
           where: { user_id: existing.user_id },
           data: {
-            pollar_user_id: authUser.pollarUserId,
+            pollar_user_id: pollarUserId,
             email,
             display_name: displayName ?? existing.display_name,
             avatar_url: avatarUrl ?? existing.avatar_url,
@@ -108,7 +119,7 @@ export class UsersService {
       } else {
         user = await tx.user.create({
           data: {
-            pollar_user_id: authUser.pollarUserId,
+            pollar_user_id: pollarUserId,
             email,
             display_name: displayName,
             avatar_url: avatarUrl,
@@ -153,14 +164,13 @@ export class UsersService {
   }
 
   async findMe(authUser: AuthenticatedUser): Promise<UserProfile> {
-    const user = await this.prisma.user.findUnique({
-      where: { pollar_user_id: authUser.pollarUserId },
-      include: { wallets: true },
-    });
+    const user = await this.findByAuthIdentity(authUser);
 
     if (!user) {
       throw new NotFoundException(
-        'User not found — call POST /users/sync after Pollar login',
+        authUser.supabaseUserId
+          ? 'Admin user not provisioned — create Auth user + ADMIN role via ops'
+          : 'User not found — call POST /users/sync after Pollar login',
       );
     }
 
@@ -169,6 +179,26 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  private async findByAuthIdentity(
+    authUser: AuthenticatedUser,
+  ): Promise<UserProfile | null> {
+    if (!authUser.supabaseUserId && !authUser.pollarUserId) {
+      throw new UnauthorizedException('Token missing user identity');
+    }
+
+    const identity =
+      await this.authIdentityService.findUserByAuthIdentity(authUser);
+
+    if (!identity) {
+      return null;
+    }
+
+    return this.prisma.user.findUnique({
+      where: { user_id: identity.user_id },
+      include: { wallets: true },
+    });
   }
 
   async requireSyncedUser(authUser: AuthenticatedUser): Promise<UserProfile> {

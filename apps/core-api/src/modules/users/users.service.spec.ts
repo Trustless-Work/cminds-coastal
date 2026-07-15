@@ -6,6 +6,7 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthProvider, UserRole } from '../../generated/prisma/enums';
 import type { AuthenticatedUser } from '../../auth/interfaces/authenticated-user';
+import { AuthIdentityService } from '../../auth/services/auth-identity.service';
 import { AllowedEmailDomainsService } from '../allowed-email-domains/allowed-email-domains.service';
 import { UsersService } from './users.service';
 
@@ -27,6 +28,7 @@ describe('UsersService', () => {
   const mockUser = {
     user_id: '11111111-1111-1111-1111-111111111111',
     pollar_user_id: 'usr_test_1',
+    supabase_user_id: null as string | null,
     email: 'test@example.com',
     display_name: null,
     avatar_url: null,
@@ -68,6 +70,10 @@ describe('UsersService', () => {
     listActiveDomains: jest.fn(),
   };
 
+  const authIdentityMock = {
+    findUserByAuthIdentity: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
     prismaMock.$transaction.mockImplementation(
@@ -82,6 +88,10 @@ describe('UsersService', () => {
         {
           provide: AllowedEmailDomainsService,
           useValue: allowedEmailDomainsMock,
+        },
+        {
+          provide: AuthIdentityService,
+          useValue: authIdentityMock,
         },
       ],
     }).compile();
@@ -414,18 +424,30 @@ describe('UsersService', () => {
 
   describe('findMe', () => {
     it('returns the user profile when synced', async () => {
+      authIdentityMock.findUserByAuthIdentity.mockResolvedValueOnce({
+        user_id: mockUser.user_id,
+        roles: mockUser.roles,
+        is_active: true,
+        supabase_user_id: null,
+      });
       prismaMock.user.findUnique.mockResolvedValueOnce(mockUser);
       await expect(service.findMe(authUser)).resolves.toEqual(mockUser);
     });
 
     it('throws NotFoundException when user was never synced', async () => {
-      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+      authIdentityMock.findUserByAuthIdentity.mockResolvedValueOnce(null);
       await expect(service.findMe(authUser)).rejects.toBeInstanceOf(
         NotFoundException,
       );
     });
 
     it('throws UnauthorizedException when user is inactive', async () => {
+      authIdentityMock.findUserByAuthIdentity.mockResolvedValueOnce({
+        user_id: mockUser.user_id,
+        roles: mockUser.roles,
+        is_active: false,
+        supabase_user_id: null,
+      });
       prismaMock.user.findUnique.mockResolvedValueOnce({
         ...mockUser,
         is_active: false,

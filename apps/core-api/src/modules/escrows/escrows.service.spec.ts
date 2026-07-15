@@ -175,6 +175,18 @@ describe('EscrowsService', () => {
     );
   });
 
+  it('should coerce string limit to int for Prisma take', async () => {
+    prismaMock.escrow.findMany.mockResolvedValue([]);
+
+    await service.findFundingPublic({
+      limit: '12' as unknown as number,
+    });
+
+    expect(prismaMock.escrow.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 13 }),
+    );
+  });
+
   it('should filter funding escrows by status and search query', async () => {
     prismaMock.escrow.findMany.mockResolvedValue([]);
 

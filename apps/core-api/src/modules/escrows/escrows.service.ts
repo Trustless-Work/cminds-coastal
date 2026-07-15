@@ -229,7 +229,7 @@ export class EscrowsService {
    * Cursor-based pagination with optional status / community / text filters.
    */
   async findFundingPublic(query: ListFundingEscrowsQueryDto = {}) {
-    const limit = query.limit ?? DEFAULT_FUNDING_PAGE_SIZE;
+    const limit = this.resolveFundingPageSize(query.limit);
     const where = this.buildFundingPublicWhere(query);
 
     const rows = await this.prisma.escrow.findMany({
@@ -264,6 +264,15 @@ export class EscrowsService {
       statuses: [...PUBLIC_FUNDING_STATUSES],
       communities: communities.map((row) => row.community_name),
     };
+  }
+
+  private resolveFundingPageSize(limit: number | undefined): number {
+    const parsed =
+      typeof limit === 'number' ? limit : Number(limit ?? Number.NaN);
+    if (!Number.isFinite(parsed) || !Number.isInteger(parsed)) {
+      return DEFAULT_FUNDING_PAGE_SIZE;
+    }
+    return Math.min(50, Math.max(1, parsed));
   }
 
   private buildFundingPublicWhere(

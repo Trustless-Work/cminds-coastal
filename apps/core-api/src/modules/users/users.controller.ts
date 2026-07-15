@@ -14,7 +14,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser, type AuthenticatedUser } from '../../auth';
+import { CurrentUser, Roles, type AuthenticatedUser } from '../../auth';
+import { UserRole } from '../../generated/prisma/enums';
 import { SearchUsersQueryDto } from './dto/search-users-query.dto';
 import { SyncUserDto } from './dto/sync-user.dto';
 import { UsersService } from './users.service';
@@ -44,6 +45,20 @@ export class UsersController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'User not synced yet' })
   me(@CurrentUser() user: AuthenticatedUser) {
+    return this.usersService.findMe(user);
+  }
+
+  @Get('admin/me')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary:
+      'Return the authenticated admin profile (requires ADMIN role + AAL2)',
+  })
+  @ApiResponse({ status: 200, description: 'Current admin user' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden — missing ADMIN or AAL2' })
+  @ApiResponse({ status: 404, description: 'Admin user not provisioned' })
+  adminMe(@CurrentUser() user: AuthenticatedUser) {
     return this.usersService.findMe(user);
   }
 

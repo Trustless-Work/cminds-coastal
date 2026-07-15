@@ -81,8 +81,9 @@ export class ServerEnv extends EnvConfig {
   }
 
   /**
-   * JWT secret from Supabase Project Settings → API → JWT Secret.
-   * Used to verify access tokens issued by Supabase Auth (admin app).
+   * Legacy HS256 JWT secret (Project Settings → API → JWT Secret).
+   * Only needed for projects still signing user tokens with HS256.
+   * Newer projects use ES256/RS256 verified via JWKS from `supabaseUrl`.
    */
   get supabaseJwtSecret(): string | undefined {
     return this.getOptional(process.env.SUPABASE_JWT_SECRET);

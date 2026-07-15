@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import {
   IsIn,
   IsInt,
@@ -20,6 +20,14 @@ export const PUBLIC_FUNDING_STATUSES = [
   EscrowStatus.COMPLETED,
 ] as const;
 
+function toOptionalInt(value: unknown): number | undefined {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) ? Math.trunc(parsed) : Number.NaN;
+}
+
 export class ListFundingEscrowsQueryDto {
   @ApiPropertyOptional({
     description: 'Page size',
@@ -28,7 +36,7 @@ export class ListFundingEscrowsQueryDto {
     maximum: 50,
   })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(({ value }: { value: unknown }) => toOptionalInt(value))
   @IsInt()
   @Min(1)
   @Max(50)

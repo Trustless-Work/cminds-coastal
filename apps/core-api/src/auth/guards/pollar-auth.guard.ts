@@ -4,13 +4,14 @@ import {
   Inject,
   Injectable,
   UnauthorizedException,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import type { Request } from 'express';
-import { IS_OPTIONAL_AUTH_KEY } from '../decorators/optional-auth.decorator';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
-import type { AuthenticatedUser } from '../interfaces/authenticated-user';
-import { PollarTokenService } from '../services/pollar-token.service';
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import type { Request } from "express";
+import { IS_OPTIONAL_AUTH_KEY } from "../decorators/optional-auth.decorator";
+import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
+import type { AuthenticatedUser } from "../interfaces/authenticated-user";
+import { PollarTokenService } from "../services/pollar-token.service";
+import { SupabaseTokenService } from "../services/supabase-token.service";
 
 type RequestWithUser = Request & { user?: AuthenticatedUser };
 
@@ -20,9 +21,11 @@ export class PollarAuthGuard implements CanActivate {
     @Inject(Reflector) private readonly reflector: Reflector,
     @Inject(PollarTokenService)
     private readonly pollarTokenService: PollarTokenService,
+    @Inject(SupabaseTokenService)
+    private readonly supabaseTokenService: SupabaseTokenService,
   ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -43,10 +46,21 @@ export class PollarAuthGuard implements CanActivate {
       if (isOptional) {
         return true;
       }
-      throw new UnauthorizedException('Missing Authorization bearer token');
+      throw new UnauthorizedException("Missing Authorization bearer token");
     }
 
     try {
+      if (this.supabaseTokenService.isSupabaseAccessToken(token)) {
+        const verified = await this.supabaseTokenService.verifyAccessToken(token);
+        request.user = {
+          supabaseUserId: verified.supabaseUserId,
+          email: verified.email,
+          accessToken: token,
+          aal: verified.aal,
+        };
+        return true;
+      }
+
       const verified = this.pollarTokenService.verifyAccessToken(token);
       request.user = {
         pollarUserId: verified.pollarUserId,
@@ -61,7 +75,7 @@ export class PollarAuthGuard implements CanActivate {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new UnauthorizedException('Invalid access token');
+      throw new UnauthorizedException("Invalid access token");
     }
   }
 
@@ -70,8 +84,8 @@ export class PollarAuthGuard implements CanActivate {
     if (!header) {
       return undefined;
     }
-    const [scheme, token] = header.split(' ');
-    if (scheme?.toLowerCase() !== 'bearer' || !token) {
+    const [scheme, token] = header.split(" ");
+    if (scheme?.toLowerCase() !== "bearer" || !token) {
       return undefined;
     }
     return token.trim();
