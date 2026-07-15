@@ -432,18 +432,33 @@ importers:
 
   apps/public-viewer:
     dependencies:
+      '@repo/config':
+        specifier: workspace:^
+        version: link:../../packages/config
       '@repo/features':
         specifier: workspace:*
         version: link:../../packages/features
+      '@repo/helpers':
+        specifier: workspace:^
+        version: link:../../packages/helpers
       '@repo/providers':
         specifier: workspace:*
         version: link:../../packages/providers
       '@repo/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@repo/tw-blocks':
+        specifier: workspace:^
+        version: link:../../packages/tw-blocks
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@tanstack/react-query':
+        specifier: ^5.101.2
+        version: 5.101.2(react@19.2.4)
+      lucide-react:
+        specifier: ^1.24.0
+        version: 1.24.0(react@19.2.4)
       next:
         specifier: 'catalog:'
         version: 16.2.10(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -453,6 +468,9 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -698,9 +716,6 @@ importers:
       '@repo/ui':
         specifier: workspace:*
         version: link:../ui
-      lucide-react:
-        specifier: ^1.24.0
-        version: 1.24.0(react@19.2.4)
       react:
         specifier: 'catalog:'
         version: 19.2.4

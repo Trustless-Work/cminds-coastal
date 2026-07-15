@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@repo/ui/components/button";
+import { networkConfig } from "@repo/config";
+import { Button, buttonVariants } from "@repo/ui/components/button";
 import { cn } from "@repo/ui/lib/utils";
+import Link from "next/link";
 
 type ContractIdCopyPanelProps = {
   contractId: string;
@@ -16,6 +18,7 @@ export const ContractIdCopyPanel = ({
   className,
 }: ContractIdCopyPanelProps) => {
   const [copied, setCopied] = useState(false);
+  const viewerUrl = networkConfig.getEscrowViewerUrl(contractId);
 
   const handleCopy = async () => {
     try {
@@ -51,12 +54,20 @@ export const ContractIdCopyPanel = ({
             void handleCopy();
           }}
         >
-          {copied ? (
-            <Check className="size-4" />
-          ) : (
-            <Copy className="size-4" />
-          )}
+          {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
         </Button>
+        <Link
+          href={viewerUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open in Trustless Work Escrow Viewer"
+          className={cn(
+            buttonVariants({ variant: "outline", size: "icon" }),
+            "size-9 shrink-0 rounded-full",
+          )}
+        >
+          <ExternalLink className="size-4" />
+        </Link>
       </div>
     </div>
   );

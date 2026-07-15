@@ -87,26 +87,13 @@ export const FundingEscrowListView = () => {
       </FundingHero>
 
       <section className="mt-12 sm:mt-16">
-        <header className="mb-8 flex items-end justify-between gap-4 sm:mb-10">
-          <div className="flex flex-col gap-2">
-            <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              Open Opportunities
-            </h2>
-            <h3 className="text-sm text-muted-foreground">
-              Support coastal conservation projects across the United States.
-            </h3>
-          </div>
-
-          <button
-            type="button"
-            className="shrink-0 text-sm text-muted-foreground transition-opacity hover:opacity-70"
-            onClick={() => {
-              setDraftFilters(EMPTY_FILTERS);
-              setAppliedFilters(EMPTY_FILTERS);
-            }}
-          >
-            See all
-          </button>
+        <header className="mb-8 flex flex-col gap-2 sm:mb-10">
+          <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            Open Opportunities
+          </h2>
+          <h3 className="text-sm text-muted-foreground">
+            Support coastal conservation projects across the United States.
+          </h3>
         </header>
 
         {isError ? (
@@ -155,7 +142,7 @@ export const FundingEscrowListView = () => {
             <p className="mt-2 text-sm text-muted-foreground">
               {data.length === 0
                 ? "Initialized coastal conservation escrows will appear here."
-                : "No escrows match your filters. Try clearing them with See all."}
+                : "No escrows match your filters. Try adjusting your search."}
             </p>
           </div>
         ) : null}

@@ -32,9 +32,9 @@ export function LogoutButton({ loginHref = "/login" }: LogoutButtonProps) {
   return (
     <Button
       type="button"
-      variant="outline"
+      variant="ghost"
       size="icon"
-      className="size-10 shrink-0 sm:size-11"
+      className="size-11 shrink-0 rounded-full bg-white text-foreground shadow-[0_10px_30px_rgba(0,0,0,0.05)] ring-1 ring-border/80 hover:bg-white hover:text-foreground hover:opacity-80"
       disabled={loading}
       aria-label={loading ? "Signing out" : "Log out"}
       onClick={() => {

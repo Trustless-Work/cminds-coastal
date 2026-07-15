@@ -67,6 +67,11 @@ export class NetworkConfig {
     return this.isMainnet ? "PUBLIC" : "TESTNET";
   }
 
+  /** Trustless Work Escrow Viewer (read-only dApp). */
+  getEscrowViewerUrl(contractId: string): string {
+    return `https://viewer.trustlesswork.com/${encodeURIComponent(contractId)}`;
+  }
+
   get usdcIssuer(): string {
     return this.requireAssetIssuer("USDC");
   }
