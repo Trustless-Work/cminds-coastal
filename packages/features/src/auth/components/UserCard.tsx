@@ -74,7 +74,7 @@ export function UserCard({
     <TooltipProvider delay={200}>
       <div
         className={cn(
-          "flex h-11 max-w-[17rem] items-center rounded-full bg-white py-0 pl-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.05)] ring-1 ring-border/80",
+          "flex h-11 min-w-0 flex-1 items-center rounded-full bg-white py-0 pl-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.05)] ring-1 ring-border/80 md:max-w-[17rem] md:flex-initial",
           address ? "pr-1.5" : "pr-3",
           className,
         )}
@@ -118,7 +118,7 @@ export function UserCard({
         </div>
 
         {address && formattedWallet ? (
-          <div className="ml-4 flex shrink-0 items-center border-l border-border/80 pl-3">
+          <div className="ml-3 flex shrink-0 items-center border-l border-border/80 pl-2.5 sm:ml-4 sm:pl-3">
             <Tooltip>
               <TooltipTrigger
                 render={

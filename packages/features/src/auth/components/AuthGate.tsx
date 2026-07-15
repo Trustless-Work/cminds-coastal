@@ -114,7 +114,7 @@ function AuthGateInner({
   }, [bootstrapped, isAuthenticated, loginHref, router]);
 
   const authLeading = showAuthLeading ? (
-    <>
+    <div className="flex w-full min-w-0 items-center gap-2 md:w-auto md:justify-end md:gap-3">
       <UserCard
         displayName={profile?.display_name ?? null}
         avatarUrl={avatarUrl}
@@ -122,7 +122,7 @@ function AuthGateInner({
         walletAddress={walletAddress}
       />
       <LogoutButton loginHref={loginHref} />
-    </>
+    </div>
   ) : isAuthenticated ? (
     <LogoutButton loginHref={loginHref} />
   ) : null;

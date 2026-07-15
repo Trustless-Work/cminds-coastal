@@ -28,10 +28,12 @@ export function Navbar({
   navLinks,
   className,
 }: NavbarProps) {
+  const hasNavLinks = Boolean(navLinks && navLinks.length > 0);
+
   return (
     <header className={cn("relative z-50 w-full bg-background", className)}>
-      <div className="mx-auto flex h-20 max-w-[1320px] items-center gap-6 px-6 sm:h-24 sm:px-10">
-        <div className="flex min-w-0 flex-1 items-center">
+      <div className="mx-auto flex max-w-[1320px] flex-col gap-3 px-4 py-3 sm:px-6 md:h-24 md:flex-row md:items-center md:gap-6 md:px-10 md:py-0">
+        <div className="flex shrink-0 items-center">
           {logoSrc ? (
             <a href={logoHref} className="inline-flex shrink-0 items-center">
               <img
@@ -54,9 +56,9 @@ export function Navbar({
           ) : null}
         </div>
 
-        {navLinks && navLinks.length > 0 ? (
+        {hasNavLinks ? (
           <nav className="hidden flex-1 items-center justify-center gap-8 md:flex">
-            {navLinks.map((link) => (
+            {navLinks?.map((link) => (
               <a
                 key={`${link.href}-${link.label}`}
                 href={link.href}
@@ -70,7 +72,11 @@ export function Navbar({
           <div className="hidden flex-1 md:block" aria-hidden />
         )}
 
-        <div className="flex flex-1 items-center justify-end gap-3">{leading}</div>
+        {leading ? (
+          <div className="w-full min-w-0 md:ml-auto md:flex md:w-auto md:flex-1 md:justify-end">
+            {leading}
+          </div>
+        ) : null}
       </div>
     </header>
   );
