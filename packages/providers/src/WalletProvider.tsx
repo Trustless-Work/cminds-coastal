@@ -79,92 +79,57 @@ const emptyWalletValue: WalletContextType = {
   clearWalletInfo: noopClearWalletInfo,
 };
 
-/**
- * Browser Wallet Kit (Freighter) state. When enabled, kit connect can override
- * or supplement Pollar for apps that allow direct wallet funding.
- */
-function useBrowserWalletState(enabled: boolean) {
+function useBrowserWalletState() {
   const [browserWallet, setBrowserWallet] = useState<StoredBrowserWallet | null>(
     null,
   );
 
   useEffect(() => {
-    if (!enabled) {
-      return;
-    }
     setBrowserWallet(readStoredBrowserWallet());
-  }, [enabled]);
+  }, []);
 
-  const setWalletInfo = useCallback(
-    (address: string, name: string): void => {
-      if (!enabled) {
-        return;
-      }
-      const next = { address, name };
-      setBrowserWallet(next);
-      writeStoredBrowserWallet(next);
-    },
-    [enabled],
-  );
+  const setWalletInfo = useCallback((address: string, name: string): void => {
+    const next = { address, name };
+    setBrowserWallet(next);
+    writeStoredBrowserWallet(next);
+  }, []);
 
   const clearWalletInfo = useCallback((): void => {
-    if (!enabled) {
-      return;
-    }
     setBrowserWallet(null);
     writeStoredBrowserWallet(null);
-  }, [enabled]);
+  }, []);
 
-  return {
-    browserWallet: enabled ? browserWallet : null,
-    setWalletInfo,
-    clearWalletInfo,
-  };
+  return { browserWallet, setWalletInfo, clearWalletInfo };
 }
 
-function PollarWalletBridge({
-  children,
-  allowBrowserWallet,
-}: {
-  children: ReactNode;
-  allowBrowserWallet: boolean;
-}) {
+/**
+ * Pollar custodial G-address only (community / CMinds dashboards).
+ */
+function PollarWalletBridge({ children }: { children: ReactNode }) {
   const { wallet } = usePollar();
   const pollarAddress = wallet?.address ?? null;
-  const { browserWallet, setWalletInfo, clearWalletInfo } =
-    useBrowserWalletState(allowBrowserWallet);
 
-  const value = useMemo((): WalletContextType => {
-    if (browserWallet) {
-      return {
-        walletAddress: browserWallet.address,
-        walletName: browserWallet.name,
-        setWalletInfo,
-        clearWalletInfo,
-      };
-    }
-
-    return {
+  const value = useMemo(
+    (): WalletContextType => ({
       walletAddress: pollarAddress,
       walletName: pollarAddress ? "Pollar" : null,
-      setWalletInfo,
-      clearWalletInfo,
-    };
-  }, [
-    browserWallet,
-    clearWalletInfo,
-    pollarAddress,
-    setWalletInfo,
-  ]);
+      setWalletInfo: noopSetWalletInfo,
+      clearWalletInfo: noopClearWalletInfo,
+    }),
+    [pollarAddress],
+  );
 
   return (
     <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
   );
 }
 
+/**
+ * External Stellar Wallet Kit only (funding). Never uses Pollar's address.
+ */
 function BrowserOnlyWalletBridge({ children }: { children: ReactNode }) {
   const { browserWallet, setWalletInfo, clearWalletInfo } =
-    useBrowserWalletState(true);
+    useBrowserWalletState();
 
   const value = useMemo(
     (): WalletContextType => ({
@@ -184,25 +149,27 @@ function BrowserOnlyWalletBridge({ children }: { children: ReactNode }) {
 export type WalletProviderProps = {
   children: ReactNode;
   /**
-   * When true, Freighter / Wallet Kit can set the active address (funding).
+   * When true, wallet context is Freighter / Wallet Kit only (funding).
+   * Pollar login stays separate — its custodial address is never exposed here.
    * Default false keeps Pollar as the sole wallet source (community / CMinds).
    */
   allowBrowserWallet?: boolean;
 };
 
 /**
- * Bridges Pollar's custodial G-address into the wallet context API used by
- * Trustless Work escrow forms. Optionally also accepts browser Wallet Kit.
+ * Wallet context for Trustless Work escrow forms.
+ * - Funding (`allowBrowserWallet`): external Wallet Kit only
+ * - Other apps: Pollar custodial address only
  */
 export const WalletProvider = ({
   children,
   allowBrowserWallet = false,
 }: WalletProviderProps) => {
-  if (!clientEnv.pollarApiKey) {
-    if (allowBrowserWallet) {
-      return <BrowserOnlyWalletBridge>{children}</BrowserOnlyWalletBridge>;
-    }
+  if (allowBrowserWallet) {
+    return <BrowserOnlyWalletBridge>{children}</BrowserOnlyWalletBridge>;
+  }
 
+  if (!clientEnv.pollarApiKey) {
     return (
       <WalletContext.Provider value={emptyWalletValue}>
         {children}
@@ -210,11 +177,7 @@ export const WalletProvider = ({
     );
   }
 
-  return (
-    <PollarWalletBridge allowBrowserWallet={allowBrowserWallet}>
-      {children}
-    </PollarWalletBridge>
-  );
+  return <PollarWalletBridge>{children}</PollarWalletBridge>;
 };
 
 export const useWalletContext = () => {

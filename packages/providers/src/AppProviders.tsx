@@ -16,8 +16,8 @@ import { ThemeProvider } from "./ThemeProvider";
 export type AppProvidersProps = {
   children: ReactNode;
   /**
-   * Enable Stellar Wallet Kit (Freighter) in the shared wallet context.
-   * Use on the funding dashboard so funders can connect a browser wallet.
+   * Funding dashboard: wallet context is Wallet Kit only (Freighter, etc.).
+   * Does not use Pollar's custodial address for signing or display.
    */
   allowBrowserWallet?: boolean;
 };

@@ -137,8 +137,8 @@ export const FundingEscrowDetailView = ({
             Fund with browser wallet
           </h2>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            Connect Freighter (or another Stellar wallet) via Wallet Kit, then
-            fund this escrow directly with USDC on-chain.
+            Connect Freighter (or another external Stellar wallet), then fund
+            this escrow directly with USDC on-chain.
           </p>
         </div>
 
