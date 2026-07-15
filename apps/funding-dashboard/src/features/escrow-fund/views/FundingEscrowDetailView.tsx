@@ -20,7 +20,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Separator } from "@repo/ui/components/separator";
 import { Skeleton } from "@repo/ui/components/skeleton";
 
 import { ContractIdCopyPanel } from "../components/ContractIdCopyPanel";
@@ -129,9 +128,9 @@ export const FundingEscrowDetailView = ({
         Back to escrows
       </Link>
 
-      <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-12">
+      <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-12 lg:gap-12">
         {/* Main — image, story, tasks */}
-        <div className="min-w-0 space-y-10 lg:col-span-7 xl:col-span-8">
+        <div className="min-w-0 space-y-8 overflow-hidden sm:space-y-10 lg:col-span-7 xl:col-span-8">
           <div className="overflow-hidden rounded-[24px] border border-border bg-background-secondary sm:rounded-[32px]">
             <div className="relative aspect-[16/10] w-full">
               {isLocalImage ? (
@@ -154,42 +153,47 @@ export const FundingEscrowDetailView = ({
             </div>
           </div>
 
-          <header className="space-y-4">
+          <header className="min-w-0 space-y-4">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="rounded-xl font-medium">
+              <Badge
+                variant="outline"
+                className="max-w-full truncate rounded-xl font-medium"
+              >
                 {metadata.status}
               </Badge>
-              <span className="text-sm text-muted-foreground">
+              <span className="shrink-0 text-sm text-muted-foreground">
                 {taskCount} task{taskCount === 1 ? "" : "s"}
               </span>
             </div>
 
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            <h1 className="break-words text-2xl font-semibold tracking-tight text-foreground sm:text-3xl md:text-4xl">
               {metadata.title}
             </h1>
 
-            <p className="text-base text-muted-foreground">
-              {metadata.community_name}
+            <p className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-base text-muted-foreground">
+              <span className="min-w-0 break-words">
+                {metadata.community_name}
+              </span>
               {area ? (
                 <>
-                  <span className="mx-2 text-border" aria-hidden>
+                  <span className="shrink-0 text-border" aria-hidden>
                     ·
                   </span>
-                  <span>{area}</span>
+                  <span className="min-w-0 break-words">{area}</span>
                 </>
               ) : null}
             </p>
 
             {metadata.description ? (
-              <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
+              <p className="max-w-2xl break-words text-base leading-relaxed text-muted-foreground">
                 {metadata.description}
               </p>
             ) : null}
           </header>
 
-          <section className="space-y-6">
-            <div className="flex items-end justify-between gap-4">
-              <div className="space-y-1">
+          <section className="min-w-0 space-y-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+              <div className="min-w-0 space-y-1">
                 <h2 className="text-xl font-semibold tracking-tight text-foreground">
                   Tasks
                 </h2>
@@ -208,7 +212,7 @@ export const FundingEscrowDetailView = ({
               {metadata.milestones.map((milestone) => (
                 <li
                   key={milestone.escrow_milestone_id}
-                  className="flex flex-col gap-3 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+                  className="flex min-w-0 flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-5"
                 >
                   <div className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
@@ -218,18 +222,18 @@ export const FundingEscrowDetailView = ({
                       >
                         {milestone.task.code}
                       </Badge>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="min-w-0 break-words text-sm text-muted-foreground">
                         {milestone.task.category}
                       </span>
                     </div>
-                    <p className="text-base font-medium leading-snug text-foreground">
+                    <p className="break-words text-base font-medium leading-snug text-foreground">
                       {milestone.task.name}
                     </p>
                   </div>
                   <UsdcAmount
                     amount={Number(milestone.amount)}
                     size="sm"
-                    className="shrink-0 font-semibold text-foreground"
+                    className="shrink-0 self-start font-semibold text-foreground sm:self-center"
                   />
                 </li>
               ))}
@@ -238,40 +242,38 @@ export const FundingEscrowDetailView = ({
         </div>
 
         {/* Sidebar — fund actions */}
-        <aside className="lg:col-span-5 xl:col-span-4">
-          <div className="space-y-6 rounded-[24px] border border-border bg-background p-6 sm:p-8 lg:sticky lg:top-24">
-            <div className="space-y-1">
+        <aside className="min-w-0 lg:col-span-5 xl:col-span-4">
+          <div className="min-w-0 space-y-6 overflow-hidden rounded-[24px] border border-border bg-background p-4 sm:p-6 md:p-8 lg:sticky lg:top-24">
+            <div className="min-w-0 space-y-1">
               <h2 className="text-lg font-semibold tracking-tight text-foreground">
                 Fund this escrow
               </h2>
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <p className="break-words text-sm leading-relaxed text-muted-foreground">
                 Contribute USDC with an external wallet, or copy the contract ID
                 to send from any Stellar wallet.
               </p>
             </div>
 
-            <dl className="flex flex-row items-stretch gap-4 rounded-2xl border border-border px-4 py-5">
-              <div className="min-w-0 flex-1 space-y-1.5">
+            <dl className="flex min-w-0 flex-col divide-y divide-border overflow-hidden rounded-2xl border border-border sm:flex-row sm:divide-x sm:divide-y-0">
+              <div className="min-w-0 flex-1 space-y-1.5 px-4 py-4">
                 <dt className="text-xs text-muted-foreground">Total</dt>
-                <dd>
+                <dd className="min-w-0">
                   <UsdcAmount
                     amount={total}
-                    size="lg"
-                    className="font-semibold text-foreground"
+                    size="md"
+                    className="font-semibold text-foreground sm:text-2xl"
                   />
                 </dd>
               </div>
 
-              <Separator orientation="vertical" />
-
-              <div className="min-w-0 flex-1 space-y-1.5">
+              <div className="min-w-0 flex-1 space-y-1.5 px-4 py-4">
                 <dt className="text-xs text-muted-foreground">Balance</dt>
-                <dd>
+                <dd className="min-w-0">
                   {balance !== undefined ? (
                     <UsdcAmount
                       amount={balance}
-                      size="lg"
-                      className="font-semibold text-foreground"
+                      size="md"
+                      className="font-semibold text-foreground sm:text-2xl"
                     />
                   ) : (
                     <span className="text-base text-muted-foreground">—</span>
@@ -280,7 +282,7 @@ export const FundingEscrowDetailView = ({
               </div>
             </dl>
 
-            <div className="rounded-2xl border border-border px-4 py-5">
+            <div className="min-w-0 overflow-hidden rounded-2xl border border-border px-4 py-5">
               <BalanceProgressDonut
                 contractId={contractId}
                 target={total}
@@ -289,7 +291,7 @@ export const FundingEscrowDetailView = ({
               />
             </div>
 
-            <div className="space-y-3 border-t border-border pt-6">
+            <div className="min-w-0 space-y-3 border-t border-border pt-6">
               <p className="text-sm font-medium text-foreground">
                 Browser wallet
               </p>
@@ -297,13 +299,13 @@ export const FundingEscrowDetailView = ({
               {walletAddress && chainEscrow ? (
                 <FundEscrowDialog />
               ) : fundStatusMessage ? (
-                <p className="text-sm leading-relaxed text-muted-foreground">
+                <p className="break-words text-sm leading-relaxed text-muted-foreground">
                   {fundStatusMessage}
                 </p>
               ) : null}
             </div>
 
-            <div className="border-t border-border pt-6">
+            <div className="min-w-0 border-t border-border pt-6">
               <ContractIdCopyPanel contractId={contractId} />
             </div>
           </div>

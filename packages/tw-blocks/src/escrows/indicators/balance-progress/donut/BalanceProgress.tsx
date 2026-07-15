@@ -42,9 +42,9 @@ export const BalanceProgressDonut = ({
   const dashOffset = circumference * (1 - pct / 100);
 
   return (
-    <div className="w-full">
-      <div className="mb-2 flex items-center justify-between text-sm text-muted-foreground">
-        <p>
+    <div className="w-full min-w-0 overflow-hidden">
+      <div className="mb-3 flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <p className="min-w-0 break-words">
           <span className="mr-1 font-bold">Balance:</span>
           {isLoading
             ? "Loading…"
@@ -52,13 +52,13 @@ export const BalanceProgressDonut = ({
               ? "-"
               : formatCurrency(currentBalanceRaw, currency)}
         </p>
-        <p>
+        <p className="min-w-0 break-words sm:text-right">
           <span className="mr-1 font-bold">Target:</span>{" "}
           {formatCurrency(safeTarget, currency)}
         </p>
       </div>
       <div className="flex justify-center">
-        <div className="relative" style={{ width: size, height: size }}>
+        <div className="relative shrink-0" style={{ width: size, height: size }}>
           <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
             <circle
               cx={size / 2}
@@ -86,8 +86,10 @@ export const BalanceProgressDonut = ({
             </g>
           </svg>
 
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold">{Math.round(pct)}%</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
+            <span className="text-2xl font-bold tabular-nums">
+              {Math.round(pct)}%
+            </span>
             <span className="text-sm text-muted-foreground">Progress</span>
           </div>
         </div>

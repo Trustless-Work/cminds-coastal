@@ -5,11 +5,67 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '../../generated/prisma/client';
 import { EscrowStatus, UserRole } from '../../generated/prisma/enums';
 import type { AuthenticatedUser } from '../../auth/interfaces/authenticated-user';
 import { PrismaService } from '../../database';
 import { UsersService } from '../users/users.service';
 import type { CreateEscrowDto } from './dto/create-escrow.dto';
+import {
+  PUBLIC_FUNDING_STATUSES,
+  type ListFundingEscrowsQueryDto,
+} from './dto/list-funding-escrows-query.dto';
+
+type FundingCursorPayload = {
+  createdAt: string;
+  escrowId: string;
+};
+
+const DEFAULT_FUNDING_PAGE_SIZE = 12;
+const FUNDING_EXCLUDED_STATUSES: EscrowStatus[] = [
+  EscrowStatus.DRAFT,
+  EscrowStatus.CANCELLED,
+];
+
+const FUNDING_LIST_INCLUDE = {
+  milestones: {
+    include: { task: true },
+    orderBy: { milestone_index: 'asc' as const },
+  },
+} satisfies Prisma.EscrowInclude;
+
+function encodeFundingCursor(createdAt: Date, escrowId: string): string {
+  const payload: FundingCursorPayload = {
+    createdAt: createdAt.toISOString(),
+    escrowId,
+  };
+  return Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
+}
+
+function decodeFundingCursor(cursor: string): FundingCursorPayload {
+  try {
+    const raw = Buffer.from(cursor, 'base64url').toString('utf8');
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      !('createdAt' in parsed) ||
+      !('escrowId' in parsed)
+    ) {
+      throw new Error('Invalid shape');
+    }
+    const { createdAt, escrowId } = parsed as FundingCursorPayload;
+    if (typeof createdAt !== 'string' || typeof escrowId !== 'string') {
+      throw new Error('Invalid fields');
+    }
+    if (Number.isNaN(Date.parse(createdAt)) || escrowId.length === 0) {
+      throw new Error('Invalid values');
+    }
+    return { createdAt, escrowId };
+  } catch {
+    throw new BadRequestException('Invalid cursor');
+  }
+}
 
 @Injectable()
 export class EscrowsService {
@@ -170,23 +226,89 @@ export class EscrowsService {
 
   /**
    * Public funding catalog — initialized (and later) escrows only.
-   * No PII beyond community-facing escrow fields.
+   * Cursor-based pagination with optional status / community / text filters.
    */
-  async findFundingPublic() {
-    return this.prisma.escrow.findMany({
-      where: {
-        status: {
-          notIn: [EscrowStatus.DRAFT, EscrowStatus.CANCELLED],
-        },
-      },
-      include: {
-        milestones: {
-          include: { task: true },
-          orderBy: { milestone_index: 'asc' },
-        },
-      },
-      orderBy: { created_at: 'desc' },
+  async findFundingPublic(query: ListFundingEscrowsQueryDto = {}) {
+    const limit = query.limit ?? DEFAULT_FUNDING_PAGE_SIZE;
+    const where = this.buildFundingPublicWhere(query);
+
+    const rows = await this.prisma.escrow.findMany({
+      where,
+      include: FUNDING_LIST_INCLUDE,
+      orderBy: [{ created_at: 'desc' }, { escrow_id: 'desc' }],
+      take: limit + 1,
     });
+
+    const hasMore = rows.length > limit;
+    const items = hasMore ? rows.slice(0, limit) : rows;
+    const last = items[items.length - 1];
+    const nextCursor =
+      hasMore && last
+        ? encodeFundingCursor(last.created_at, last.escrow_id)
+        : null;
+
+    return { items, nextCursor, hasMore };
+  }
+
+  async findFundingPublicFacets() {
+    const communities = await this.prisma.escrow.findMany({
+      where: {
+        status: { notIn: FUNDING_EXCLUDED_STATUSES },
+      },
+      select: { community_name: true },
+      distinct: ['community_name'],
+      orderBy: { community_name: 'asc' },
+    });
+
+    return {
+      statuses: [...PUBLIC_FUNDING_STATUSES],
+      communities: communities.map((row) => row.community_name),
+    };
+  }
+
+  private buildFundingPublicWhere(
+    query: ListFundingEscrowsQueryDto,
+  ): Prisma.EscrowWhereInput {
+    const and: Prisma.EscrowWhereInput[] = [
+      query.status
+        ? { status: query.status }
+        : { status: { notIn: FUNDING_EXCLUDED_STATUSES } },
+    ];
+
+    if (query.community) {
+      and.push({ community_name: query.community });
+    }
+
+    if (query.q) {
+      const q = query.q.trim();
+      and.push({
+        OR: [
+          { title: { contains: q, mode: 'insensitive' } },
+          { community_name: { contains: q, mode: 'insensitive' } },
+          { geographic_area: { contains: q, mode: 'insensitive' } },
+          { description: { contains: q, mode: 'insensitive' } },
+          { escrow_id: { contains: q, mode: 'insensitive' } },
+        ],
+      });
+    }
+
+    if (query.cursor) {
+      const { createdAt, escrowId } = decodeFundingCursor(query.cursor);
+      const cursorDate = new Date(createdAt);
+      and.push({
+        OR: [
+          { created_at: { lt: cursorDate } },
+          {
+            AND: [
+              { created_at: cursorDate },
+              { escrow_id: { lt: escrowId } },
+            ],
+          },
+        ],
+      });
+    }
+
+    return { AND: and };
   }
 
   async findFundingPublicByContract(contractId: string) {

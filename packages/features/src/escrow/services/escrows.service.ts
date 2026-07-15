@@ -93,9 +93,46 @@ export async function fetchEscrow(escrowId: string): Promise<EscrowRecord> {
   return data;
 }
 
-/** Public funding catalog — no auth required. */
-export async function fetchFundingEscrows(): Promise<EscrowRecord[]> {
-  const { data } = await http.get<EscrowRecord[]>("/escrows/funding");
+/** Public funding catalog — cursor-paginated, no auth required. */
+export type FundingEscrowsQuery = {
+  limit?: number;
+  cursor?: string;
+  status?: string;
+  community?: string;
+  q?: string;
+};
+
+export type FundingEscrowsPage = {
+  items: EscrowRecord[];
+  nextCursor: string | null;
+  hasMore: boolean;
+};
+
+export type FundingEscrowFacets = {
+  statuses: string[];
+  communities: string[];
+};
+
+export async function fetchFundingEscrowsPage(
+  params: FundingEscrowsQuery = {},
+): Promise<FundingEscrowsPage> {
+  const { data } = await http.get<FundingEscrowsPage>("/escrows/funding", {
+    params: {
+      ...(params.limit !== undefined ? { limit: params.limit } : {}),
+      ...(params.cursor ? { cursor: params.cursor } : {}),
+      ...(params.status ? { status: params.status } : {}),
+      ...(params.community ? { community: params.community } : {}),
+      ...(params.q ? { q: params.q } : {}),
+    },
+  });
+  return data;
+}
+
+/** Filter dropdown options for the public funding catalog. */
+export async function fetchFundingEscrowFacets(): Promise<FundingEscrowFacets> {
+  const { data } = await http.get<FundingEscrowFacets>(
+    "/escrows/funding/facets",
+  );
   return data;
 }
 

@@ -1,4 +1,7 @@
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EscrowStatus, UserRole } from '../../generated/prisma/enums';
 import type { AuthenticatedUser } from '../../auth/interfaces/authenticated-user';
@@ -121,17 +124,129 @@ describe('EscrowsService', () => {
   it('should list public funding escrows excluding draft and cancelled', async () => {
     prismaMock.escrow.findMany.mockResolvedValue([]);
 
-    await service.findFundingPublic();
+    const result = await service.findFundingPublic({});
+
+    expect(result).toEqual({ items: [], nextCursor: null, hasMore: false });
+    expect(prismaMock.escrow.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          AND: [
+            {
+              status: {
+                notIn: [EscrowStatus.DRAFT, EscrowStatus.CANCELLED],
+              },
+            },
+          ],
+        },
+        take: 13,
+        orderBy: [{ created_at: 'desc' }, { escrow_id: 'desc' }],
+      }),
+    );
+  });
+
+  it('should paginate funding escrows with cursor and hasMore', async () => {
+    const older = new Date('2026-01-01T00:00:00.000Z');
+    const newer = new Date('2026-01-02T00:00:00.000Z');
+    prismaMock.escrow.findMany.mockResolvedValue([
+      {
+        escrow_id: 'C-NEW',
+        created_at: newer,
+        status: EscrowStatus.INITIALIZED,
+      },
+      {
+        escrow_id: 'C-OLD',
+        created_at: older,
+        status: EscrowStatus.INITIALIZED,
+      },
+      {
+        escrow_id: 'C-EXTRA',
+        created_at: older,
+        status: EscrowStatus.FUNDED,
+      },
+    ]);
+
+    const result = await service.findFundingPublic({ limit: 2 });
+
+    expect(result.items).toHaveLength(2);
+    expect(result.hasMore).toBe(true);
+    expect(result.nextCursor).toEqual(expect.any(String));
+    expect(prismaMock.escrow.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 3 }),
+    );
+  });
+
+  it('should filter funding escrows by status and search query', async () => {
+    prismaMock.escrow.findMany.mockResolvedValue([]);
+
+    await service.findFundingPublic({
+      status: EscrowStatus.FUNDED,
+      community: 'Acme',
+      q: 'mangrove',
+    });
 
     expect(prismaMock.escrow.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: {
-          status: {
-            notIn: [EscrowStatus.DRAFT, EscrowStatus.CANCELLED],
-          },
+          AND: [
+            { status: EscrowStatus.FUNDED },
+            { community_name: 'Acme' },
+            {
+              OR: [
+                { title: { contains: 'mangrove', mode: 'insensitive' } },
+                {
+                  community_name: {
+                    contains: 'mangrove',
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  geographic_area: {
+                    contains: 'mangrove',
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  description: {
+                    contains: 'mangrove',
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  escrow_id: {
+                    contains: 'mangrove',
+                    mode: 'insensitive',
+                  },
+                },
+              ],
+            },
+          ],
         },
       }),
     );
+  });
+
+  it('should return public funding facets', async () => {
+    prismaMock.escrow.findMany.mockResolvedValue([
+      { community_name: 'Alpha' },
+      { community_name: 'Beta' },
+    ]);
+
+    const result = await service.findFundingPublicFacets();
+
+    expect(result.communities).toEqual(['Alpha', 'Beta']);
+    expect(result.statuses).toEqual([
+      EscrowStatus.INITIALIZED,
+      EscrowStatus.FUNDED,
+      EscrowStatus.IN_PROGRESS,
+      EscrowStatus.PAUSED,
+      EscrowStatus.COMPLETED,
+    ]);
+  });
+
+  it('should throw BadRequestException for invalid cursor', async () => {
+    await expect(
+      service.findFundingPublic({ cursor: 'not-a-valid-cursor' }),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('should throw NotFoundException for cancelled public funding escrow', async () => {

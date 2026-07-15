@@ -40,34 +40,40 @@ export const ContractIdCopyPanel = ({
         </p>
       </div>
 
-      <div className="flex items-start gap-2 rounded-2xl border border-border bg-background-secondary/60 px-3 py-3">
+      <div className="flex min-w-0 items-start gap-2 rounded-2xl border border-border bg-background-secondary/60 px-3 py-3">
         <p className="min-w-0 flex-1 break-all font-mono text-xs leading-relaxed text-foreground">
           {contractId}
         </p>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className="size-9 shrink-0 rounded-full"
-          aria-label={copied ? "Copied" : "Copy contract ID"}
-          onClick={() => {
-            void handleCopy();
-          }}
-        >
-          {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-        </Button>
-        <Link
-          href={viewerUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Open in Trustless Work Escrow Viewer"
-          className={cn(
-            buttonVariants({ variant: "outline", size: "icon" }),
-            "size-9 shrink-0 rounded-full",
-          )}
-        >
-          <ExternalLink className="size-4" />
-        </Link>
+        <div className="flex shrink-0 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="size-9 shrink-0 rounded-full"
+            aria-label={copied ? "Copied" : "Copy contract ID"}
+            onClick={() => {
+              void handleCopy();
+            }}
+          >
+            {copied ? (
+              <Check className="size-4" />
+            ) : (
+              <Copy className="size-4" />
+            )}
+          </Button>
+          <Link
+            href={viewerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open in Trustless Work Escrow Viewer"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "icon" }),
+              "size-9 shrink-0 rounded-full",
+            )}
+          >
+            <ExternalLink className="size-4" />
+          </Link>
+        </div>
       </div>
     </div>
   );

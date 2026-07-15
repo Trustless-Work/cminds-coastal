@@ -5,6 +5,7 @@ import {
   Inject,
   Param,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -23,6 +24,7 @@ import { CurrentUser, Public, Roles, type AuthenticatedUser } from '../../auth';
 import { UserRole } from '../../generated/prisma/enums';
 import { StorageService } from '../storage/storage.service';
 import { CreateEscrowDto } from './dto/create-escrow.dto';
+import { ListFundingEscrowsQueryDto } from './dto/list-funding-escrows-query.dto';
 import { EscrowsService } from './escrows.service';
 
 @ApiTags('escrows')
@@ -37,11 +39,21 @@ export class EscrowsController {
   @Public()
   @Get('funding')
   @ApiOperation({
-    summary: 'List public/funding-ready escrows (no auth)',
+    summary: 'List public/funding-ready escrows (no auth, cursor paginated)',
   })
-  @ApiResponse({ status: 200, description: 'Funding escrow list' })
-  findFundingPublic() {
-    return this.escrowsService.findFundingPublic();
+  @ApiResponse({ status: 200, description: 'Paginated funding escrow list' })
+  findFundingPublic(@Query() query: ListFundingEscrowsQueryDto) {
+    return this.escrowsService.findFundingPublic(query);
+  }
+
+  @Public()
+  @Get('funding/facets')
+  @ApiOperation({
+    summary: 'Filter facet options for the public funding catalog (no auth)',
+  })
+  @ApiResponse({ status: 200, description: 'Status and community facet lists' })
+  findFundingPublicFacets() {
+    return this.escrowsService.findFundingPublicFacets();
   }
 
   @Public()

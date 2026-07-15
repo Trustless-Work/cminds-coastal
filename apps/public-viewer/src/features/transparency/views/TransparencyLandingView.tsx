@@ -1,81 +1,59 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
-import type { EscrowRecord } from "@repo/features/escrow/services/escrows.service";
+import { useCallback, useMemo, type CSSProperties } from "react";
+import {
+  useEscrowListSearchParams,
+  useFundingEscrowFacets,
+  useFundingEscrowsInfinite,
+  useLoadMoreOnIntersect,
+} from "@repo/features/escrow/hooks/useFundingEscrowsInfinite";
 import { Navbar } from "@repo/shared/Navbar";
 import { SiteFooter } from "@repo/shared/SiteFooter";
 import { Skeleton } from "@repo/ui/components/skeleton";
+import { Loader2 } from "lucide-react";
 
 import { EscrowImageCard } from "../components/EscrowImageCard";
 import { LandingInfoSections } from "../components/LandingInfoSections";
-import {
-  TransparencyFilterCard,
-  type TransparencyFilterValues,
-} from "../components/TransparencyFilterCard";
+import { TransparencyFilterCard } from "../components/TransparencyFilterCard";
 import { TransparencyHero } from "../components/TransparencyHero";
-import { usePublicEscrows } from "../hooks/usePublicEscrows";
-
-const EMPTY_FILTERS: TransparencyFilterValues = {
-  status: "",
-  community: "",
-  query: "",
-};
-
-function filterEscrows(
-  escrows: EscrowRecord[],
-  filters: TransparencyFilterValues,
-): EscrowRecord[] {
-  const query = filters.query.trim().toLowerCase();
-
-  return escrows.filter((escrow) => {
-    if (filters.status && escrow.status !== filters.status) {
-      return false;
-    }
-    if (filters.community && escrow.community_name !== filters.community) {
-      return false;
-    }
-    if (!query) {
-      return true;
-    }
-    const haystack = [
-      escrow.title,
-      escrow.community_name,
-      escrow.geographic_area ?? "",
-      escrow.description,
-      escrow.escrow_id,
-    ]
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(query);
-  });
-}
 
 export const TransparencyLandingView = () => {
-  const { data = [], isLoading, isError, error, refetch } = usePublicEscrows();
-  const [draftFilters, setDraftFilters] =
-    useState<TransparencyFilterValues>(EMPTY_FILTERS);
-  const [appliedFilters, setAppliedFilters] =
-    useState<TransparencyFilterValues>(EMPTY_FILTERS);
+  const {
+    draftFilters,
+    setDraftFilters,
+    appliedFilters,
+    applyFilters,
+    hasActiveFilters,
+  } = useEscrowListSearchParams();
 
-  const statusOptions = useMemo(
-    () =>
-      Array.from(new Set(data.map((escrow) => escrow.status))).sort((a, b) =>
-        a.localeCompare(b),
-      ),
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useFundingEscrowsInfinite(appliedFilters);
+
+  const { data: facets } = useFundingEscrowFacets();
+
+  const escrows = useMemo(
+    () => data?.pages.flatMap((page) => page.items) ?? [],
     [data],
   );
 
-  const communityOptions = useMemo(
-    () =>
-      Array.from(new Set(data.map((escrow) => escrow.community_name))).sort(
-        (a, b) => a.localeCompare(b),
-      ),
-    [data],
-  );
+  const statusOptions = facets?.statuses ?? [];
+  const communityOptions = facets?.communities ?? [];
 
-  const filtered = useMemo(
-    () => filterEscrows(data, appliedFilters),
-    [data, appliedFilters],
+  const onLoadMore = useCallback(() => {
+    void fetchNextPage();
+  }, [fetchNextPage]);
+
+  const sentinelRef = useLoadMoreOnIntersect(
+    onLoadMore,
+    Boolean(hasNextPage) && !isFetchingNextPage && !isLoading && !isError,
   );
 
   return (
@@ -89,7 +67,7 @@ export const TransparencyLandingView = () => {
             statusOptions={statusOptions}
             communityOptions={communityOptions}
             onChange={setDraftFilters}
-            onSearch={() => setAppliedFilters(draftFilters)}
+            onSearch={applyFilters}
           />
         </TransparencyHero>
 
@@ -130,47 +108,68 @@ export const TransparencyLandingView = () => {
                   key={index}
                   className="flex flex-col overflow-hidden rounded-[24px] border border-border bg-background p-3 sm:p-4"
                 >
-                  <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
+                  <Skeleton className="aspect-[16/10] w-full rounded-2xl" />
                   <div className="mt-3 flex flex-col gap-2 px-1 pb-1 sm:mt-4">
                     <Skeleton className="h-6 w-4/5 rounded-md" />
                     <Skeleton className="h-4 w-3/5 rounded-md" />
-                    <Skeleton className="h-4 w-2/5 rounded-md" />
+                    <Skeleton className="h-4 w-full rounded-md" />
+                    <Skeleton className="mt-2 h-px w-full rounded-none" />
+                    <div className="mt-1 grid grid-cols-2 gap-3">
+                      <Skeleton className="h-10 w-full rounded-md" />
+                      <Skeleton className="h-10 w-full rounded-md" />
+                      <Skeleton className="h-10 w-full rounded-md" />
+                      <Skeleton className="h-10 w-full rounded-md" />
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : null}
 
-          {!isLoading && !isError && filtered.length === 0 ? (
+          {!isLoading && !isError && escrows.length === 0 ? (
             <div className="rounded-2xl border border-border bg-background-secondary px-6 py-16 text-center">
               <p className="text-lg font-semibold text-foreground">
                 No escrows to show
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                {data.length === 0
-                  ? "Initialized coastal conservation escrows will appear here."
-                  : "No escrows match your filters. Try adjusting your search."}
+                {hasActiveFilters
+                  ? "No escrows match your filters. Try adjusting your search."
+                  : "Initialized coastal conservation escrows will appear here."}
               </p>
             </div>
           ) : null}
 
-          {!isLoading && filtered.length > 0 ? (
-            <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-3">
-              {filtered.map((escrow, index) => {
-                const style: CSSProperties = {
-                  animationDelay: `${Math.min(index, 8) * 60}ms`,
-                };
-                return (
-                  <EscrowImageCard
-                    key={escrow.escrow_id}
-                    escrow={escrow}
-                    coverIndex={index}
-                    className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500"
-                    style={style}
+          {!isLoading && escrows.length > 0 ? (
+            <>
+              <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-3">
+                {escrows.map((escrow, index) => {
+                  const style: CSSProperties = {
+                    animationDelay: `${Math.min(index, 8) * 60}ms`,
+                  };
+                  return (
+                    <EscrowImageCard
+                      key={escrow.escrow_id}
+                      escrow={escrow}
+                      coverIndex={index}
+                      className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500"
+                      style={style}
+                    />
+                  );
+                })}
+              </div>
+              <div
+                ref={sentinelRef}
+                className="flex min-h-10 items-center justify-center py-8"
+                aria-hidden={!isFetchingNextPage}
+              >
+                {isFetchingNextPage ? (
+                  <Loader2
+                    className="size-5 animate-spin text-muted-foreground"
+                    aria-label="Loading more escrows"
                   />
-                );
-              })}
-            </div>
+                ) : null}
+              </div>
+            </>
           ) : null}
         </section>
 

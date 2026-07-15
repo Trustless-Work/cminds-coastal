@@ -85,12 +85,12 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
           <ArrowLeft className="size-4" />
           Back to dashboard
         </Link>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 flex-1 space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1 space-y-2 overflow-hidden">
+            <h1 className="break-words text-2xl font-semibold tracking-tight">
               {metadata.title}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="break-words text-sm text-muted-foreground">
               {metadata.community_name}
               {metadata.geographic_area
                 ? ` · ${metadata.geographic_area}`
@@ -99,18 +99,20 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
             <p className="font-mono text-xs text-muted-foreground">
               {formatAddress(metadata.escrow_id)}
             </p>
-            <Badge variant="outline">{metadata.status}</Badge>
+            <Badge variant="outline" className="max-w-full truncate">
+              {metadata.status}
+            </Badge>
           </div>
           {metadata.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={metadata.image_url}
               alt=""
-              className="h-24 w-40 shrink-0 rounded-xl object-cover ring-1 ring-foreground/10"
+              className="h-24 w-full max-w-40 shrink-0 self-start rounded-xl object-cover ring-1 ring-foreground/10 sm:w-40"
             />
           ) : null}
         </div>
-        <p className="max-w-3xl text-sm text-muted-foreground">
+        <p className="max-w-3xl break-words text-sm text-muted-foreground">
           {metadata.description}
         </p>
         {chainEscrow ? (
@@ -154,15 +156,17 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
             return (
               <Card key={milestone.escrow_milestone_id}>
                 <CardHeader>
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <CardTitle className="text-base">
-                        <Badge variant="outline" className="mr-2">
+                  <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+                    <div className="min-w-0 space-y-1 overflow-hidden">
+                      <CardTitle className="flex min-w-0 flex-wrap items-center gap-2 text-base">
+                        <Badge variant="outline" className="shrink-0">
                           {milestone.task.code}
                         </Badge>
-                        {milestone.task.name}
+                        <span className="min-w-0 break-words">
+                          {milestone.task.name}
+                        </span>
                       </CardTitle>
-                      <CardDescription>
+                      <CardDescription className="break-words">
                         {milestone.custom_description ||
                           milestone.task.expected_deliverable}
                       </CardDescription>
@@ -170,7 +174,7 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
                     <UsdcAmount
                       amount={Number(milestone.amount)}
                       size="sm"
-                      className="font-medium"
+                      className="shrink-0 self-start font-medium"
                     />
                   </div>
                 </CardHeader>

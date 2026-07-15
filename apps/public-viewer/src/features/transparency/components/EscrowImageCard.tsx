@@ -5,6 +5,8 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import type { EscrowRecord } from "@repo/features/escrow/services/escrows.service";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
+import { Badge } from "@repo/ui/components/badge";
+import { Separator } from "@repo/ui/components/separator";
 import { cn } from "@repo/ui/lib/utils";
 
 import { FALLBACK_COVERS } from "../constants/landing";
@@ -23,6 +25,26 @@ function escrowTotal(escrow: EscrowRecord): number {
   );
 }
 
+function formatStatusLabel(status: string): string {
+  return status
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function formatCreatedDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
 export const EscrowImageCard = ({
   escrow,
   coverIndex = 0,
@@ -36,6 +58,7 @@ export const EscrowImageCard = ({
   const isLocal = imageSrc.startsWith("/");
   const milestoneCount = escrow.milestones.length;
   const area = escrow.geographic_area?.trim();
+  const description = escrow.description?.trim();
 
   return (
     <Link
@@ -46,7 +69,7 @@ export const EscrowImageCard = ({
         className,
       )}
     >
-      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-2xl bg-background-secondary">
+      <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-2xl bg-background-secondary">
         {isLocal ? (
           <Image
             src={imageSrc}
@@ -65,12 +88,12 @@ export const EscrowImageCard = ({
         )}
       </div>
 
-      <div className="mt-3 flex min-w-0 flex-1 flex-col gap-2 px-1 pb-1 sm:mt-4">
-        <h3 className="line-clamp-2 break-words text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl">
-          {escrow.title}
-        </h3>
+      <div className="mt-3 flex min-w-0 flex-1 flex-col px-1 pb-1 sm:mt-4">
+        <div className="flex min-w-0 flex-col gap-2">
+          <h3 className="line-clamp-2 break-words text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl">
+            {escrow.title}
+          </h3>
 
-        <div className="mt-auto flex min-w-0 flex-col gap-1">
           <p className="truncate text-sm text-muted-foreground">
             {escrow.community_name}
             {area ? (
@@ -82,20 +105,51 @@ export const EscrowImageCard = ({
               </>
             ) : null}
           </p>
-          <p className="flex min-w-0 items-center gap-1.5 truncate text-sm text-muted-foreground">
-            <span className="shrink-0">
-              {milestoneCount} task{milestoneCount === 1 ? "" : "s"}
-            </span>
-            <span className="shrink-0 text-border" aria-hidden>
-              ·
-            </span>
-            <UsdcAmount
-              amount={total}
-              size="sm"
-              className="font-medium text-foreground"
-            />
-          </p>
+
+          {description ? (
+            <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+              {description}
+            </p>
+          ) : null}
         </div>
+
+        <Separator className="my-3 sm:my-4" />
+
+        <dl className="mt-auto grid grid-cols-2 gap-x-4 gap-y-3">
+          <div className="min-w-0">
+            <dt className="text-xs text-muted-foreground">Status</dt>
+            <dd className="mt-1">
+              <Badge variant="outline" className="font-normal">
+                {formatStatusLabel(escrow.status)}
+              </Badge>
+            </dd>
+          </div>
+
+          <div className="min-w-0">
+            <dt className="text-xs text-muted-foreground">Created</dt>
+            <dd className="mt-1 truncate text-sm font-medium text-foreground">
+              {formatCreatedDate(escrow.created_at)}
+            </dd>
+          </div>
+
+          <div className="min-w-0">
+            <dt className="text-xs text-muted-foreground">Tasks</dt>
+            <dd className="mt-1 text-sm font-medium text-foreground">
+              {milestoneCount} task{milestoneCount === 1 ? "" : "s"}
+            </dd>
+          </div>
+
+          <div className="min-w-0">
+            <dt className="text-xs text-muted-foreground">Total</dt>
+            <dd className="mt-1">
+              <UsdcAmount
+                amount={total}
+                size="sm"
+                className="font-medium text-foreground"
+              />
+            </dd>
+          </div>
+        </dl>
       </div>
     </Link>
   );

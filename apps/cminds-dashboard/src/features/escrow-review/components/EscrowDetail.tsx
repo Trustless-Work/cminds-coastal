@@ -35,8 +35,8 @@ export const EscrowDetail = ({ escrow }: EscrowDetailProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-2">
+      <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1 space-y-2 overflow-hidden">
           <Link
             href="/dashboard"
             className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -44,22 +44,22 @@ export const EscrowDetail = ({ escrow }: EscrowDetailProps) => {
             <ArrowLeft className="size-4" />
             Back to dashboard
           </Link>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
+          <div className="min-w-0">
+            <h1 className="break-words text-2xl font-semibold tracking-tight">
               {escrow.title}
             </h1>
             <p className="font-mono text-sm text-muted-foreground">
               {formatAddress(escrow.contractId)}
             </p>
           </div>
-          <p className="max-w-2xl text-sm text-muted-foreground">
+          <p className="max-w-2xl break-words text-sm text-muted-foreground">
             {escrow.description}
           </p>
           <div className="flex flex-wrap gap-3 text-sm">
-            <span>
+            <span className="min-w-0 break-words">
               Funding: <strong>{fundingLabel(escrow)}</strong>
             </span>
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex min-w-0 items-center gap-1.5">
               Balance:{" "}
               <UsdcAmount
                 amount={escrow.balance ?? 0}
@@ -70,7 +70,9 @@ export const EscrowDetail = ({ escrow }: EscrowDetailProps) => {
             </span>
           </div>
         </div>
-        <UpdateEscrowDialog />
+        <div className="shrink-0 self-start">
+          <UpdateEscrowDialog />
+        </div>
       </div>
 
       <section className="space-y-3">
@@ -84,16 +86,18 @@ export const EscrowDetail = ({ escrow }: EscrowDetailProps) => {
             return (
               <Card key={`${escrow.contractId}-${milestoneIndex}`}>
                 <CardHeader>
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
+                  <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+                    <div className="min-w-0 space-y-1 overflow-hidden">
                       <CardTitle className="text-base">
                         Task {milestoneIndex + 1}
                       </CardTitle>
-                      <CardDescription>
+                      <CardDescription className="break-words">
                         {milestone.description}
                       </CardDescription>
                     </div>
-                    <MilestoneStatusBadge status={status} />
+                    <div className="shrink-0 self-start">
+                      <MilestoneStatusBadge status={status} />
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="grid gap-3 sm:grid-cols-2">
