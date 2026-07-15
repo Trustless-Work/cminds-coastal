@@ -18,8 +18,7 @@ export class AllowedEmailDomainsController {
   })
   @ApiResponse({ status: 200, description: 'Active allowlisted domains' })
   async listActiveDomains(): Promise<{ domains: string[] }> {
-    const domains =
-      await this.allowedEmailDomainsService.listActiveDomains();
+    const domains = await this.allowedEmailDomainsService.listActiveDomains();
     return { domains };
   }
 }

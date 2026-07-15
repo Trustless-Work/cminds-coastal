@@ -149,14 +149,16 @@ describe('UsersService', () => {
       });
 
       expect(prismaMock.user.create).not.toHaveBeenCalled();
-      expect(prismaMock.user.update).toHaveBeenCalledWith({
-        where: { user_id: priorUser.user_id },
-        data: expect.objectContaining({
-          pollar_user_id: 'usr_test_1',
-          email: 'test@example.com',
-          roles: [UserRole.CMINDS_OPERATOR, UserRole.COMMUNITY_IMPLEMENTER],
+      expect(prismaMock.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { user_id: priorUser.user_id },
+          data: expect.objectContaining({
+            pollar_user_id: 'usr_test_1',
+            email: 'test@example.com',
+            roles: [UserRole.CMINDS_OPERATOR, UserRole.COMMUNITY_IMPLEMENTER],
+          }) as Record<string, unknown>,
         }),
-      });
+      );
       expect(result.roles).toEqual([
         UserRole.CMINDS_OPERATOR,
         UserRole.COMMUNITY_IMPLEMENTER,
@@ -285,14 +287,16 @@ describe('UsersService', () => {
         avatar_url: 'https://lh3.googleusercontent.com/a/photo',
       });
 
-      expect(prismaMock.user.update).toHaveBeenCalledWith({
-        where: { user_id: priorUser.user_id },
-        data: expect.objectContaining({
-          pollar_user_id: 'usr_test_1',
-          auth_providers: [AuthProvider.EMAIL, AuthProvider.GOOGLE],
-          avatar_url: 'https://lh3.googleusercontent.com/a/photo',
+      expect(prismaMock.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { user_id: priorUser.user_id },
+          data: expect.objectContaining({
+            pollar_user_id: 'usr_test_1',
+            auth_providers: [AuthProvider.EMAIL, AuthProvider.GOOGLE],
+            avatar_url: 'https://lh3.googleusercontent.com/a/photo',
+          }) as Record<string, unknown>,
         }),
-      });
+      );
       expect(result.auth_providers).toEqual([
         AuthProvider.EMAIL,
         AuthProvider.GOOGLE,
@@ -323,12 +327,14 @@ describe('UsersService', () => {
         auth_providers: [AuthProvider.EMAIL],
       });
 
-      expect(prismaMock.user.update).toHaveBeenCalledWith({
-        where: { user_id: priorUser.user_id },
-        data: expect.objectContaining({
-          avatar_url: 'https://lh3.googleusercontent.com/a/photo',
+      expect(prismaMock.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { user_id: priorUser.user_id },
+          data: expect.objectContaining({
+            avatar_url: 'https://lh3.googleusercontent.com/a/photo',
+          }) as Record<string, unknown>,
         }),
-      });
+      );
     });
 
     it('fills null avatar when Google provides an avatar url', async () => {
@@ -361,12 +367,14 @@ describe('UsersService', () => {
         avatar_url: googleAvatar,
       });
 
-      expect(prismaMock.user.update).toHaveBeenCalledWith({
-        where: { user_id: priorUser.user_id },
-        data: expect.objectContaining({
-          avatar_url: googleAvatar,
+      expect(prismaMock.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { user_id: priorUser.user_id },
+          data: expect.objectContaining({
+            avatar_url: googleAvatar,
+          }) as Record<string, unknown>,
         }),
-      });
+      );
     });
 
     it('does not drop GOOGLE when a later EMAIL-only sync arrives', async () => {
@@ -393,12 +401,14 @@ describe('UsersService', () => {
         auth_providers: [AuthProvider.EMAIL],
       });
 
-      expect(prismaMock.user.update).toHaveBeenCalledWith({
-        where: { user_id: priorUser.user_id },
-        data: expect.objectContaining({
-          auth_providers: [AuthProvider.EMAIL, AuthProvider.GOOGLE],
+      expect(prismaMock.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { user_id: priorUser.user_id },
+          data: expect.objectContaining({
+            auth_providers: [AuthProvider.EMAIL, AuthProvider.GOOGLE],
+          }) as Record<string, unknown>,
         }),
-      });
+      );
     });
   });
 
@@ -475,10 +485,13 @@ describe('UsersService', () => {
           where: expect.objectContaining({
             is_active: true,
             email: { contains: 'test', mode: 'insensitive' },
-          }),
+          }) as Record<string, unknown>,
         }),
       );
-      expect(prismaMock.user.findMany.mock.calls[0][0].where.roles).toBeUndefined();
+      const findManyCalls = prismaMock.user.findMany.mock.calls as Array<
+        [{ where: { roles?: unknown } }]
+      >;
+      expect(findManyCalls[0]?.[0].where.roles).toBeUndefined();
     });
   });
 });

@@ -53,7 +53,6 @@ export function LoginShell({
         <main className="relative flex w-full flex-col justify-center px-6 py-10 sm:px-10 sm:py-12 lg:w-1/2 lg:px-12 lg:py-14">
           <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-8">
             {logoSrc ? (
-              // eslint-disable-next-line @next/next/no-img-element -- shared package has no next/image
               <img
                 src={logoSrc}
                 alt={logoAlt}
@@ -71,7 +70,6 @@ export function LoginShell({
 
         <div className="relative min-h-52 w-full p-4 sm:min-h-64 sm:p-5 lg:w-1/2 lg:min-h-0 lg:p-5">
           <div className="relative h-full min-h-52 overflow-hidden rounded-[24px] sm:min-h-64 lg:min-h-full lg:rounded-[28px]">
-            {/* eslint-disable-next-line @next/next/no-img-element -- shared package has no next/image */}
             <img
               src={imageSrc}
               alt={imageAlt}

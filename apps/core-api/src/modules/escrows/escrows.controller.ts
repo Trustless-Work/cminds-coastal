@@ -87,12 +87,11 @@ export class EscrowsController {
 
   @Post()
   @Roles(UserRole.COMMUNITY_IMPLEMENTER)
-  @ApiOperation({ summary: 'Persist off-chain escrow metadata after on-chain init' })
+  @ApiOperation({
+    summary: 'Persist off-chain escrow metadata after on-chain init',
+  })
   @ApiResponse({ status: 201, description: 'Escrow created' })
-  create(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: CreateEscrowDto,
-  ) {
+  create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateEscrowDto) {
     return this.escrowsService.create(user, dto);
   }
 
@@ -105,8 +104,13 @@ export class EscrowsController {
   }
 
   @Get(':escrowId')
-  @ApiOperation({ summary: 'Get escrow metadata by Stellar contract ID (escrow_id)' })
-  @ApiParam({ name: 'escrowId', description: 'Stellar contract ID (C-address)' })
+  @ApiOperation({
+    summary: 'Get escrow metadata by Stellar contract ID (escrow_id)',
+  })
+  @ApiParam({
+    name: 'escrowId',
+    description: 'Stellar contract ID (C-address)',
+  })
   @ApiResponse({ status: 200, description: 'Escrow found' })
   @ApiResponse({ status: 404, description: 'Not found' })
   findOne(

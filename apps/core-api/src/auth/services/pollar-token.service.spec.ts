@@ -41,48 +41,48 @@ describe('PollarTokenService', () => {
     service = module.get(PollarTokenService);
   });
 
-  it('accepts a non-expired JWT with a user id claim', async () => {
+  it('accepts a non-expired JWT with a user id claim', () => {
     const token = makeUnsignedJwt({
       sub: 'usr_abc',
       email: 'a@b.com',
       exp: Math.floor(Date.now() / 1000) + 3600,
     });
 
-    const verified = await service.verifyAccessToken(token);
+    const verified = service.verifyAccessToken(token);
     expect(verified.pollarUserId).toBe('usr_abc');
     expect(verified.email).toBe('a@b.com');
   });
 
-  it('rejects expired tokens', async () => {
+  it('rejects expired tokens', () => {
     const token = makeUnsignedJwt({
       sub: 'usr_abc',
       exp: Math.floor(Date.now() / 1000) - 3600,
     });
 
-    await expect(service.verifyAccessToken(token)).rejects.toBeInstanceOf(
+    expect(() => service.verifyAccessToken(token)).toThrow(
       UnauthorizedException,
     );
   });
 
-  it('rejects malformed tokens', async () => {
-    await expect(service.verifyAccessToken('not-a-jwt')).rejects.toBeInstanceOf(
+  it('rejects malformed tokens', () => {
+    expect(() => service.verifyAccessToken('not-a-jwt')).toThrow(
       UnauthorizedException,
     );
   });
 
-  it('rejects tokens without a user id claim', async () => {
+  it('rejects tokens without a user id claim', () => {
     const token = makeUnsignedJwt({
       email: 'a@b.com',
       exp: Math.floor(Date.now() / 1000) + 3600,
     });
 
-    await expect(service.verifyAccessToken(token)).rejects.toBeInstanceOf(
+    expect(() => service.verifyAccessToken(token)).toThrow(
       UnauthorizedException,
     );
   });
 
-  it('rejects empty tokens', async () => {
-    await expect(service.verifyAccessToken('   ')).rejects.toBeInstanceOf(
+  it('rejects empty tokens', () => {
+    expect(() => service.verifyAccessToken('   ')).toThrow(
       UnauthorizedException,
     );
   });

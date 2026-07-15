@@ -34,7 +34,6 @@ export function Navbar({
         <div className="flex min-w-0 flex-1 items-center">
           {logoSrc ? (
             <a href={logoHref} className="inline-flex shrink-0 items-center">
-              {/* eslint-disable-next-line @next/next/no-img-element -- shared package has no next/image */}
               <img
                 src={logoSrc}
                 alt={title ?? "CMinds"}

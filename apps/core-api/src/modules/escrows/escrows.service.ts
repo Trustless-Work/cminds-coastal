@@ -38,7 +38,10 @@ export class EscrowsService {
       }),
     ]);
 
-    if (!approver?.is_active || !approver.roles.includes(UserRole.CMINDS_OPERATOR)) {
+    if (
+      !approver?.is_active ||
+      !approver.roles.includes(UserRole.CMINDS_OPERATOR)
+    ) {
       throw new BadRequestException(
         'approver_user_id must be an active CMINDS_OPERATOR',
       );
@@ -76,7 +79,9 @@ export class EscrowsService {
       where: { escrow_id: dto.escrow_id },
     });
     if (existing) {
-      throw new BadRequestException('Escrow with this escrow_id already exists');
+      throw new BadRequestException(
+        'Escrow with this escrow_id already exists',
+      );
     }
 
     return this.prisma.escrow.create({
@@ -97,16 +102,19 @@ export class EscrowsService {
             task_id: milestone.task_id,
             milestone_index: milestone.milestone_index,
             amount: milestone.amount,
-            deadline: milestone.deadline
-              ? new Date(milestone.deadline)
-              : null,
+            deadline: milestone.deadline ? new Date(milestone.deadline) : null,
             custom_description: milestone.custom_description?.trim() || null,
           })),
         },
       },
       include: {
-        milestones: { include: { task: true }, orderBy: { milestone_index: 'asc' } },
-        approver: { select: { user_id: true, email: true, display_name: true } },
+        milestones: {
+          include: { task: true },
+          orderBy: { milestone_index: 'asc' },
+        },
+        approver: {
+          select: { user_id: true, email: true, display_name: true },
+        },
         release_signer: {
           select: { user_id: true, email: true, display_name: true },
         },
@@ -138,7 +146,9 @@ export class EscrowsService {
           include: { task: true },
           orderBy: { milestone_index: 'asc' },
         },
-        approver: { select: { user_id: true, email: true, display_name: true } },
+        approver: {
+          select: { user_id: true, email: true, display_name: true },
+        },
         release_signer: {
           select: { user_id: true, email: true, display_name: true },
         },

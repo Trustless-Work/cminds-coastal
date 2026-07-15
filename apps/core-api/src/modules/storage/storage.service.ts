@@ -46,14 +46,14 @@ export class StorageService {
     return this.client;
   }
 
-  async uploadEscrowImage(file: Express.Multer.File): Promise<UploadedEscrowImage> {
+  async uploadEscrowImage(
+    file: Express.Multer.File,
+  ): Promise<UploadedEscrowImage> {
     if (!file?.buffer?.length) {
       throw new BadRequestException('Image file is required');
     }
     if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
-      throw new BadRequestException(
-        'Image must be jpeg, png, webp, or gif',
-      );
+      throw new BadRequestException('Image must be jpeg, png, webp, or gif');
     }
     if (file.size > MAX_FILE_BYTES) {
       throw new BadRequestException('Image must be 5MB or smaller');
@@ -64,15 +64,15 @@ export class StorageService {
     const bucket = serverEnv.supabaseEscrowImagesBucket;
     const client = this.getClient();
 
-    const { error } = await client.storage.from(bucket).upload(storagePath, file.buffer, {
-      contentType: file.mimetype,
-      upsert: false,
-    });
+    const { error } = await client.storage
+      .from(bucket)
+      .upload(storagePath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: false,
+      });
 
     if (error) {
-      throw new BadRequestException(
-        `Failed to upload image: ${error.message}`,
-      );
+      throw new BadRequestException(`Failed to upload image: ${error.message}`);
     }
 
     const { data } = client.storage.from(bucket).getPublicUrl(storagePath);

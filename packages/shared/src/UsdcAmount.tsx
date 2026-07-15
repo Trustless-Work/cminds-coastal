@@ -70,7 +70,6 @@ export function UsdcAmount({
       aria-label={accessibleLabel}
     >
       {isUsdc ? (
-        // eslint-disable-next-line @next/next/no-img-element -- shared package has no next/image
         <img
           src="/usdc.webp"
           alt=""
