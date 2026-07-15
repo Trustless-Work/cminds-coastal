@@ -19,18 +19,35 @@ function isMultiMilestone(
   return "amount" in milestone;
 }
 
-export function getMilestoneFlags(
-  milestone: SingleReleaseMilestone | MultiReleaseMilestone,
-): {
+export type MilestoneFlags = {
   approved?: boolean;
   disputed?: boolean;
   released?: boolean;
   resolved?: boolean;
-} {
+};
+
+export function getMilestoneFlags(
+  milestone: SingleReleaseMilestone | MultiReleaseMilestone,
+): MilestoneFlags {
   if (isMultiMilestone(milestone)) {
     return milestone.flags ?? {};
   }
   return { approved: milestone.approved };
+}
+
+export function getMilestoneStatusText(
+  milestone: SingleReleaseMilestone | MultiReleaseMilestone,
+): string {
+  return milestone.status?.trim() || "Pending";
+}
+
+export function getActiveMilestoneFlagLabels(flags: MilestoneFlags): string[] {
+  const labels: string[] = [];
+  if (flags.approved) labels.push("Approve");
+  if (flags.disputed) labels.push("Dispute");
+  if (flags.released) labels.push("Release");
+  if (flags.resolved) labels.push("Resolve");
+  return labels;
 }
 
 export function getMilestoneAmount(
@@ -58,34 +75,6 @@ export function getMilestoneReviewStatus(
 
   if (statusText.length > 0) return "in_progress";
   return "pending";
-}
-
-export function milestoneStatusLabel(status: MilestoneReviewStatus): string {
-  switch (status) {
-    case "ready_for_review":
-      return "Ready for Review";
-    case "in_progress":
-      return "In Progress";
-    default:
-      return status.charAt(0).toUpperCase() + status.slice(1);
-  }
-}
-
-export function milestoneStatusVariant(
-  status: MilestoneReviewStatus,
-): "default" | "secondary" | "destructive" | "outline" {
-  switch (status) {
-    case "ready_for_review":
-      return "default";
-    case "approved":
-    case "released":
-    case "resolved":
-      return "secondary";
-    case "disputed":
-      return "destructive";
-    default:
-      return "outline";
-  }
 }
 
 export function parseEvidenceLinks(evidence: string | undefined): string[] {
@@ -119,6 +108,8 @@ export function buildReviewQueue(
         amount: getMilestoneAmount(milestone),
         evidence: milestone.evidence,
         status,
+        statusText: getMilestoneStatusText(milestone),
+        flags: getMilestoneFlags(milestone),
         metadata:
           escrow.contractId !== undefined
             ? (metadataByContractId?.get(escrow.contractId) ?? null)

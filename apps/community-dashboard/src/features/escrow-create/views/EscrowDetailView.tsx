@@ -28,17 +28,6 @@ type EscrowDetailViewProps = {
   contractId: string;
 };
 
-function formatFlagLabel(flags: {
-  approved?: boolean;
-  disputed?: boolean;
-  released?: boolean;
-} | undefined): string {
-  if (flags?.released) return "Released";
-  if (flags?.approved) return "Approved";
-  if (flags?.disputed) return "Disputed";
-  return "—";
-}
-
 export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
   const { walletAddress } = useWalletContext();
   const { selectedEscrow, setSelectedEscrow } = useEscrowContext();
@@ -257,7 +246,15 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
                         <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-muted-foreground">
                           <span>Status: {statusText || "Pending"}</span>
                           <span aria-hidden>·</span>
-                          <span>Flags: {formatFlagLabel(flags)}</span>
+                          <span>
+                            {flags?.released
+                              ? "Release"
+                              : flags?.approved
+                                ? "Approve"
+                                : flags?.disputed
+                                  ? "Dispute"
+                                  : "—"}
+                          </span>
                         </div>
                         {evidence ? (
                           <a

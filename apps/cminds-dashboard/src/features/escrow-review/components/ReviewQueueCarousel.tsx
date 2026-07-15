@@ -12,6 +12,7 @@ import { cn } from "@repo/ui/lib/utils";
 import type { ReviewQueueItem } from "../types";
 import { parseEvidenceLinks } from "../utils";
 import { MilestoneActions } from "./MilestoneActions";
+import { MilestoneFlagBadges } from "./MilestoneFlagBadges";
 import { MilestoneStatusBadge } from "./MilestoneStatusBadge";
 
 type ReviewQueueCarouselProps = {
@@ -98,7 +99,6 @@ function ReviewQueueCard({ item }: { item: ReviewQueueItem }) {
             )}
           </p>
         </div>
-        <MilestoneStatusBadge status={item.status} />
       </div>
 
       <div className="mt-4 min-w-0 flex-1 space-y-3">
@@ -129,29 +129,41 @@ function ReviewQueueCard({ item }: { item: ReviewQueueItem }) {
           {taskName && taskName ? taskName : item.milestoneDescription}
         </p>
 
-        <div className="space-y-1.5">
-          <p className="text-xs text-muted-foreground">Evidence</p>
-          {links.length > 0 ? (
-            <ul className="space-y-1">
-              {links.slice(0, 2).map((link) => (
-                <li key={link}>
-                  <a
-                    href={link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex max-w-full items-center gap-1 truncate text-sm text-primary hover:underline"
-                  >
-                    <span className="truncate">View Evidence</span>
-                    <ExternalLink className="size-3 shrink-0" />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              {item.evidence?.trim() || "No link"}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="min-w-0 space-y-1.5">
+            <p className="text-xs text-muted-foreground">Evidence</p>
+            {links.length > 0 ? (
+              <ul className="space-y-1">
+                {links.slice(0, 2).map((link) => (
+                  <li key={link}>
+                    <a
+                      href={link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex max-w-full items-center gap-1 truncate text-sm text-primary hover:underline"
+                    >
+                      <span className="truncate">View Evidence</span>
+                      <ExternalLink className="size-3 shrink-0" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {item.evidence?.trim() || "No Link"}
+              </p>
+            )}
+          </div>
+          <div className="min-w-0 space-y-1.5">
+            <p className="text-xs text-muted-foreground">Status</p>
+            <MilestoneStatusBadge statusText={item.statusText} />
+          </div>
+          <div className="col-span-2 min-w-0 space-y-1.5 sm:col-span-1">
+            <p className="invisible text-xs" aria-hidden>
+              State
             </p>
-          )}
+            <MilestoneFlagBadges flags={item.flags} />
+          </div>
         </div>
       </div>
 

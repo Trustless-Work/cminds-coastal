@@ -17,6 +17,13 @@ export type ReviewQueueItem = {
   amount: number | null;
   evidence: string | undefined;
   status: MilestoneReviewStatus;
+  statusText: string;
+  flags: {
+    approved?: boolean;
+    disputed?: boolean;
+    released?: boolean;
+    resolved?: boolean;
+  };
   metadata?: EscrowRecord | null;
 };
 

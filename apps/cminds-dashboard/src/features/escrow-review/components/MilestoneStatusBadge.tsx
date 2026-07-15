@@ -2,17 +2,14 @@
 
 import { Badge } from "@repo/ui/components/badge";
 
-import type { MilestoneReviewStatus } from "../types";
-import { milestoneStatusLabel, milestoneStatusVariant } from "../utils";
-
 type MilestoneStatusBadgeProps = {
-  status: MilestoneReviewStatus;
+  statusText: string;
 };
 
-export const MilestoneStatusBadge = ({ status }: MilestoneStatusBadgeProps) => {
-  return (
-    <Badge variant={milestoneStatusVariant(status)}>
-      {milestoneStatusLabel(status)}
-    </Badge>
-  );
+export const MilestoneStatusBadge = ({
+  statusText,
+}: MilestoneStatusBadgeProps) => {
+  const label = statusText.trim() || "Pending";
+
+  return <Badge variant="outline">{label}</Badge>;
 };

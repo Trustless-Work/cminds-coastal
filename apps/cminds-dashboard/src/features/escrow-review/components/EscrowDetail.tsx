@@ -18,11 +18,14 @@ import type { GetEscrowsFromIndexerResponse as Escrow } from "@trustless-work/es
 
 import {
   getMilestoneAmount,
+  getMilestoneFlags,
   getMilestoneReviewStatus,
+  getMilestoneStatusText,
   parseEvidenceLinks,
 } from "../utils";
 import { ContractIdCopyPanel } from "./ContractIdCopyPanel";
 import { MilestoneActions } from "./MilestoneActions";
+import { MilestoneFlagBadges } from "./MilestoneFlagBadges";
 import { MilestoneStatusBadge } from "./MilestoneStatusBadge";
 
 type EscrowDetailProps = {
@@ -214,7 +217,6 @@ export const EscrowDetail = ({
                                 {metaMilestone.task.category}
                               </span>
                             ) : null}
-                            <MilestoneStatusBadge status={status} />
                           </div>
                           <p className="break-words text-base font-medium leading-snug text-foreground">
                             {metaMilestone?.task.name ?? milestone.description}
@@ -235,32 +237,50 @@ export const EscrowDetail = ({
                         ) : null}
                       </div>
 
-                      <div className="space-y-1.5">
-                        <p className="text-xs text-muted-foreground">
-                          Evidence
-                        </p>
-                        {links.length > 0 ? (
-                          <ul className="space-y-1">
-                            {links.map((link) => (
-                              <li key={link}>
-                                <a
-                                  href={link}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="inline-flex max-w-full items-center gap-1 text-sm text-primary hover:underline"
-                                >
-                                  <span>View Evidence</span>
-                                  <ExternalLink className="size-3 shrink-0" />
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="break-words text-sm text-muted-foreground">
-                            {milestone.evidence?.trim() ||
-                              "No Evidence Submitted"}
+                      <div className="grid gap-4 sm:grid-cols-3">
+                        <div className="min-w-0 space-y-1.5">
+                          <p className="text-xs text-muted-foreground">
+                            Evidence
                           </p>
-                        )}
+                          {links.length > 0 ? (
+                            <ul className="space-y-1">
+                              {links.map((link) => (
+                                <li key={link}>
+                                  <a
+                                    href={link}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex max-w-full items-center gap-1 text-sm text-primary hover:underline"
+                                  >
+                                    <span>View Evidence</span>
+                                    <ExternalLink className="size-3 shrink-0" />
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="break-words text-sm text-muted-foreground">
+                              {milestone.evidence?.trim() ||
+                                "No Evidence Submitted"}
+                            </p>
+                          )}
+                        </div>
+                        <div className="min-w-0 space-y-1.5">
+                          <p className="text-xs text-muted-foreground">
+                            Status
+                          </p>
+                          <MilestoneStatusBadge
+                            statusText={getMilestoneStatusText(milestone)}
+                          />
+                        </div>
+                        <div className="min-w-0 space-y-1.5">
+                          <p className="invisible text-xs" aria-hidden>
+                            State
+                          </p>
+                          <MilestoneFlagBadges
+                            flags={getMilestoneFlags(milestone)}
+                          />
+                        </div>
                       </div>
 
                       {showActions ? (
