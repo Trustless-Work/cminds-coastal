@@ -281,13 +281,13 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
                       />
                     </div>
 
-                    {canAct ? (
+                    {canAct && !flags?.released ? (
                       <div className="flex flex-col gap-2 border-t border-border/80 pt-4 sm:flex-row sm:flex-wrap">
                         <ChangeMilestoneStatusDialog
                           showSelectMilestone={false}
                           milestoneIndex={milestone.milestone_index}
                         />
-                        {flags?.approved && !flags.released ? (
+                        {flags?.approved ? (
                           <ReleaseMilestoneButton
                             milestoneIndex={milestone.milestone_index}
                           />

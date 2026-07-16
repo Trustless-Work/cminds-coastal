@@ -7,6 +7,7 @@ import {
 } from "./schema";
 import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import { ChangeMilestoneStatusPayload } from "@trustless-work/escrow";
+import type { MultiReleaseMilestone } from "@trustless-work/escrow/types";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
 import {
@@ -37,6 +38,21 @@ export function useChangeMilestoneStatus({
   const handleSubmit = form.handleSubmit(async (payload) => {
     try {
       setIsSubmitting(true);
+
+      const milestone =
+        selectedEscrow?.milestones?.[Number(payload.milestoneIndex)];
+      const flags =
+        milestone && "flags" in milestone
+          ? (milestone as MultiReleaseMilestone).flags
+          : undefined;
+
+      if (flags?.released) {
+        toastError(
+          "Status Locked",
+          "This milestone was already released. Status can no longer be updated.",
+        );
+        return;
+      }
 
       /**
        * Create the final payload for the change milestone status mutation

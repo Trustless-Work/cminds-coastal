@@ -20,6 +20,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { useChangeMilestoneStatus } from "../shared/useChangeMilestoneStatus";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
+import type { MultiReleaseMilestone } from "@trustless-work/escrow/types";
 import {
   Select,
   SelectContent,
@@ -94,14 +95,23 @@ export const ChangeMilestoneStatusDialog = ({
                           </SelectTrigger>
                           <SelectContent>
                             {(selectedEscrow?.milestones || []).map(
-                              (m, idx) => (
-                                <SelectItem
-                                  key={`ms-${idx}`}
-                                  value={String(idx)}
-                                >
-                                  {m?.description || `Task ${idx + 1}`}
-                                </SelectItem>
-                              )
+                              (m, idx) => {
+                                const isReleased =
+                                  "flags" in m &&
+                                  Boolean(
+                                    (m as MultiReleaseMilestone).flags
+                                      ?.released,
+                                  );
+                                if (isReleased) return null;
+                                return (
+                                  <SelectItem
+                                    key={`ms-${idx}`}
+                                    value={String(idx)}
+                                  >
+                                    {m?.description || `Task ${idx + 1}`}
+                                  </SelectItem>
+                                );
+                              },
                             )}
                           </SelectContent>
                         </Select>
