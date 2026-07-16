@@ -81,9 +81,7 @@ function buildLastTwelveMonthKeys(now: Date = new Date()): string[] {
 
 @Injectable()
 export class AnalyticsService {
-  constructor(
-    @Inject(PrismaService) private readonly prisma: PrismaService,
-  ) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async getAdminOverview(): Promise<AdminAnalyticsOverview> {
     const twelveMonthsAgo = new Date();

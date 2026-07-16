@@ -16,6 +16,7 @@
     "./escrows/multi-release/dispute-milestone/button/DisputeMilestone": "./src/escrows/multi-release/dispute-milestone/button/DisputeMilestone.tsx",
     "./escrows/multi-release/resolve-dispute/dialog/ResolveDispute": "./src/escrows/multi-release/resolve-dispute/dialog/ResolveDispute.tsx",
     "./escrows/multi-release/update-escrow/dialog/UpdateEscrow": "./src/escrows/multi-release/update-escrow/dialog/UpdateEscrow.tsx",
+    "./escrows/multi-release/withdraw-remaining-funds/dialog/WithdrawRemainingFunds": "./src/escrows/multi-release/withdraw-remaining-funds/dialog/WithdrawRemainingFunds.tsx",
     "./escrows/single-multi-release/change-milestone-status/dialog/ChangeMilestoneStatus": "./src/escrows/single-multi-release/change-milestone-status/dialog/ChangeMilestoneStatus.tsx",
     "./escrows/multi-release/release-milestone/button/ReleaseMilestone": "./src/escrows/multi-release/release-milestone/button/ReleaseMilestone.tsx",
     "./escrows/single-multi-release/fund-escrow/dialog/FundEscrow": "./src/escrows/single-multi-release/fund-escrow/dialog/FundEscrow.tsx",

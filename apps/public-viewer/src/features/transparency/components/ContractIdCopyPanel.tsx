@@ -7,7 +7,7 @@ import { networkConfig } from "@repo/config";
 import { Button, buttonVariants } from "@repo/ui/components/button";
 import { cn } from "@repo/ui/lib/utils";
 
-import { BrandTextLink, StellarLink } from "./BrandTextLink";
+import { StellarLink } from "./BrandTextLink";
 import Link from "next/link";
 
 type ContractIdCopyPanelProps = {

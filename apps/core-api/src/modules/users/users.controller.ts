@@ -56,7 +56,10 @@ export class UsersController {
   })
   @ApiResponse({ status: 200, description: 'Current admin user' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden — missing ADMIN or AAL2' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden — missing ADMIN or AAL2',
+  })
   @ApiResponse({ status: 404, description: 'Admin user not provisioned' })
   adminMe(@CurrentUser() user: AuthenticatedUser) {
     return this.usersService.findMe(user);

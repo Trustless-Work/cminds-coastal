@@ -57,21 +57,17 @@ describe('TasksService', () => {
     prismaMock.task.findMany.mockResolvedValueOnce(items);
     prismaMock.task.count.mockResolvedValueOnce(25);
 
-    await expect(service.findAllAdmin({ page: 1, pageSize: 10 })).resolves.toEqual(
-      {
-        items,
-        total: 25,
-        page: 1,
-        pageSize: 10,
-        totalPages: 3,
-      },
-    );
+    await expect(
+      service.findAllAdmin({ page: 1, pageSize: 10 }),
+    ).resolves.toEqual({
+      items,
+      total: 25,
+      page: 1,
+      pageSize: 10,
+      totalPages: 3,
+    });
     expect(prismaMock.task.findMany).toHaveBeenCalledWith({
-      orderBy: [
-        { is_active: 'desc' },
-        { category: 'asc' },
-        { code: 'asc' },
-      ],
+      orderBy: [{ is_active: 'desc' }, { category: 'asc' }, { code: 'asc' }],
       skip: 0,
       take: 10,
     });

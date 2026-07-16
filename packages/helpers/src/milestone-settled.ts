@@ -2,6 +2,7 @@ export type SettledMilestoneFlags = {
   approved?: boolean;
   released?: boolean;
   resolved?: boolean;
+  disputed?: boolean;
 };
 
 export type SettledMilestoneLike = {

@@ -427,7 +427,12 @@ describe('EscrowsService', () => {
     it('should update title, description, and engagement_id for CMinds operator', async () => {
       usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
       prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
-      const updated = { ...baseEscrow, title: 'New', description: 'New desc', engagement_id: 'ENG-NEW' };
+      const updated = {
+        ...baseEscrow,
+        title: 'New',
+        description: 'New desc',
+        engagement_id: 'ENG-NEW',
+      };
       prismaMock.escrow.update.mockResolvedValue(updated);
 
       await expect(

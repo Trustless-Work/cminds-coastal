@@ -1,5 +1,5 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { serverEnv } from "@repo/config";
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { serverEnv } from '@repo/config';
 import {
   createRemoteJWKSet,
   decodeJwt,
@@ -7,8 +7,8 @@ import {
   jwtVerify,
   type JWTPayload,
   type JWTVerifyGetKey,
-} from "jose";
-import type { AuthenticatorAssuranceLevel } from "../interfaces/authenticated-user";
+} from 'jose';
+import type { AuthenticatorAssuranceLevel } from '../interfaces/authenticated-user';
 
 export type VerifiedSupabaseToken = {
   supabaseUserId: string;
@@ -17,7 +17,7 @@ export type VerifiedSupabaseToken = {
   payload: JWTPayload;
 };
 
-const ASYMMETRIC_ALGS = ["ES256", "RS256", "EdDSA"] as const;
+const ASYMMETRIC_ALGS = ['ES256', 'RS256', 'EdDSA'] as const;
 
 @Injectable()
 export class SupabaseTokenService {
@@ -25,7 +25,7 @@ export class SupabaseTokenService {
 
   async verifyAccessToken(accessToken: string): Promise<VerifiedSupabaseToken> {
     if (!accessToken.trim()) {
-      throw new UnauthorizedException("Missing access token");
+      throw new UnauthorizedException('Missing access token');
     }
 
     let payload: JWTPayload;
@@ -36,21 +36,21 @@ export class SupabaseTokenService {
         throw error;
       }
       throw new UnauthorizedException(
-        "Invalid or expired Supabase access token",
+        'Invalid or expired Supabase access token',
       );
     }
 
     if (!this.isSupabaseIssuer(payload.iss)) {
-      throw new UnauthorizedException("Token is not a Supabase access token");
+      throw new UnauthorizedException('Token is not a Supabase access token');
     }
 
     const supabaseUserId =
-      typeof payload.sub === "string" && payload.sub.length > 0
+      typeof payload.sub === 'string' && payload.sub.length > 0
         ? payload.sub
         : undefined;
 
     if (!supabaseUserId) {
-      throw new UnauthorizedException("Token missing user id claim");
+      throw new UnauthorizedException('Token missing user id claim');
     }
 
     return {
@@ -73,26 +73,23 @@ export class SupabaseTokenService {
   private async verifyJwtPayload(accessToken: string): Promise<JWTPayload> {
     const { alg } = decodeProtectedHeader(accessToken);
 
-    if (alg === "HS256") {
+    if (alg === 'HS256') {
       const secret = serverEnv.supabaseJwtSecret;
       if (!secret) {
         throw new UnauthorizedException(
-          "Supabase auth is not configured (SUPABASE_JWT_SECRET)",
+          'Supabase auth is not configured (SUPABASE_JWT_SECRET)',
         );
       }
 
       const verified = await jwtVerify(
         accessToken,
         new TextEncoder().encode(secret),
-        { algorithms: ["HS256"] },
+        { algorithms: ['HS256'] },
       );
       return verified.payload;
     }
 
-    if (
-      alg &&
-      (ASYMMETRIC_ALGS as readonly string[]).includes(alg)
-    ) {
+    if (alg && (ASYMMETRIC_ALGS as readonly string[]).includes(alg)) {
       const verified = await jwtVerify(accessToken, this.getJwks(), {
         algorithms: [...ASYMMETRIC_ALGS],
       });
@@ -100,7 +97,7 @@ export class SupabaseTokenService {
     }
 
     throw new UnauthorizedException(
-      `Unsupported Supabase JWT algorithm: ${alg ?? "unknown"}`,
+      `Unsupported Supabase JWT algorithm: ${alg ?? 'unknown'}`,
     );
   }
 
@@ -109,10 +106,10 @@ export class SupabaseTokenService {
       return this.jwks;
     }
 
-    const baseUrl = serverEnv.supabaseUrl?.replace(/\/$/, "");
+    const baseUrl = serverEnv.supabaseUrl?.replace(/\/$/, '');
     if (!baseUrl) {
       throw new UnauthorizedException(
-        "Supabase auth is not configured (SUPABASE_URL)",
+        'Supabase auth is not configured (SUPABASE_URL)',
       );
     }
 
@@ -123,20 +120,20 @@ export class SupabaseTokenService {
   }
 
   private isSupabaseIssuer(iss: unknown): boolean {
-    return typeof iss === "string" && iss.includes("/auth/v1");
+    return typeof iss === 'string' && iss.includes('/auth/v1');
   }
 
   private extractEmail(payload: JWTPayload): string | undefined {
-    if (typeof payload.email === "string" && payload.email.length > 0) {
+    if (typeof payload.email === 'string' && payload.email.length > 0) {
       return payload.email;
     }
 
     const metadata = payload.user_metadata;
     if (
       metadata &&
-      typeof metadata === "object" &&
-      "email" in metadata &&
-      typeof (metadata as { email: unknown }).email === "string" &&
+      typeof metadata === 'object' &&
+      'email' in metadata &&
+      typeof (metadata as { email: unknown }).email === 'string' &&
       (metadata as { email: string }).email.length > 0
     ) {
       return (metadata as { email: string }).email;
@@ -148,7 +145,7 @@ export class SupabaseTokenService {
   private extractAal(
     payload: JWTPayload,
   ): AuthenticatorAssuranceLevel | undefined {
-    if (payload.aal === "aal1" || payload.aal === "aal2") {
+    if (payload.aal === 'aal1' || payload.aal === 'aal2') {
       return payload.aal;
     }
     return undefined;

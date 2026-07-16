@@ -224,10 +224,7 @@ export class EscrowsService {
     return this.findParticipating(authUser, 'initializer');
   }
 
-  async findParticipating(
-    authUser: AuthenticatedUser,
-    as: ParticipatingRole,
-  ) {
+  async findParticipating(authUser: AuthenticatedUser, as: ParticipatingRole) {
     const user = await this.usersService.requireSyncedUser(authUser);
     this.assertParticipatingRole(user.roles, as);
 
@@ -535,10 +532,7 @@ export class EscrowsService {
         OR: [
           { created_at: { lt: cursorDate } },
           {
-            AND: [
-              { created_at: cursorDate },
-              { escrow_id: { lt: escrowId } },
-            ],
+            AND: [{ created_at: cursorDate }, { escrow_id: { lt: escrowId } }],
           },
         ],
       });

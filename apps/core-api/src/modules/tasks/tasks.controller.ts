@@ -58,10 +58,7 @@ export class TasksController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Update a task menu item' })
   @ApiResponse({ status: 200, description: 'Task updated' })
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateTaskDto,
-  ) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTaskDto) {
     return this.tasksService.update(id, dto);
   }
 

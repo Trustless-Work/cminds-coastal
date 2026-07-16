@@ -1,4 +1,4 @@
-export type AuthenticatorAssuranceLevel = "aal1" | "aal2";
+export type AuthenticatorAssuranceLevel = 'aal1' | 'aal2';
 
 export type AuthenticatedUser = {
   /** Present when the Bearer token is a Pollar access token. */

@@ -1,7 +1,4 @@
-import {
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommunitiesService } from './communities.service';
 
@@ -58,15 +55,15 @@ describe('CommunitiesService', () => {
     prismaMock.community.findMany.mockResolvedValueOnce(items);
     prismaMock.community.count.mockResolvedValueOnce(12);
 
-    await expect(service.findAllAdmin({ page: 2, pageSize: 5 })).resolves.toEqual(
-      {
-        items,
-        total: 12,
-        page: 2,
-        pageSize: 5,
-        totalPages: 3,
-      },
-    );
+    await expect(
+      service.findAllAdmin({ page: 2, pageSize: 5 }),
+    ).resolves.toEqual({
+      items,
+      total: 12,
+      page: 2,
+      pageSize: 5,
+      totalPages: 3,
+    });
     expect(prismaMock.community.findMany).toHaveBeenCalledWith({
       orderBy: [{ is_active: 'desc' }, { name: 'asc' }],
       skip: 5,
@@ -84,9 +81,9 @@ describe('CommunitiesService', () => {
       updated_at: new Date(),
     };
     prismaMock.community.create.mockResolvedValueOnce(created);
-    await expect(
-      service.create({ name: '  Alpha  ' }),
-    ).resolves.toEqual(created);
+    await expect(service.create({ name: '  Alpha  ' })).resolves.toEqual(
+      created,
+    );
   });
 
   it('soft-deletes a community', async () => {

@@ -1,8 +1,8 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { PrismaService } from "../../database";
-import type { UserRole } from "../../generated/prisma/enums";
-import { UserRole as UserRoleEnum } from "../../generated/prisma/enums";
-import type { AuthenticatedUser } from "../interfaces/authenticated-user";
+import { Inject, Injectable } from '@nestjs/common';
+import { PrismaService } from '../../database';
+import type { UserRole } from '../../generated/prisma/enums';
+import { UserRole as UserRoleEnum } from '../../generated/prisma/enums';
+import type { AuthenticatedUser } from '../interfaces/authenticated-user';
 
 type UserAuthFields = {
   user_id: string;
@@ -13,9 +13,7 @@ type UserAuthFields = {
 
 @Injectable()
 export class AuthIdentityService {
-  constructor(
-    @Inject(PrismaService) private readonly prisma: PrismaService,
-  ) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   /**
    * Resolve an existing DB user from a verified token identity.
@@ -73,7 +71,7 @@ export class AuthIdentityService {
 
     const byEmail = await this.prisma.user.findFirst({
       where: {
-        email: { equals: email, mode: "insensitive" },
+        email: { equals: email, mode: 'insensitive' },
         is_active: true,
         roles: { has: UserRoleEnum.ADMIN },
         OR: [{ supabase_user_id: null }, { supabase_user_id: supabaseUserId }],
