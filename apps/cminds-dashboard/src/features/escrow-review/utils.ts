@@ -140,6 +140,7 @@ export function computeOperatorStats(escrows: Escrow[]): OperatorEscrowStats {
     pendingReview,
     disputed,
     approved,
+    completed: 0,
   };
 }
 

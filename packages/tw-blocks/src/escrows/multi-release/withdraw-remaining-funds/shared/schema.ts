@@ -48,7 +48,7 @@ export const getFormSchema = () => {
             amount: amountSchema,
           })
         )
-        .min(2, { message: "At least two distributions are required." }),
+        .min(1, { message: "At least one distribution is required." }),
     })
     .superRefine((data, ctx) => {
       const seen = new Map<string, number>();

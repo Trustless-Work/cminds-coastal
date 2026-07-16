@@ -8,6 +8,8 @@ import {
   escrowStatusBadgeVariant,
   formatEscrowStatusLabel,
   isEscrowCancelled,
+  isEscrowCompleted,
+  isEscrowInactive,
 } from "@repo/features/escrow/utils/escrow-status-display";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { Badge } from "@repo/ui/components/badge";
@@ -41,6 +43,8 @@ export const EscrowImageCard = ({
   const imageSrc = metadata.image_url ?? "/assets/dashboard.webp";
   const isLocal = imageSrc.startsWith("/");
   const cancelled = isEscrowCancelled(metadata.status);
+  const completed = isEscrowCompleted(metadata.status);
+  const inactive = isEscrowInactive(metadata.status);
   const area = metadata.geographic_area?.trim();
   const description = metadata.description?.trim();
   const taskCount = metadata.milestones.length;
@@ -68,7 +72,7 @@ export const EscrowImageCard = ({
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className={cn(
               "object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.03]",
-              cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+              inactive && CANCELLED_ESCROW_IMAGE_CLASS,
             )}
           />
         ) : (
@@ -78,11 +82,11 @@ export const EscrowImageCard = ({
             alt=""
             className={cn(
               "absolute inset-0 size-full object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.03]",
-              cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+              inactive && CANCELLED_ESCROW_IMAGE_CLASS,
             )}
           />
         )}
-        {cancelled ? (
+        {inactive ? (
           <span className="absolute inset-0 bg-background/25" aria-hidden />
         ) : null}
         {cancelled ? (
@@ -91,6 +95,13 @@ export const EscrowImageCard = ({
             className="absolute bottom-3 right-3 font-medium"
           >
             Cancelled
+          </Badge>
+        ) : completed ? (
+          <Badge
+            variant="success"
+            className="absolute bottom-3 right-3 font-medium"
+          >
+            Completed
           </Badge>
         ) : actionCount > 0 ? (
           <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">

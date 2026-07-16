@@ -9,6 +9,8 @@ import {
   escrowStatusBadgeVariant,
   formatEscrowStatusLabel,
   isEscrowCancelled,
+  isEscrowCompleted,
+  isEscrowInactive,
 } from "@repo/features/escrow/utils/escrow-status-display";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { Badge } from "@repo/ui/components/badge";
@@ -55,6 +57,8 @@ export const EscrowImageCard = ({
   const imageSrc = escrow.image_url ?? fallback;
   const isLocal = imageSrc.startsWith("/");
   const cancelled = isEscrowCancelled(escrow.status);
+  const completed = isEscrowCompleted(escrow.status);
+  const inactive = isEscrowInactive(escrow.status);
   const milestoneCount = escrow.milestones.length;
   const area = escrow.geographic_area?.trim();
   const description = escrow.description?.trim();
@@ -77,7 +81,7 @@ export const EscrowImageCard = ({
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className={cn(
               "object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.03]",
-              cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+              inactive && CANCELLED_ESCROW_IMAGE_CLASS,
             )}
           />
         ) : (
@@ -87,11 +91,11 @@ export const EscrowImageCard = ({
             alt=""
             className={cn(
               "absolute inset-0 size-full object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.03]",
-              cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+              inactive && CANCELLED_ESCROW_IMAGE_CLASS,
             )}
           />
         )}
-        {cancelled ? (
+        {inactive ? (
           <span className="absolute inset-0 bg-background/25" aria-hidden />
         ) : null}
         {cancelled ? (
@@ -100,6 +104,13 @@ export const EscrowImageCard = ({
             className="absolute bottom-3 right-3 font-medium"
           >
             Cancelled
+          </Badge>
+        ) : completed ? (
+          <Badge
+            variant="success"
+            className="absolute bottom-3 right-3 font-medium"
+          >
+            Completed
           </Badge>
         ) : null}
       </div>

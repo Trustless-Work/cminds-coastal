@@ -32,6 +32,7 @@ export type OperatorEscrowStats = {
   pendingReview: number;
   disputed: number;
   approved: number;
+  completed: number;
 };
 
 export type EnrichedOperatorEscrow = {

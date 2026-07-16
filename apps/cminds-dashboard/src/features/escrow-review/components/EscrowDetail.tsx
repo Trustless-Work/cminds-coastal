@@ -13,6 +13,8 @@ import {
   escrowStatusBadgeVariant,
   formatEscrowStatusLabel,
   isEscrowCancelled,
+  isEscrowCompleted,
+  isEscrowInactive,
 } from "@repo/features/escrow/utils/escrow-status-display";
 import { areAllMilestonesSettled } from "@repo/helpers";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
@@ -79,7 +81,8 @@ export const EscrowDetail = ({
   const imageSrc = metadata.image_url ?? "/assets/dashboard.webp";
   const isLocalImage = imageSrc.startsWith("/");
   const cancelled = isEscrowCancelled(metadata.status);
-  const completed = metadata.status.toUpperCase() === "COMPLETED";
+  const completed = isEscrowCompleted(metadata.status);
+  const inactive = isEscrowInactive(metadata.status);
   const milestonesSettled = areAllMilestonesSettled(liveMilestones ?? []);
   const area = metadata.geographic_area?.trim();
   const taskCount = metadata.milestones.length;
@@ -122,7 +125,7 @@ export const EscrowDetail = ({
                   sizes="(max-width: 1024px) 100vw, 66vw"
                   className={cn(
                     "object-cover",
-                    cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+                    inactive && CANCELLED_ESCROW_IMAGE_CLASS,
                   )}
                 />
               ) : (
@@ -132,11 +135,11 @@ export const EscrowDetail = ({
                   alt=""
                   className={cn(
                     "absolute inset-0 size-full object-cover",
-                    cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+                    inactive && CANCELLED_ESCROW_IMAGE_CLASS,
                   )}
                 />
               )}
-              {cancelled ? (
+              {inactive ? (
                 <span className="absolute inset-0 bg-background/25" aria-hidden />
               ) : null}
               {cancelled ? (
@@ -145,6 +148,13 @@ export const EscrowDetail = ({
                   className="absolute bottom-4 right-4 font-medium"
                 >
                   Cancelled
+                </Badge>
+              ) : completed ? (
+                <Badge
+                  variant="success"
+                  className="absolute bottom-4 right-4 font-medium"
+                >
+                  Completed
                 </Badge>
               ) : null}
             </div>

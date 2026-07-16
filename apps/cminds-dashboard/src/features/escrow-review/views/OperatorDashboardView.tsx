@@ -52,24 +52,21 @@ export const OperatorDashboardView = () => {
     <div className="mx-auto w-full max-w-[1320px] px-6 pb-24 pt-6 sm:px-10">
       <OperatorBanner headline="Operator Review" />
 
-      <div className="mt-10 grid items-start gap-8 sm:mt-12 lg:grid-cols-12 lg:gap-12">
-        <header className="space-y-3 lg:col-span-5">
+      <div className="mt-10 space-y-8 sm:mt-12 sm:space-y-10">
+        <header className="max-w-2xl space-y-3">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Coastal Escrow Oversight
           </h2>
-          <p className="max-w-xl text-base text-muted-foreground">
+          <p className="text-base text-muted-foreground">
             Review evidence, approve milestones, resolve disputes, and monitor
-            escrows
-            where you are the assigned approver.
+            escrows where you are the assigned approver.
           </p>
         </header>
 
-        <div className="lg:col-span-7">
-          <OperatorStatsCards
-            stats={stats}
-            isLoading={isLoading || isChainLoading}
-          />
-        </div>
+        <OperatorStatsCards
+          stats={stats}
+          isLoading={isLoading || isChainLoading}
+        />
       </div>
 
       {isError ? (

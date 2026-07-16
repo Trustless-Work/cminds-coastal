@@ -24,10 +24,7 @@ export function useWithdrawRemainingFunds({
   const form = useForm<WithdrawRemainingFundsValues>({
     resolver: zodResolver(withdrawRemainingFundsSchema),
     defaultValues: {
-      distributions: [
-        { address: "", amount: "" },
-        { address: "", amount: "" },
-      ],
+      distributions: [{ address: "", amount: "" }],
     },
     mode: "onChange",
   });
@@ -57,7 +54,8 @@ export function useWithdrawRemainingFunds({
 
   const handleDistributionAddressChange = (index: number, value: string) => {
     const updated = [...distributions];
-    updated[index] = { ...updated[index], address: value };
+    const current = updated[index] ?? { address: "", amount: "" };
+    updated[index] = { ...current, address: value };
     form.setValue("distributions", updated);
   };
 
@@ -77,7 +75,8 @@ export function useWithdrawRemainingFunds({
       }
     }
     const updated = [...distributions];
-    updated[index] = { ...updated[index], amount: rawValue };
+    const current = updated[index] ?? { address: "", amount: "" };
+    updated[index] = { ...current, amount: rawValue };
     form.setValue("distributions", updated);
   };
 
@@ -87,7 +86,7 @@ export function useWithdrawRemainingFunds({
   };
 
   const handleRemoveDistribution = (index: number) => {
-    if (distributions.length <= 2) return;
+    if (distributions.length <= 1) return;
     const updated = distributions.filter((_, i) => i !== index);
     form.setValue("distributions", updated);
   };
@@ -95,6 +94,7 @@ export function useWithdrawRemainingFunds({
   const isAnyDistributionEmpty = React.useMemo(() => {
     if (!distributions.length) return true;
     const last = distributions[distributions.length - 1];
+    if (!last) return true;
     return (last.address || "").trim() === "" || (last.amount ?? "") === "";
   }, [distributions]);
 

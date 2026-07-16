@@ -14,6 +14,8 @@ import {
   escrowStatusBadgeVariant,
   formatEscrowStatusLabel,
   isEscrowCancelled,
+  isEscrowCompleted,
+  isEscrowInactive,
 } from "@repo/features/escrow/utils/escrow-status-display";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { Navbar } from "@repo/shared/Navbar";
@@ -147,6 +149,8 @@ function TransparencyEscrowDetailContent({
   const imageSrc = metadata.image_url ?? FALLBACK_COVERS[0];
   const isLocalImage = imageSrc.startsWith("/");
   const cancelled = isEscrowCancelled(metadata.status);
+  const completed = isEscrowCompleted(metadata.status);
+  const inactive = isEscrowInactive(metadata.status);
   const area = metadata.geographic_area?.trim();
   const taskCount = metadata.milestones.length;
 
@@ -173,7 +177,7 @@ function TransparencyEscrowDetailContent({
                   sizes="(max-width: 1024px) 100vw, 66vw"
                   className={cn(
                     "object-cover",
-                    cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+                    inactive && CANCELLED_ESCROW_IMAGE_CLASS,
                   )}
                 />
               ) : (
@@ -183,11 +187,11 @@ function TransparencyEscrowDetailContent({
                   alt=""
                   className={cn(
                     "absolute inset-0 size-full object-cover",
-                    cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+                    inactive && CANCELLED_ESCROW_IMAGE_CLASS,
                   )}
                 />
               )}
-              {cancelled ? (
+              {inactive ? (
                 <span className="absolute inset-0 bg-background/25" aria-hidden />
               ) : null}
               {cancelled ? (
@@ -196,6 +200,13 @@ function TransparencyEscrowDetailContent({
                   className="absolute bottom-4 right-4 font-medium"
                 >
                   Cancelled
+                </Badge>
+              ) : completed ? (
+                <Badge
+                  variant="success"
+                  className="absolute bottom-4 right-4 font-medium"
+                >
+                  Completed
                 </Badge>
               ) : null}
             </div>

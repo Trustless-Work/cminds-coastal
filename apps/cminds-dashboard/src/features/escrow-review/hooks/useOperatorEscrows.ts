@@ -83,6 +83,13 @@ export function useOperatorEscrows() {
     let pendingReview = 0;
     let disputed = 0;
     let approved = 0;
+    let completed = 0;
+
+    for (const record of records) {
+      if (record.status.toUpperCase() === "COMPLETED") {
+        completed += 1;
+      }
+    }
 
     for (const escrow of chainEscrows) {
       for (const milestone of escrow.milestones) {
@@ -98,8 +105,9 @@ export function useOperatorEscrows() {
       pendingReview,
       disputed,
       approved,
+      completed,
     };
-  }, [chainEscrows, records.length]);
+  }, [chainEscrows, records]);
 
   return {
     records,

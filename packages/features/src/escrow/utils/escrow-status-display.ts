@@ -12,12 +12,23 @@ export function isEscrowCancelled(status: string): boolean {
   return status.toUpperCase() === "CANCELLED";
 }
 
-export function escrowStatusBadgeVariant(
-  status: string,
-): "destructive" | "outline" {
-  return isEscrowCancelled(status) ? "destructive" : "outline";
+export function isEscrowCompleted(status: string): boolean {
+  return status.toUpperCase() === "COMPLETED";
 }
 
-/** Soft dim + blur so cancelled cover photos read as inactive. */
+/** Cancelled or completed — cover image gets the soft inactive treatment. */
+export function isEscrowInactive(status: string): boolean {
+  return isEscrowCancelled(status) || isEscrowCompleted(status);
+}
+
+export function escrowStatusBadgeVariant(
+  status: string,
+): "destructive" | "success" | "outline" {
+  if (isEscrowCancelled(status)) return "destructive";
+  if (isEscrowCompleted(status)) return "success";
+  return "outline";
+}
+
+/** Soft dim + blur so inactive cover photos read as settled. */
 export const CANCELLED_ESCROW_IMAGE_CLASS =
   "opacity-45 blur-[2.5px] grayscale-[0.4] scale-105";
