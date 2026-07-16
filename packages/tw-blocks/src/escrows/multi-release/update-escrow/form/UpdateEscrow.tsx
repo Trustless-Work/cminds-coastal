@@ -128,10 +128,19 @@ export const UpdateEscrowForm = () => {
                 </FormLabel>
                 <FormControl>
                   <Select
+                    items={[...trustlineOptions]}
                     value={field.value}
                     disabled={isEscrowLocked}
-                    onValueChange={(e) => {
-                      field.onChange(e);
+                    onValueChange={(value) => {
+                      const address = String(value ?? "");
+                      field.onChange(address);
+                      form.setValue(
+                        "trustline.symbol",
+                        trustlineOptions.find(
+                          (option) => option.value === address,
+                        )?.label ?? "",
+                        { shouldValidate: true },
+                      );
                     }}
                   >
                     <SelectTrigger className="w-full">
@@ -296,35 +305,6 @@ export const UpdateEscrowForm = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
-          <FormField
-            control={form.control}
-            name="roles.platformAddress"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center justify-between">
-                  <span className="flex items-center">
-                    Platform
-                    <span className="text-destructive ml-1">*</span>
-                  </span>
-                </FormLabel>
-
-                <FormControl>
-                  <Input
-                    placeholder="Enter platform address"
-                    {...field}
-                    disabled={isEscrowLocked}
-                    onChange={(e) => {
-                      field.onChange(e);
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
         <FormField
           control={form.control}
           name="description"
@@ -374,12 +354,8 @@ export const UpdateEscrowForm = () => {
                   <Input
                     placeholder="Task description"
                     value={milestone.description}
-                    disabled={isEscrowLocked && index < initialMilestonesCount}
-                    onChange={(e) => {
-                      const updatedMilestones = [...milestones];
-                      updatedMilestones[index].description = e.target.value;
-                      form.setValue("milestones", updatedMilestones);
-                    }}
+                    disabled
+                    readOnly
                   />
                 </div>
 

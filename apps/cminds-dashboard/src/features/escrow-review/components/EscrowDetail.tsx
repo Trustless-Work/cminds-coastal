@@ -332,7 +332,7 @@ export const EscrowDetail = ({
         </div>
 
         <aside className="min-w-0 lg:col-span-5 xl:col-span-4">
-          <div className="min-w-0 space-y-6 overflow-hidden rounded-[24px] border border-border bg-background p-4 sm:p-6 md:p-8 lg:sticky lg:top-24">
+          <div className="relative z-10 min-w-0 space-y-6 overflow-visible rounded-[24px] border border-border bg-background p-4 sm:p-6 md:p-8 lg:sticky lg:top-24">
             <div className="min-w-0 space-y-1">
               <h2 className="text-lg font-semibold tracking-tight text-foreground">
                 Operator actions
@@ -402,7 +402,7 @@ export const EscrowDetail = ({
             {chainEscrow ? (
               <div className="min-w-0 space-y-3 border-t border-border pt-6">
                 <p className="text-sm font-medium text-foreground">
-                  Manage escrow
+                  Manage Escrow
                 </p>
                 <UpdateEscrowDialog />
               </div>

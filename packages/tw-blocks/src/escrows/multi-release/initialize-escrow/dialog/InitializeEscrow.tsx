@@ -192,6 +192,7 @@ export const InitializeEscrowDialog = () => {
                     </FormLabel>
                     <FormControl>
                       <Select
+                        items={[...trustlineOptions]}
                         value={field.value}
                         onValueChange={(e) => {
                           field.onChange(e);

@@ -43,6 +43,7 @@
     "@creit.tech/stellar-wallets-kit": "^2.5.0",
     "@hookform/resolvers": "^5.4.0",
     "@repo/config": "workspace:*",
+    "@repo/features": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/providers": "workspace:*",
     "@repo/ui": "workspace:*",

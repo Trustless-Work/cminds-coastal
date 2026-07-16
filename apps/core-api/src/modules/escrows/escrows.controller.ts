@@ -4,6 +4,7 @@ import {
   Get,
   Inject,
   Param,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -27,6 +28,7 @@ import { StorageService } from '../storage/storage.service';
 import { CreateEscrowDto } from './dto/create-escrow.dto';
 import { ListFundingEscrowsQueryDto } from './dto/list-funding-escrows-query.dto';
 import { ListParticipatingEscrowsQueryDto } from './dto/list-participating-escrows-query.dto';
+import { UpdateEscrowMetadataDto } from './dto/update-escrow-metadata.dto';
 import { EscrowsService } from './escrows.service';
 
 @ApiTags('escrows')
@@ -159,5 +161,25 @@ export class EscrowsController {
     @Param('escrowId') escrowId: string,
   ) {
     return this.escrowsService.findOne(user, escrowId);
+  }
+
+  @Patch(':escrowId')
+  @Roles(UserRole.CMINDS_OPERATOR, UserRole.COMMUNITY_IMPLEMENTER)
+  @ApiOperation({
+    summary:
+      'Update off-chain escrow title, description, and engagement after on-chain update',
+  })
+  @ApiParam({
+    name: 'escrowId',
+    description: 'Stellar contract ID (C-address)',
+  })
+  @ApiResponse({ status: 200, description: 'Escrow metadata updated' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  updateMetadata(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('escrowId') escrowId: string,
+    @Body() dto: UpdateEscrowMetadataDto,
+  ) {
+    return this.escrowsService.updateMetadata(user, escrowId, dto);
   }
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import {
   Form,
@@ -27,7 +29,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@repo/ui/components/dialog";
 
 export const UpdateEscrowDialog = () => {
@@ -47,16 +48,19 @@ export const UpdateEscrowDialog = () => {
   } = useUpdateEscrow({ onSuccess: () => setIsOpen(false) });
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button type="button" className="cursor-pointer w-full">
-          Update
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="!w-full sm:!max-w-4xl max-h-[95vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Update Escrow</DialogTitle>
-        </DialogHeader>
+    <>
+      <Button
+        type="button"
+        className="w-full cursor-pointer"
+        onClick={() => setIsOpen(true)}
+      >
+        Update
+      </Button>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="!w-full sm:!max-w-4xl max-h-[95vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Update Escrow</DialogTitle>
+          </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
             <Card className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4">
@@ -149,10 +153,19 @@ export const UpdateEscrowDialog = () => {
                     </FormLabel>
                     <FormControl>
                       <Select
+                        items={[...trustlineOptions]}
                         value={field.value}
                         disabled={isEscrowLocked}
-                        onValueChange={(e) => {
-                          field.onChange(e);
+                        onValueChange={(value) => {
+                          const address = String(value ?? "");
+                          field.onChange(address);
+                          form.setValue(
+                            "trustline.symbol",
+                            trustlineOptions.find(
+                              (option) => option.value === address,
+                            )?.label ?? "",
+                            { shouldValidate: true },
+                          );
                         }}
                       >
                         <SelectTrigger className="w-full">
@@ -318,35 +331,6 @@ export const UpdateEscrowDialog = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
-              <FormField
-                control={form.control}
-                name="roles.platformAddress"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center justify-between">
-                      <span className="flex items-center">
-                        Platform
-                        <span className="text-destructive ml-1">*</span>
-                      </span>
-                    </FormLabel>
-
-                    <FormControl>
-                      <Input
-                        placeholder="Enter platform address"
-                        {...field}
-                        disabled={isEscrowLocked}
-                        onChange={(e) => {
-                          field.onChange(e);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             <FormField
               control={form.control}
               name="description"
@@ -400,19 +384,8 @@ export const UpdateEscrowDialog = () => {
                       <Input
                         placeholder="Task description"
                         value={milestone.description}
-                        disabled={
-                          isEscrowLocked && index < initialMilestonesCount
-                        }
-                        onChange={(e) => {
-                          const updatedMilestones = [...milestones];
-                          const current = updatedMilestones[index];
-                          if (!current) return;
-                          updatedMilestones[index] = {
-                            ...current,
-                            description: e.target.value,
-                          };
-                          form.setValue("milestones", updatedMilestones);
-                        }}
+                        disabled
+                        readOnly
                       />
                     </div>
 
@@ -483,6 +456,7 @@ export const UpdateEscrowDialog = () => {
           </form>
         </Form>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+    </>
   );
 };

@@ -46,7 +46,7 @@ export type BuildEscrowPayload = {
   milestones: BuildEscrowMilestone[];
 };
 
-const DEFAULT_PLATFORM_FEE = 5;
+const DEFAULT_PLATFORM_FEE = 0;
 
 /**
  * Maps community create-form inputs into a multi-release Trustless Work

@@ -43,10 +43,10 @@ export function getMilestoneStatusText(
 
 export function getActiveMilestoneFlagLabels(flags: MilestoneFlags): string[] {
   const labels: string[] = [];
-  if (flags.approved) labels.push("Approve");
-  if (flags.disputed) labels.push("Dispute");
-  if (flags.released) labels.push("Release");
-  if (flags.resolved) labels.push("Resolve");
+  if (flags.approved) labels.push("APPROVED");
+  if (flags.disputed) labels.push("DISPUTED");
+  if (flags.released) labels.push("RELEASED");
+  if (flags.resolved) labels.push("RESOLVED");
   return labels;
 }
 

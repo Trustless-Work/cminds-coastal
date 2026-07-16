@@ -115,6 +115,24 @@ export async function fetchEscrow(escrowId: string): Promise<EscrowRecord> {
   return data;
 }
 
+export type UpdateEscrowMetadataPayload = {
+  title?: string;
+  description?: string;
+  engagement_id?: string;
+};
+
+/** Sync off-chain title / description / engagement after a successful on-chain update. */
+export async function updateEscrowMetadata(
+  escrowId: string,
+  payload: UpdateEscrowMetadataPayload,
+): Promise<EscrowRecord> {
+  const { data } = await http.patch<EscrowRecord>(
+    `/escrows/${encodeURIComponent(escrowId)}`,
+    payload,
+  );
+  return data;
+}
+
 /** Public funding catalog — cursor-paginated, no auth required. */
 export type FundingEscrowsQuery = {
   limit?: number;

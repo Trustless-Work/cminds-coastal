@@ -44,6 +44,7 @@ describe('EscrowsService', () => {
       findUnique: jest.fn(),
       findMany: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
     },
   };
 
@@ -412,6 +413,57 @@ describe('EscrowsService', () => {
       await expect(service.findOne(authUser, 'missing')).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('updateMetadata', () => {
+    const baseEscrow = {
+      escrow_id: 'C-ESCROW',
+      title: 'Old',
+      description: 'Old description',
+      engagement_id: 'ENG-OLD',
+      initializer_user_id: initializer.user_id,
+      approver_user_id: cmindsOperator.user_id,
+      release_signer_user_id: '33333333-3333-3333-3333-333333333333',
+    };
+
+    it('should update title, description, and engagement_id for CMinds operator', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+      prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
+      const updated = { ...baseEscrow, title: 'New', description: 'New desc', engagement_id: 'ENG-NEW' };
+      prismaMock.escrow.update.mockResolvedValue(updated);
+
+      await expect(
+        service.updateMetadata(authUser, 'C-ESCROW', {
+          title: 'New',
+          description: 'New desc',
+          engagement_id: 'ENG-NEW',
+        }),
+      ).resolves.toEqual(updated);
+
+      expect(prismaMock.escrow.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { escrow_id: 'C-ESCROW' },
+          data: {
+            title: 'New',
+            description: 'New desc',
+            engagement_id: 'ENG-NEW',
+          },
+        }),
+      );
+    });
+
+    it('should forbid unrelated user', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue({
+        user_id: '99999999-9999-9999-9999-999999999999',
+        roles: [UserRole.FUNDER],
+        is_active: true,
+      });
+      prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
+
+      await expect(
+        service.updateMetadata(authUser, 'C-ESCROW', { title: 'New' }),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 });

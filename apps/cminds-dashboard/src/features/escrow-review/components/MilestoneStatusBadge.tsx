@@ -9,7 +9,7 @@ type MilestoneStatusBadgeProps = {
 export const MilestoneStatusBadge = ({
   statusText,
 }: MilestoneStatusBadgeProps) => {
-  const label = statusText.trim() || "Pending";
+  const label = (statusText.trim() || "Pending").toUpperCase();
 
   return <Badge variant="outline">{label}</Badge>;
 };

@@ -27,10 +27,7 @@ export function useResolveDispute({
   const form = useForm<ResolveDisputeValues>({
     resolver: zodResolver(resolveDisputeSchema),
     defaultValues: {
-      distributions: [
-        { address: "", amount: "" },
-        { address: "", amount: "" },
-      ],
+      distributions: [{ address: "", amount: "" }],
       milestoneIndex: "0",
     },
     mode: "onChange",
@@ -124,7 +121,7 @@ export function useResolveDispute({
   };
 
   const handleRemoveDistribution = (index: number) => {
-    if (distributions.length <= 2) return;
+    if (distributions.length <= 1) return;
     const updated = distributions.filter((_, i) => i !== index);
     form.setValue("distributions", updated);
   };

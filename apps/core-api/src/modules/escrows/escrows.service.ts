@@ -266,6 +266,73 @@ export class EscrowsService {
     return escrow;
   }
 
+  async updateMetadata(
+    authUser: AuthenticatedUser,
+    escrowId: string,
+    dto: {
+      title?: string;
+      description?: string;
+      engagement_id?: string;
+    },
+  ) {
+    const user = await this.usersService.requireSyncedUser(authUser);
+    const escrow = await this.prisma.escrow.findUnique({
+      where: { escrow_id: escrowId },
+    });
+
+    if (!escrow) {
+      throw new NotFoundException(`Escrow ${escrowId} not found`);
+    }
+
+    const isOwner = escrow.initializer_user_id === user.user_id;
+    const isAssignedApprover = escrow.approver_user_id === user.user_id;
+    const isCminds = user.roles.includes(UserRole.CMINDS_OPERATOR);
+
+    if (!isOwner && !isAssignedApprover && !isCminds) {
+      throw new ForbiddenException('Not allowed to update this escrow');
+    }
+
+    if (
+      dto.title === undefined &&
+      dto.description === undefined &&
+      dto.engagement_id === undefined
+    ) {
+      throw new BadRequestException('At least one field is required');
+    }
+
+    const data: {
+      title?: string;
+      description?: string;
+      engagement_id?: string;
+    } = {};
+
+    if (dto.title !== undefined) data.title = dto.title.trim();
+    if (dto.description !== undefined) {
+      data.description = dto.description.trim();
+    }
+    if (dto.engagement_id !== undefined) {
+      data.engagement_id = dto.engagement_id.trim();
+    }
+
+    return this.prisma.escrow.update({
+      where: { escrow_id: escrowId },
+      data,
+      include: {
+        community: { select: COMMUNITY_SELECT },
+        milestones: {
+          include: { task: true },
+          orderBy: { milestone_index: 'asc' },
+        },
+        approver: {
+          select: { user_id: true, email: true, display_name: true },
+        },
+        release_signer: {
+          select: { user_id: true, email: true, display_name: true },
+        },
+      },
+    });
+  }
+
   private assertParticipatingRole(
     roles: UserRole[],
     as: ParticipatingRole,

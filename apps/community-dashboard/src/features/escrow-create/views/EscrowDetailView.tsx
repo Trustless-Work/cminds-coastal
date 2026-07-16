@@ -244,15 +244,17 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
                           </p>
                         ) : null}
                         <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                          <span>Status: {statusText || "Pending"}</span>
+                          <span>
+                            Status: {(statusText || "Pending").toUpperCase()}
+                          </span>
                           <span aria-hidden>·</span>
                           <span>
                             {flags?.released
-                              ? "Release"
+                              ? "RELEASED"
                               : flags?.approved
-                                ? "Approve"
+                                ? "APPROVED"
                                 : flags?.disputed
-                                  ? "Dispute"
+                                  ? "DISPUTED"
                                   : "—"}
                           </span>
                         </div>

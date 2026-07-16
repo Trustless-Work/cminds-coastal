@@ -25,7 +25,7 @@ export const MilestoneFlagBadges = ({ flags }: MilestoneFlagBadgesProps) => {
       {labels.map((label) => (
         <Badge
           key={label}
-          variant={label === "Dispute" ? "destructive" : "secondary"}
+          variant={label === "DISPUTE" ? "destructive" : "secondary"}
         >
           {label}
         </Badge>

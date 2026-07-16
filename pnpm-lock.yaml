@@ -853,6 +853,9 @@ importers:
       '@repo/config':
         specifier: workspace:*
         version: link:../config
+      '@repo/features':
+        specifier: workspace:*
+        version: link:../features
       '@repo/helpers':
         specifier: workspace:*
         version: link:../helpers

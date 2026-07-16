@@ -17,11 +17,22 @@ import {
   handleError,
 } from "../../../../handle-errors/handle";
 import { GetEscrowsFromIndexerResponse } from "@trustless-work/escrow/types";
+import { updateEscrowMetadata } from "@repo/features/escrow/services/escrows.service";
+import { useQueryClient } from "@tanstack/react-query";
+import { trustlineOptions } from "../../../../wallet-kit/trustlines";
+
+function resolveTrustlineSymbol(address: string, symbol?: string): string {
+  if (symbol?.trim()) return symbol.trim();
+  return (
+    trustlineOptions.find((option) => option.value === address)?.label ?? ""
+  );
+}
 
 export function useUpdateEscrow({
   onSuccess,
 }: { onSuccess?: () => void } = {}) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const queryClient = useQueryClient();
 
   const { getMultiReleaseFormSchema } = useUpdateEscrowSchema();
   const formSchema = getMultiReleaseFormSchema();
@@ -47,6 +58,10 @@ export function useUpdateEscrow({
         | undefined,
       trustline: {
         address: selectedEscrow?.trustline?.address || "",
+        symbol: resolveTrustlineSymbol(
+          selectedEscrow?.trustline?.address || "",
+          selectedEscrow?.trustline?.symbol,
+        ),
       },
       roles: {
         approver: selectedEscrow?.roles?.approver || "",
@@ -86,6 +101,10 @@ export function useUpdateEscrow({
           | undefined) || "",
       trustline: {
         address: selectedEscrow?.trustline?.address || "",
+        symbol: resolveTrustlineSymbol(
+          selectedEscrow?.trustline?.address || "",
+          selectedEscrow?.trustline?.symbol,
+        ),
       },
       roles: {
         approver: selectedEscrow?.roles?.approver || "",
@@ -128,7 +147,10 @@ export function useUpdateEscrow({
 
   const handleAddMilestone = () => {
     const current = form.getValues("milestones");
-    const updated = [...current, { receiver: "", description: "", amount: "" }];
+    const updated = [
+      ...current,
+      { receiver: "", description: "Additional Task", amount: "" },
+    ];
     form.setValue("milestones", updated);
   };
 
@@ -207,7 +229,10 @@ export function useUpdateEscrow({
               : payload.platformFee,
           trustline: {
             address: payload.trustline.address,
-            symbol: payload.trustline.symbol,
+            symbol: resolveTrustlineSymbol(
+              payload.trustline.address,
+              payload.trustline.symbol,
+            ),
           },
           roles: payload.roles,
           milestones: payload.milestones.map((milestone, index: number) => ({
@@ -235,7 +260,7 @@ export function useUpdateEscrow({
         address: walletAddress || "",
       })) as UpdateMultiReleaseEscrowResponse;
 
-      if (!selectedEscrow) return;
+      if (!selectedEscrow?.contractId) return;
 
       const nextSelectedEscrow: GetEscrowsFromIndexerResponse = {
         ...selectedEscrow,
@@ -247,9 +272,29 @@ export function useUpdateEscrow({
       };
 
       setSelectedEscrow(nextSelectedEscrow);
+
+      try {
+        await updateEscrowMetadata(selectedEscrow.contractId, {
+          title: finalPayload.escrow.title,
+          description: finalPayload.escrow.description,
+          engagement_id: finalPayload.escrow.engagementId,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["escrows", "participating"],
+        });
+      } catch (metadataError) {
+        toastError(
+          "Metadata Sync Failed",
+          handleError(metadataError as ErrorResponse).message ||
+            "On-chain update succeeded, but off-chain metadata could not be saved.",
+        );
+        onSuccess?.();
+        return;
+      }
+
       toastSuccess(
         "Escrow Updated",
-        "Your escrow changes were saved on-chain.",
+        "Your escrow changes were saved on-chain and in the database.",
       );
       onSuccess?.();
     } catch (error) {

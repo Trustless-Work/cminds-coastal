@@ -147,7 +147,7 @@ export const ResolveDisputeForm = ({
               type="button"
               onClick={() => handleRemoveDistribution(idx)}
               className="justify-self-end self-end p-2 bg-transparent text-destructive rounded-md border-none shadow-none hover:bg-transparent hover:shadow-none hover:text-destructive focus:ring-0 active:ring-0"
-              disabled={distributions.length <= 2}
+              disabled={distributions.length <= 1}
             >
               <Trash2 className="h-5 w-5" />
             </Button>
