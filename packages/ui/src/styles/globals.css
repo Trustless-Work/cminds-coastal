@@ -33,6 +33,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -85,8 +86,9 @@
   --input: #ececec;
   --ring: #b3b3b3;
 
-  /* Semantic (quiet) */
+  /* Semantic (quiet) — status only; see docs/DESIGN_SYSTEM.md §3.5 */
   --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.55 0.14 150);
 
   /* Charts — grayscale */
   --chart-1: #111111;
@@ -131,6 +133,7 @@
   --accent: #f3f3f3;
   --accent-foreground: #111111;
   --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.55 0.14 150);
   --border: #ececec;
   --input: #ececec;
   --ring: #b3b3b3;

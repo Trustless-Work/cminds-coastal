@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Button } from "@repo/ui/components/button";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 import {
@@ -14,7 +13,8 @@ import {
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useEscrowDialogs } from "@repo/providers/EscrowDialogsProvider";
 import { useEscrowAmountContext } from "@repo/providers/EscrowAmountProvider";
-import { Loader2 } from "lucide-react";
+import { IconActionButton } from "@repo/ui/components/icon-action-button";
+import { Banknote } from "lucide-react";
 
 type ReleaseMilestoneButtonProps = {
   milestoneIndex: number | string;
@@ -37,24 +37,12 @@ export const ReleaseMilestoneButton = ({
     try {
       setIsSubmitting(true);
 
-      /**
-       * Create the payload for the release escrow mutation
-       *
-       * @returns The payload for the release escrow mutation
-       */
       const payload: MultiReleaseReleaseFundsPayload = {
         contractId: selectedEscrow?.contractId || "",
         releaseSigner: walletAddress || "",
         milestoneIndex: String(milestoneIndex),
       };
 
-      /**
-       * Call the release escrow mutation
-       *
-       * @param payload - The payload for the release escrow mutation
-       * @param type - The type of the escrow
-       * @param address - The address of the escrow
-       */
       await releaseFunds.mutateAsync({
         payload,
         type: "multi-release",
@@ -66,11 +54,10 @@ export const ReleaseMilestoneButton = ({
         "Funds for this milestone were released on-chain.",
       );
 
-      // Ensure amounts are up to date for the success dialog
       if (selectedEscrow) {
         const milestone = selectedEscrow.milestones?.[Number(milestoneIndex)];
         const releasedAmount = Number(
-          (milestone as MultiReleaseMilestone | undefined)?.amount || 0
+          (milestone as MultiReleaseMilestone | undefined)?.amount || 0,
         );
         const platformFee = Number(selectedEscrow.platformFee || 0);
         setAmounts(releasedAmount, platformFee);
@@ -97,12 +84,8 @@ export const ReleaseMilestoneButton = ({
         balance: (selectedEscrow?.balance || 0) - (selectedEscrow?.amount || 0),
       });
 
-      // Remember which milestone was released for the success dialog
       setLastReleasedMilestoneIndex(Number(milestoneIndex));
-
-      // Open success dialog
       dialogStates.successRelease.setIsOpen(true);
-
       onSuccess?.(nextMilestones);
     } catch (error) {
       toastError(
@@ -116,20 +99,13 @@ export const ReleaseMilestoneButton = ({
   }
 
   return (
-    <Button
-      type="button"
-      disabled={isSubmitting}
-      onClick={handleClick}
-      className="cursor-pointer w-full"
-    >
-      {isSubmitting ? (
-        <div className="flex items-center">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span className="ml-2">Releasing...</span>
-        </div>
-      ) : (
-        "Release Task"
-      )}
-    </Button>
+    <IconActionButton
+      label="Release"
+      icon={<Banknote className="size-4" />}
+      loading={isSubmitting}
+      onClick={() => {
+        void handleClick();
+      }}
+    />
   );
 };

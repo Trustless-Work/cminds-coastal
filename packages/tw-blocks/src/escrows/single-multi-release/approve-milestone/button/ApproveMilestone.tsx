@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Button } from "@repo/ui/components/button";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 import {
@@ -12,7 +11,8 @@ import {
   handleError,
 } from "../../../../handle-errors/handle";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
-import { Loader2 } from "lucide-react";
+import { IconActionButton } from "@repo/ui/components/icon-action-button";
+import { Check } from "lucide-react";
 
 type ApproveMilestoneButtonProps = {
   milestoneIndex: number | string;
@@ -30,25 +30,12 @@ export const ApproveMilestoneButton = ({
     try {
       setIsSubmitting(true);
 
-      /**
-       * Create the payload for the approve milestone mutation
-       *
-       * @param milestoneIndex - The index of the milestone to approve
-       * @returns The payload for the approve milestone mutation
-       */
       const payload: ApproveMilestonePayload = {
         contractId: selectedEscrow?.contractId || "",
         milestoneIndex: String(milestoneIndex),
         approver: walletAddress || "",
       };
 
-      /**
-       * Call the approve milestone mutation
-       *
-       * @param payload - The payload for the approve milestone mutation
-       * @param type - The type of the escrow
-       * @param address - The address of the escrow
-       */
       await approveMilestone.mutateAsync({
         payload,
         type: selectedEscrow?.type || "multi-release",
@@ -91,20 +78,13 @@ export const ApproveMilestoneButton = ({
   }
 
   return (
-    <Button
-      type="button"
-      disabled={isSubmitting}
-      onClick={handleClick}
-      className="cursor-pointer w-full"
-    >
-      {isSubmitting ? (
-        <div className="flex items-center">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span className="ml-2">Approving...</span>
-        </div>
-      ) : (
-        "Approve Task"
-      )}
-    </Button>
+    <IconActionButton
+      label="Approve"
+      icon={<Check className="size-4" />}
+      loading={isSubmitting}
+      onClick={() => {
+        void handleClick();
+      }}
+    />
   );
 };

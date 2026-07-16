@@ -13,6 +13,14 @@ type MilestoneFlagBadgesProps = {
   };
 };
 
+type FlagBadgeVariant = "outline" | "success" | "destructive";
+
+function flagBadgeVariant(label: string): FlagBadgeVariant {
+  if (label === "DISPUTED") return "destructive";
+  if (label === "RELEASED" || label === "RESOLVED") return "success";
+  return "outline";
+}
+
 export const MilestoneFlagBadges = ({ flags }: MilestoneFlagBadgesProps) => {
   const labels = getActiveMilestoneFlagLabels(flags);
 
@@ -23,10 +31,7 @@ export const MilestoneFlagBadges = ({ flags }: MilestoneFlagBadgesProps) => {
   return (
     <div className="flex flex-wrap gap-1.5">
       {labels.map((label) => (
-        <Badge
-          key={label}
-          variant={label === "DISPUTE" ? "destructive" : "secondary"}
-        >
+        <Badge key={label} variant={flagBadgeVariant(label)}>
           {label}
         </Badge>
       ))}

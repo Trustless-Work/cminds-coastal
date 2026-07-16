@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { useSyncCompletedEscrowStatus } from "@repo/features/escrow/hooks/useSyncCompletedEscrowStatus";
 import type {
   EscrowMilestoneRecord,
   EscrowRecord,
@@ -15,10 +14,10 @@ import {
   formatEscrowStatusLabel,
   isEscrowCancelled,
 } from "@repo/features/escrow/utils/escrow-status-display";
+import { areAllMilestonesSettled } from "@repo/helpers";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { BalanceProgressDonut } from "@repo/tw-blocks/escrows/indicators/balance-progress/donut/BalanceProgress";
-import { UpdateEscrowDialog } from "@repo/tw-blocks/escrows/multi-release/update-escrow/dialog/UpdateEscrow";
 import { useEscrowsByContractIdsQuery } from "@repo/tw-blocks/tanstack/useEscrowsByContractIdsQuery";
 import { Badge } from "@repo/ui/components/badge";
 import { cn } from "@repo/ui/lib/utils";
@@ -32,8 +31,8 @@ import {
   getMilestoneStatusText,
   parseEvidenceLinks,
 } from "../utils";
-import { CancelEscrowButton } from "./CancelEscrowButton";
 import { ContractIdCopyPanel } from "./ContractIdCopyPanel";
+import { ManageEscrowActions } from "./ManageEscrowActions";
 import { MilestoneActions } from "./MilestoneActions";
 import { MilestoneFlagBadges } from "./MilestoneFlagBadges";
 import { MilestoneStatusBadge } from "./MilestoneStatusBadge";
@@ -62,15 +61,13 @@ export const EscrowDetail = ({
       ? (selectedEscrow.balance ?? chainEscrow?.balance)
       : chainEscrow?.balance;
 
-  useSyncCompletedEscrowStatus({
-    escrowId: contractId,
-    offchainStatus: metadata.status,
-    milestones: (
-      selectedEscrow?.contractId === contractId
-        ? selectedEscrow?.milestones
-        : chainEscrow?.milestones
-    ) as MultiReleaseMilestone[] | undefined,
-  });
+  /** Prefer live context flags, fall back to indexer — same source as task badges. */
+  const liveMilestones = (
+    selectedEscrow?.contractId === contractId &&
+    selectedEscrow.milestones?.length
+      ? selectedEscrow.milestones
+      : chainEscrow?.milestones
+  ) as MultiReleaseMilestone[] | undefined;
 
   useEffect(() => {
     if (!chainEscrow?.contractId) return;
@@ -82,6 +79,8 @@ export const EscrowDetail = ({
   const imageSrc = metadata.image_url ?? "/assets/dashboard.webp";
   const isLocalImage = imageSrc.startsWith("/");
   const cancelled = isEscrowCancelled(metadata.status);
+  const completed = metadata.status.toUpperCase() === "COMPLETED";
+  const milestonesSettled = areAllMilestonesSettled(liveMilestones ?? []);
   const area = metadata.geographic_area?.trim();
   const taskCount = metadata.milestones.length;
   const total = metadata.milestones.reduce(
@@ -206,7 +205,8 @@ export const EscrowDetail = ({
                   Tasks
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Review evidence and approve or dispute each milestone.
+                  Review evidence and approve milestones, or resolve disputes
+                  raised by the community.
                 </p>
               </div>
               <UsdcAmount
@@ -438,13 +438,13 @@ export const EscrowDetail = ({
             </dl>
 
             <div className="min-w-0 space-y-3 border-t border-border pt-6">
-              <p className="text-sm font-medium text-foreground">
-                Manage Escrow
-              </p>
-              {chainEscrow && !cancelled ? <UpdateEscrowDialog /> : null}
-              <CancelEscrowButton
+              <ManageEscrowActions
                 escrowId={contractId}
                 status={metadata.status}
+                showUpdate={Boolean(chainEscrow && !cancelled && !completed)}
+                balance={Number(balance ?? 0)}
+                milestones={liveMilestones}
+                milestonesSettled={milestonesSettled}
               />
               {!chainEscrow ? (
                 <p className="break-words text-sm leading-relaxed text-muted-foreground">

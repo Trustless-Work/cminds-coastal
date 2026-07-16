@@ -9,10 +9,7 @@ import { toastError, toastSuccess } from "@repo/ui/lib/toast";
 import { WithdrawRemainingFundsPayload } from "@trustless-work/escrow";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
-import {
-  ErrorResponse,
-  handleError,
-} from "../../../../handle-errors/handle";
+import { ErrorResponse, handleError } from "../../../../handle-errors/handle";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 
 type DistributionInput = { address: string; amount: string | number };
@@ -66,7 +63,7 @@ export function useWithdrawRemainingFunds({
 
   const handleDistributionAmountChange = (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     let rawValue = e.target.value;
     rawValue = rawValue.replace(/[^0-9.]/g, "");

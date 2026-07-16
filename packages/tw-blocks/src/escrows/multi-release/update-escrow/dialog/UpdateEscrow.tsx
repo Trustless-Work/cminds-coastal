@@ -31,7 +31,14 @@ import {
   DialogTitle,
 } from "@repo/ui/components/dialog";
 
-export const UpdateEscrowDialog = () => {
+type UpdateEscrowDialogProps = {
+  /** Custom trigger that opens the dialog. Receives the open handler. */
+  renderTrigger?: (open: () => void) => React.ReactNode;
+};
+
+export const UpdateEscrowDialog = ({
+  renderTrigger,
+}: UpdateEscrowDialogProps = {}) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const {
     form,
@@ -47,15 +54,23 @@ export const UpdateEscrowDialog = () => {
     initialMilestonesCount,
   } = useUpdateEscrow({ onSuccess: () => setIsOpen(false) });
 
+  function openDialog(): void {
+    setIsOpen(true);
+  }
+
   return (
     <>
-      <Button
-        type="button"
-        className="w-full cursor-pointer"
-        onClick={() => setIsOpen(true)}
-      >
-        Update
-      </Button>
+      {renderTrigger ? (
+        renderTrigger(openDialog)
+      ) : (
+        <Button
+          type="button"
+          className="w-full cursor-pointer"
+          onClick={openDialog}
+        >
+          Update
+        </Button>
+      )}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="!w-full sm:!max-w-4xl max-h-[95vh] overflow-y-auto">
           <DialogHeader>

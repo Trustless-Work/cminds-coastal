@@ -14,9 +14,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@repo/ui/components/dialog";
-import { Loader2, Trash2 } from "lucide-react";
+import { IconActionButton } from "@repo/ui/components/icon-action-button";
+import { Loader2, Scale, Trash2 } from "lucide-react";
 import { useResolveDispute } from "../shared/useResolveDispute";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { formatCurrency } from "@repo/helpers";
@@ -33,10 +33,12 @@ export const ResolveDisputeDialog = ({
   showSelectMilestone = false,
   milestoneIndex,
   onSuccess,
+  renderTrigger,
 }: {
   showSelectMilestone?: boolean;
   milestoneIndex?: number | string;
   onSuccess?: (milestones: MultiReleaseMilestone[]) => void;
+  renderTrigger?: (open: () => void) => React.ReactNode;
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const {
@@ -71,13 +73,22 @@ export const ResolveDisputeDialog = ({
     }
   }, [showSelectMilestone, milestoneIndex, form]);
 
+  function openDialog(): void {
+    setIsOpen(true);
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button type="button" className="cursor-pointer w-full">
-          Resolve Dispute
-        </Button>
-      </DialogTrigger>
+    <>
+      {renderTrigger ? (
+        renderTrigger(openDialog)
+      ) : (
+        <IconActionButton
+          label="Resolve Dispute"
+          icon={<Scale className="size-4" />}
+          onClick={openDialog}
+        />
+      )}
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="!w-full sm:!max-w-3xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Resolve Dispute</DialogTitle>
@@ -238,6 +249,7 @@ export const ResolveDisputeDialog = ({
           </form>
         </Form>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+    </>
   );
 };

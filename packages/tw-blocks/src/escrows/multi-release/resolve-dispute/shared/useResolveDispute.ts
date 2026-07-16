@@ -9,10 +9,7 @@ import {
 } from "@trustless-work/escrow";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
-import {
-  ErrorResponse,
-  handleError,
-} from "../../../../handle-errors/handle";
+import { ErrorResponse, handleError } from "../../../../handle-errors/handle";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 
 type DistributionInput = { address: string; amount: string | number };
@@ -40,7 +37,7 @@ export function useResolveDispute({
     const milestones = selectedEscrow.milestones as MultiReleaseMilestone[];
     return milestones.reduce(
       (acc, milestone) => acc + Number(milestone.amount),
-      0
+      0,
     );
   }, [selectedEscrow]);
 
@@ -98,7 +95,7 @@ export function useResolveDispute({
 
   const handleDistributionAmountChange = (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     let rawValue = e.target.value;
     rawValue = rawValue.replace(/[^0-9.]/g, "");

@@ -14,14 +14,19 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@repo/ui/components/dialog";
 import { Loader2, Trash2 } from "lucide-react";
 import { useWithdrawRemainingFunds } from "../shared/useWithdrawRemainingFunds";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { formatCurrency } from "@repo/helpers";
 
-export const WithdrawRemainingFundsDialog = () => {
+type WithdrawRemainingFundsDialogProps = {
+  renderTrigger?: (open: () => void) => React.ReactNode;
+};
+
+export const WithdrawRemainingFundsDialog = ({
+  renderTrigger,
+}: WithdrawRemainingFundsDialogProps = {}) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const {
     form,
@@ -40,13 +45,24 @@ export const WithdrawRemainingFundsDialog = () => {
   } = useWithdrawRemainingFunds({ onSuccess: () => setIsOpen(false) });
   const { selectedEscrow } = useEscrowContext();
 
+  function openDialog(): void {
+    setIsOpen(true);
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button type="button" className="cursor-pointer w-full">
+    <>
+      {renderTrigger ? (
+        renderTrigger(openDialog)
+      ) : (
+        <Button
+          type="button"
+          className="w-full cursor-pointer"
+          onClick={openDialog}
+        >
           Withdraw Remaining
         </Button>
-      </DialogTrigger>
+      )}
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="!w-full sm:!max-w-3xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Withdraw Remaining Funds</DialogTitle>
@@ -172,6 +188,7 @@ export const WithdrawRemainingFundsDialog = () => {
           </form>
         </Form>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+    </>
   );
 };

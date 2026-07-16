@@ -15,9 +15,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@repo/ui/components/dialog";
-import { Loader2 } from "lucide-react";
+import { IconActionButton } from "@repo/ui/components/icon-action-button";
+import { ClipboardList, Loader2 } from "lucide-react";
 import { useChangeMilestoneStatus } from "../shared/useChangeMilestoneStatus";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import type { MultiReleaseMilestone } from "@trustless-work/escrow/types";
@@ -32,9 +32,11 @@ import {
 export const ChangeMilestoneStatusDialog = ({
   showSelectMilestone = false,
   milestoneIndex,
+  renderTrigger,
 }: {
   showSelectMilestone?: boolean;
   milestoneIndex?: number | string;
+  renderTrigger?: (open: () => void) => React.ReactNode;
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const { form, handleSubmit, isSubmitting } = useChangeMilestoneStatus({
@@ -52,13 +54,22 @@ export const ChangeMilestoneStatusDialog = ({
     }
   }, [showSelectMilestone, milestoneIndex, form]);
 
+  function openDialog(): void {
+    setIsOpen(true);
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button type="button" className="cursor-pointer w-full">
-          Update Status
-        </Button>
-      </DialogTrigger>
+    <>
+      {renderTrigger ? (
+        renderTrigger(openDialog)
+      ) : (
+        <IconActionButton
+          label="Update Status"
+          icon={<ClipboardList className="size-4" />}
+          onClick={openDialog}
+        />
+      )}
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Change Task Status</DialogTitle>
@@ -175,6 +186,7 @@ export const ChangeMilestoneStatusDialog = ({
           </form>
         </Form>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+    </>
   );
 };

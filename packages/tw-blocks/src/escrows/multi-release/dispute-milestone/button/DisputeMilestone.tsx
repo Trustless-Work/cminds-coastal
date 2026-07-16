@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Button } from "@repo/ui/components/button";
 import { useEscrowsMutations } from "../../../../tanstack/useEscrowsMutations";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 import {
@@ -12,7 +11,8 @@ import {
   handleError,
 } from "../../../../handle-errors/handle";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
-import { Loader2 } from "lucide-react";
+import { IconActionButton } from "@repo/ui/components/icon-action-button";
+import { Swords } from "lucide-react";
 
 type DisputeMilestoneButtonProps = {
   milestoneIndex: number | string;
@@ -30,24 +30,12 @@ export const DisputeMilestoneButton = ({
     try {
       setIsSubmitting(true);
 
-      /**
-       * Create the payload for the dispute escrow mutation
-       *
-       * @returns The payload for the dispute escrow mutation
-       */
       const payload: MultiReleaseStartDisputePayload = {
         contractId: selectedEscrow?.contractId || "",
         signer: walletAddress || "",
         milestoneIndex: String(milestoneIndex),
       };
 
-      /**
-       * Call the dispute escrow mutation
-       *
-       * @param payload - The payload for the dispute escrow mutation
-       * @param type - The type of the escrow
-       * @param address - The address of the escrow
-       */
       await startDispute.mutateAsync({
         payload,
         type: "multi-release",
@@ -86,20 +74,15 @@ export const DisputeMilestoneButton = ({
   }
 
   return (
-    <Button
-      type="button"
-      disabled={isSubmitting || !selectedEscrow?.balance}
-      onClick={handleClick}
-      className="cursor-pointer w-full"
-    >
-      {isSubmitting ? (
-        <div className="flex items-center">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span className="ml-2">Disputing...</span>
-        </div>
-      ) : (
-        "Dispute Task"
-      )}
-    </Button>
+    <IconActionButton
+      label="Dispute"
+      icon={<Swords className="size-4" />}
+      variant="destructive"
+      loading={isSubmitting}
+      disabled={!selectedEscrow?.balance}
+      onClick={() => {
+        void handleClick();
+      }}
+    />
   );
 };

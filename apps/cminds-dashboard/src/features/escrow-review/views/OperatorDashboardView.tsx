@@ -58,7 +58,8 @@ export const OperatorDashboardView = () => {
             Coastal Escrow Oversight
           </h2>
           <p className="max-w-xl text-base text-muted-foreground">
-            Review evidence, approve or dispute milestones, and monitor escrows
+            Review evidence, approve milestones, resolve disputes, and monitor
+            escrows
             where you are the assigned approver.
           </p>
         </header>
@@ -97,7 +98,7 @@ export const OperatorDashboardView = () => {
             Review Queue
           </h3>
           <p className="text-sm text-muted-foreground">
-            Approve or dispute evidence ready for CMinds review.
+            Approve evidence ready for CMinds review.
           </p>
         </header>
         <ReviewQueueCarousel
