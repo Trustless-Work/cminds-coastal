@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "prettier": "^3.7.4",
+    "shadcn": "^4.13.0",
     "turbo": "^2.10.4",
     "typescript": "catalog:"
   },
