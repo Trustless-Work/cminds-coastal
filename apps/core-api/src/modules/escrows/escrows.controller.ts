@@ -187,7 +187,8 @@ export class EscrowsController {
   @Patch(':escrowId/status')
   @Roles(UserRole.CMINDS_OPERATOR, UserRole.COMMUNITY_IMPLEMENTER)
   @ApiOperation({
-    summary: 'Update off-chain escrow status (CANCELLED or COMPLETED)',
+    summary:
+      'Update off-chain escrow status (CANCELLED, COMPLETED, or INITIALIZED restore)',
   })
   @ApiParam({
     name: 'escrowId',

@@ -133,9 +133,9 @@ export async function updateEscrowMetadata(
   return data;
 }
 
-export type UpdatableEscrowStatus = "CANCELLED" | "COMPLETED";
+export type UpdatableEscrowStatus = "CANCELLED" | "COMPLETED" | "INITIALIZED";
 
-/** Sync off-chain escrow status (CANCELLED or COMPLETED). */
+/** Sync off-chain escrow status (CANCELLED, COMPLETED, or restore to INITIALIZED). */
 export async function updateEscrowStatus(
   escrowId: string,
   status: UpdatableEscrowStatus,

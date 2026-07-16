@@ -9,6 +9,12 @@ import {
   fetchFundingEscrow,
   type EscrowRecord,
 } from "@repo/features/escrow/services/escrows.service";
+import {
+  CANCELLED_ESCROW_IMAGE_CLASS,
+  escrowStatusBadgeVariant,
+  formatEscrowStatusLabel,
+  isEscrowCancelled,
+} from "@repo/features/escrow/utils/escrow-status-display";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { Navbar } from "@repo/shared/Navbar";
 import { SiteFooter } from "@repo/shared/SiteFooter";
@@ -23,6 +29,7 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
+import { cn } from "@repo/ui/lib/utils";
 
 import { ContractIdCopyPanel } from "../components/ContractIdCopyPanel";
 import { FALLBACK_COVERS } from "../constants/landing";
@@ -139,6 +146,7 @@ function TransparencyEscrowDetailContent({
   );
   const imageSrc = metadata.image_url ?? FALLBACK_COVERS[0];
   const isLocalImage = imageSrc.startsWith("/");
+  const cancelled = isEscrowCancelled(metadata.status);
   const area = metadata.geographic_area?.trim();
   const taskCount = metadata.milestones.length;
 
@@ -155,7 +163,7 @@ function TransparencyEscrowDetailContent({
       <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-12 lg:gap-12">
         <div className="min-w-0 space-y-8 overflow-hidden sm:space-y-10 lg:col-span-7 xl:col-span-8">
           <div className="overflow-hidden rounded-[24px] border border-border bg-background-secondary sm:rounded-[32px]">
-            <div className="relative aspect-[16/10] w-full">
+            <div className="relative aspect-[16/10] w-full overflow-hidden">
               {isLocalImage ? (
                 <Image
                   src={imageSrc}
@@ -163,26 +171,43 @@ function TransparencyEscrowDetailContent({
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 66vw"
-                  className="object-cover"
+                  className={cn(
+                    "object-cover",
+                    cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+                  )}
                 />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element -- remote escrow covers may use any storage host
                 <img
                   src={imageSrc}
                   alt=""
-                  className="absolute inset-0 size-full object-cover"
+                  className={cn(
+                    "absolute inset-0 size-full object-cover",
+                    cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+                  )}
                 />
               )}
+              {cancelled ? (
+                <span className="absolute inset-0 bg-background/25" aria-hidden />
+              ) : null}
+              {cancelled ? (
+                <Badge
+                  variant="destructive"
+                  className="absolute bottom-4 right-4 font-medium"
+                >
+                  Cancelled
+                </Badge>
+              ) : null}
             </div>
           </div>
 
           <header className="min-w-0 space-y-4">
             <div className="flex flex-wrap items-center gap-2">
               <Badge
-                variant="outline"
+                variant={escrowStatusBadgeVariant(metadata.status)}
                 className="max-w-full truncate rounded-xl font-medium"
               >
-                {metadata.status}
+                {formatEscrowStatusLabel(metadata.status)}
               </Badge>
               <span className="shrink-0 text-sm text-muted-foreground">
                 {taskCount} task{taskCount === 1 ? "" : "s"}

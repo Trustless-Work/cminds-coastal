@@ -31,15 +31,25 @@ export const CancelEscrowButton = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const normalized = status.toUpperCase();
-  if (normalized === "CANCELLED" || normalized === "COMPLETED") {
+  if (normalized === "COMPLETED") {
     return null;
   }
+
+  const isCancelled = normalized === "CANCELLED";
 
   async function handleConfirm(): Promise<void> {
     try {
       setIsSubmitting(true);
-      await updateEscrowStatus(escrowId, "CANCELLED");
-      toastSuccess("Escrow Cancelled", "Off-chain status is now Cancelled.");
+      if (isCancelled) {
+        await updateEscrowStatus(escrowId, "INITIALIZED");
+        toastSuccess(
+          "Escrow Restored",
+          "Off-chain status is back to Initialized.",
+        );
+      } else {
+        await updateEscrowStatus(escrowId, "CANCELLED");
+        toastSuccess("Escrow Cancelled", "Off-chain status is now Cancelled.");
+      }
       void queryClient.invalidateQueries({ queryKey: ["escrows"] });
       setOpen(false);
     } catch (error) {
@@ -48,8 +58,10 @@ export const CancelEscrowButton = ({
           ? error.message
           : error instanceof Error
             ? error.message
-            : "Could not cancel escrow.";
-      toastError("Cancel Failed", message);
+            : isCancelled
+              ? "Could not restore escrow."
+              : "Could not cancel escrow.";
+      toastError(isCancelled ? "Restore Failed" : "Cancel Failed", message);
     } finally {
       setIsSubmitting(false);
     }
@@ -58,20 +70,29 @@ export const CancelEscrowButton = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="destructive"
-          className="w-full border border-destructive/30"
-        >
-          Cancel
-        </Button>
+        {isCancelled ? (
+          <Button type="button" variant="outline" className="w-full">
+            Restore
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="destructive"
+            className="w-full border border-destructive/30"
+          >
+            Cancel
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Cancel Escrow</DialogTitle>
+          <DialogTitle>
+            {isCancelled ? "Restore Escrow" : "Cancel Escrow"}
+          </DialogTitle>
           <DialogDescription>
-            This updates the off-chain status to Cancelled. It does not modify
-            the on-chain contract. Continue?
+            {isCancelled
+              ? "This sets the off-chain status back to Initialized. It does not modify the on-chain contract. Continue?"
+              : "This updates the off-chain status to Cancelled. It does not modify the on-chain contract. Continue?"}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
@@ -81,11 +102,11 @@ export const CancelEscrowButton = ({
             disabled={isSubmitting}
             onClick={() => setOpen(false)}
           >
-            Keep Escrow
+            {isCancelled ? "Keep Cancelled" : "Keep Escrow"}
           </Button>
           <Button
             type="button"
-            variant="destructive"
+            variant={isCancelled ? "default" : "destructive"}
             disabled={isSubmitting}
             onClick={() => {
               void handleConfirm();
@@ -94,8 +115,10 @@ export const CancelEscrowButton = ({
             {isSubmitting ? (
               <span className="inline-flex items-center gap-2">
                 <Loader2 className="size-4 animate-spin" />
-                Cancelling…
+                {isCancelled ? "Restoring…" : "Cancelling…"}
               </span>
+            ) : isCancelled ? (
+              "Restore Escrow"
             ) : (
               "Cancel Escrow"
             )}

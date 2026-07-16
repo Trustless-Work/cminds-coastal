@@ -548,6 +548,48 @@ describe('EscrowsService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
+    it('should allow CMinds operator to restore a cancelled escrow', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+      prismaMock.escrow.findUnique.mockResolvedValue({
+        ...baseEscrow,
+        status: EscrowStatus.CANCELLED,
+      });
+      const updated = { ...baseEscrow, status: EscrowStatus.INITIALIZED };
+      prismaMock.escrow.update.mockResolvedValue(updated);
+
+      await expect(
+        service.updateStatus(authUser, 'C-ESCROW', EscrowStatus.INITIALIZED),
+      ).resolves.toEqual(updated);
+
+      expect(prismaMock.escrow.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { escrow_id: 'C-ESCROW' },
+          data: { status: EscrowStatus.INITIALIZED },
+        }),
+      );
+    });
+
+    it('should forbid community implementer from restoring', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(initializer);
+      prismaMock.escrow.findUnique.mockResolvedValue({
+        ...baseEscrow,
+        status: EscrowStatus.CANCELLED,
+      });
+
+      await expect(
+        service.updateStatus(authUser, 'C-ESCROW', EscrowStatus.INITIALIZED),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should reject restoring a non-cancelled escrow', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+      prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
+
+      await expect(
+        service.updateStatus(authUser, 'C-ESCROW', EscrowStatus.INITIALIZED),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('should throw NotFoundException when missing', async () => {
       usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
       prismaMock.escrow.findUnique.mockResolvedValue(null);

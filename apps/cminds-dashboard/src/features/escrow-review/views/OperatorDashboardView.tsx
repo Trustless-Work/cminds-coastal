@@ -34,6 +34,7 @@ export const OperatorDashboardView = () => {
     setDraftFilters,
     appliedFilters,
     applyFilters,
+    clearFilters,
     hasActiveFilters,
   } = useEscrowListSearchParams();
 
@@ -120,6 +121,7 @@ export const OperatorDashboardView = () => {
             statusOptions={[...ESCROW_STATUS_FILTER_OPTIONS]}
             onChange={setDraftFilters}
             onSearch={applyFilters}
+            onClear={clearFilters}
           />
         </header>
 

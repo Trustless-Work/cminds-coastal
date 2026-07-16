@@ -4,6 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import type { EscrowRecord } from "@repo/features/escrow/services/escrows.service";
+import {
+  CANCELLED_ESCROW_IMAGE_CLASS,
+  escrowStatusBadgeVariant,
+  formatEscrowStatusLabel,
+  isEscrowCancelled,
+} from "@repo/features/escrow/utils/escrow-status-display";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
 import { Badge } from "@repo/ui/components/badge";
 import { Separator } from "@repo/ui/components/separator";
@@ -14,14 +20,6 @@ type CommunityEscrowImageCardProps = {
   className?: string;
   style?: CSSProperties;
 };
-
-function formatStatusLabel(status: string): string {
-  return status
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
 
 function formatCreatedDate(value: string): string {
   const date = new Date(value);
@@ -40,6 +38,7 @@ export const CommunityEscrowImageCard = ({
 }: CommunityEscrowImageCardProps) => {
   const imageSrc = escrow.image_url ?? "/assets/hero.webp";
   const isLocal = imageSrc.startsWith("/");
+  const cancelled = isEscrowCancelled(escrow.status);
   const area = escrow.geographic_area?.trim();
   const description = escrow.description?.trim();
   const taskCount = escrow.milestones.length;
@@ -64,16 +63,33 @@ export const CommunityEscrowImageCard = ({
             alt=""
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.03]"
+            className={cn(
+              "object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.03]",
+              cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+            )}
           />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element -- remote escrow covers may use any storage host
           <img
             src={imageSrc}
             alt=""
-            className="absolute inset-0 size-full object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.03]"
+            className={cn(
+              "absolute inset-0 size-full object-cover transition-transform duration-[250ms] ease-out group-hover:scale-[1.03]",
+              cancelled && CANCELLED_ESCROW_IMAGE_CLASS,
+            )}
           />
         )}
+        {cancelled ? (
+          <span className="absolute inset-0 bg-background/25" aria-hidden />
+        ) : null}
+        {cancelled ? (
+          <Badge
+            variant="destructive"
+            className="absolute bottom-3 right-3 font-medium"
+          >
+            Cancelled
+          </Badge>
+        ) : null}
       </div>
 
       <div className="mt-3 flex min-w-0 flex-1 flex-col px-1 pb-1 sm:mt-4">
@@ -107,8 +123,11 @@ export const CommunityEscrowImageCard = ({
           <div className="min-w-0">
             <dt className="text-xs text-muted-foreground">Status</dt>
             <dd className="mt-1">
-              <Badge variant="outline" className="font-normal">
-                {formatStatusLabel(escrow.status)}
+              <Badge
+                variant={escrowStatusBadgeVariant(escrow.status)}
+                className="font-normal"
+              >
+                {formatEscrowStatusLabel(escrow.status)}
               </Badge>
             </dd>
           </div>

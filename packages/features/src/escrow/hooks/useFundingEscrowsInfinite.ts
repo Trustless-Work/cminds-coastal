@@ -71,6 +71,11 @@ export function useEscrowListSearchParams() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [draftFilters, pathname, router]);
 
+  const clearFilters = useCallback(() => {
+    setDraftFilters(EMPTY_ESCROW_LIST_FILTERS);
+    router.replace(pathname, { scroll: false });
+  }, [pathname, router]);
+
   const hasActiveFilters = Boolean(
     appliedFilters.status ||
       appliedFilters.community ||
@@ -82,6 +87,7 @@ export function useEscrowListSearchParams() {
     setDraftFilters,
     appliedFilters,
     applyFilters,
+    clearFilters,
     hasActiveFilters,
   };
 }

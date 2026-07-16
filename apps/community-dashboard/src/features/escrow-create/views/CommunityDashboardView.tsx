@@ -31,6 +31,7 @@ export const CommunityDashboardView = () => {
     setDraftFilters,
     appliedFilters,
     applyFilters,
+    clearFilters,
     hasActiveFilters,
   } = useEscrowListSearchParams();
 
@@ -41,7 +42,7 @@ export const CommunityDashboardView = () => {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pb-24 pt-6 sm:px-10">
-      <CommunityBanner headline="Your coastal work" />
+      <CommunityBanner headline="Your Coastal Work" />
 
       <div className="mt-10 grid items-start gap-8 sm:mt-12 lg:grid-cols-12 lg:gap-12">
         <header className="flex flex-col gap-4 lg:col-span-5">
@@ -102,6 +103,7 @@ export const CommunityDashboardView = () => {
             statusOptions={[...ESCROW_STATUS_FILTER_OPTIONS]}
             onChange={setDraftFilters}
             onSearch={applyFilters}
+            onClear={clearFilters}
           />
         </header>
 

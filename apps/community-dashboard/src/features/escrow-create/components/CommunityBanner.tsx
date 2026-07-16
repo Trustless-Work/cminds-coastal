@@ -9,7 +9,7 @@ type CommunityBannerProps = {
 };
 
 export const CommunityBanner = ({
-  headline = "Your coastal work",
+  headline = "Your Coastal Work",
   imageSrc = "/assets/hero.webp",
   imageAlt = "Coastal community conservation",
 }: CommunityBannerProps) => {

@@ -16,6 +16,7 @@ import {
   type ListFundingEscrowsQueryDto,
 } from './dto/list-funding-escrows-query.dto';
 import type { ParticipatingRole } from './dto/list-participating-escrows-query.dto';
+import type { UpdatableEscrowStatus } from './dto/update-escrow-status.dto';
 
 type FundingCursorPayload = {
   createdAt: string;
@@ -338,7 +339,7 @@ export class EscrowsService {
   async updateStatus(
     authUser: AuthenticatedUser,
     escrowId: string,
-    status: EscrowStatus.CANCELLED | EscrowStatus.COMPLETED,
+    status: UpdatableEscrowStatus,
   ) {
     const user = await this.usersService.requireSyncedUser(authUser);
     const escrow = await this.prisma.escrow.findUnique({
@@ -380,6 +381,19 @@ export class EscrowsService {
       }
       if (escrow.status === EscrowStatus.CANCELLED) {
         throw new BadRequestException('Cannot complete a cancelled escrow');
+      }
+    }
+
+    if (status === EscrowStatus.INITIALIZED) {
+      if (!isCminds) {
+        throw new ForbiddenException(
+          'Only CMINDS_OPERATOR can restore an escrow',
+        );
+      }
+      if (escrow.status !== EscrowStatus.CANCELLED) {
+        throw new BadRequestException(
+          'Only cancelled escrows can be restored to Initialized',
+        );
       }
     }
 

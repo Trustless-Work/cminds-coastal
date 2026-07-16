@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { Building2, ListFilter, Search } from "lucide-react";
+import { Building2, ListFilter, Search, Trash2 } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import {
@@ -15,6 +15,7 @@ import {
 import { cn } from "@repo/ui/lib/utils";
 
 import type { EscrowListFilters } from "../hooks/useFundingEscrowsInfinite";
+import { formatEscrowStatusLabel } from "../utils/escrow-status-display";
 
 export type EscrowListCommunityOption = {
   community_id: string;
@@ -34,6 +35,7 @@ type EscrowListFilterBarProps = {
   communityOptions?: EscrowListCommunityOption[];
   onChange: (next: EscrowListFilters) => void;
   onSearch: () => void;
+  onClear?: () => void;
   className?: string;
 };
 
@@ -50,20 +52,13 @@ function activeFilterCount(
   ].filter(Boolean).length;
 }
 
-function formatStatusLabel(status: string): string {
-  return status
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
 export const EscrowListFilterBar = ({
   values,
   statusOptions,
   communityOptions,
   onChange,
   onSearch,
+  onClear,
   className,
 }: EscrowListFilterBarProps) => {
   const [open, setOpen] = useState(false);
@@ -93,7 +88,7 @@ export const EscrowListFilterBar = ({
             <SelectItem value={ALL_VALUE}>All statuses</SelectItem>
             {statusOptions.map((status) => (
               <SelectItem key={status} value={status}>
-                {formatStatusLabel(status)}
+                {formatEscrowStatusLabel(status)}
               </SelectItem>
             ))}
           </SelectGroup>
@@ -137,7 +132,19 @@ export const EscrowListFilterBar = ({
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end gap-2">
+        {count > 0 && onClear ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Clear all filters"
+            onClick={onClear}
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 className="size-4" />
+          </Button>
+        ) : null}
         <Button
           type="button"
           variant="outline"
