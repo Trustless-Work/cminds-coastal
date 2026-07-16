@@ -31,6 +31,8 @@ export function useCreateEscrowForm() {
   const [cmindsUser, setCmindsUser] = useState<UserSearchResult | null>(null);
   const [releaseSigner, setReleaseSigner] =
     useState<UserSearchResult | null>(null);
+  const [disputeResolver, setDisputeResolver] =
+    useState<UserSearchResult | null>(null);
   const [receiverUsers, setReceiverUsers] = useState<
     Record<string, UserSearchResult | null>
   >({});
@@ -50,6 +52,8 @@ export function useCreateEscrowForm() {
       cmindsWalletAddress: "",
       releaseSignerUserId: "",
       releaseSignerWalletAddress: "",
+      disputeResolverUserId: "",
+      disputeResolverWalletAddress: "",
       selectedTaskIds: [],
       amounts: {},
       receivers: {},
@@ -99,6 +103,16 @@ export function useCreateEscrowForm() {
       shouldValidate: true,
     });
     form.setValue("releaseSignerWalletAddress", user?.wallet_address ?? "", {
+      shouldValidate: true,
+    });
+  }
+
+  function selectDisputeResolver(user: UserSearchResult | null) {
+    setDisputeResolver(user);
+    form.setValue("disputeResolverUserId", user?.user_id ?? "", {
+      shouldValidate: true,
+    });
+    form.setValue("disputeResolverWalletAddress", user?.wallet_address ?? "", {
       shouldValidate: true,
     });
   }
@@ -222,6 +236,7 @@ export function useCreateEscrowForm() {
         signerAddress: walletAddress,
         cmindsWalletAddress: values.cmindsWalletAddress,
         releaseSignerWalletAddress: values.releaseSignerWalletAddress,
+        disputeResolverWalletAddress: values.disputeResolverWalletAddress,
         selectedTasks: selectedTasks.map(
           ({ code, name, amount, customDescription, receiverWalletAddress }) => ({
             code,
@@ -295,8 +310,10 @@ export function useCreateEscrowForm() {
     tasksLoading,
     cmindsUser,
     releaseSigner,
+    disputeResolver,
     selectCminds,
     selectReleaseSigner,
+    selectDisputeResolver,
     selectedTaskIds,
     amounts,
     receivers,

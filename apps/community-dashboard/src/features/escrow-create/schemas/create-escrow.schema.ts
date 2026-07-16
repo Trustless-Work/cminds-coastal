@@ -21,6 +21,8 @@ export const createEscrowSchema = z
     cmindsWalletAddress: z.string().min(1),
     releaseSignerUserId: z.string().uuid("Select a release signer"),
     releaseSignerWalletAddress: z.string().min(1),
+    disputeResolverUserId: z.string().uuid("Select a dispute resolver"),
+    disputeResolverWalletAddress: z.string().min(1),
     selectedTaskIds: z.array(z.string().uuid()).min(1, "Select at least one task"),
     amounts: z.record(z.string(), z.string()),
     receivers: z.record(z.string(), taskReceiverSchema),

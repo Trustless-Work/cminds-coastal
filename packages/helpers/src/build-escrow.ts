@@ -18,6 +18,7 @@ export type BuildEscrowInput = {
   signerAddress: string;
   cmindsWalletAddress: string;
   releaseSignerWalletAddress: string;
+  disputeResolverWalletAddress: string;
   selectedTasks: BuildEscrowSelectedTask[];
   platformFee?: number;
   trustline: BuildEscrowTrustline;
@@ -59,10 +60,13 @@ export function buildEscrow(input: BuildEscrowInput): BuildEscrowPayload {
 
   const cminds = input.cmindsWalletAddress.trim();
   const releaseSigner = input.releaseSignerWalletAddress.trim();
+  const disputeResolver = input.disputeResolverWalletAddress.trim();
   const signer = input.signerAddress.trim();
 
-  if (!cminds || !releaseSigner || !signer) {
-    throw new Error("Signer, CMinds, and release signer wallets are required");
+  if (!cminds || !releaseSigner || !disputeResolver || !signer) {
+    throw new Error(
+      "Signer, CMinds, release signer, and dispute resolver wallets are required",
+    );
   }
 
   return {
@@ -80,7 +84,7 @@ export function buildEscrow(input: BuildEscrowInput): BuildEscrowPayload {
       serviceProvider: signer,
       platformAddress: cminds,
       releaseSigner,
-      disputeResolver: cminds,
+      disputeResolver,
     },
     milestones: input.selectedTasks.map((task) => {
       const base = `[${task.code}] ${task.name}`;

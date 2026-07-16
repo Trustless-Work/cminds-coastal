@@ -45,8 +45,10 @@ export const CreateEscrowForm = () => {
     tasksLoading,
     cmindsUser,
     releaseSigner,
+    disputeResolver,
     selectCminds,
     selectReleaseSigner,
+    selectDisputeResolver,
     selectedTaskIds,
     amounts,
     receivers,
@@ -266,6 +268,13 @@ export const CreateEscrowForm = () => {
                 onChange={selectReleaseSigner}
                 placeholder="Search community by email…"
               />
+              <UserEmailCombobox
+                role="CMINDS_OPERATOR"
+                label="Dispute Resolver"
+                value={disputeResolver}
+                onChange={selectDisputeResolver}
+                placeholder="Search CMinds by email…"
+              />
               {errors.cmindsUserId ? (
                 <p className="text-sm text-destructive">
                   {errors.cmindsUserId.message}
@@ -274,6 +283,11 @@ export const CreateEscrowForm = () => {
               {errors.releaseSignerUserId ? (
                 <p className="text-sm text-destructive">
                   {errors.releaseSignerUserId.message}
+                </p>
+              ) : null}
+              {errors.disputeResolverUserId ? (
+                <p className="text-sm text-destructive">
+                  {errors.disputeResolverUserId.message}
                 </p>
               ) : null}
             </div>
@@ -348,6 +362,7 @@ export const CreateEscrowForm = () => {
               imageFile={imageFile}
               cmindsUser={cmindsUser}
               releaseSigner={releaseSigner}
+              disputeResolver={disputeResolver}
               selectedTasks={selectedTasks}
               amounts={amounts ?? {}}
             />

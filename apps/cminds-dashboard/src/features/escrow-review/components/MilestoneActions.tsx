@@ -1,6 +1,7 @@
 "use client";
 
 import { ApproveMilestoneButton } from "@repo/tw-blocks/escrows/single-multi-release/approve-milestone/button/ApproveMilestone";
+import { DisputeMilestoneButton } from "@repo/tw-blocks/escrows/multi-release/dispute-milestone/button/DisputeMilestone";
 import { ResolveDisputeDialog } from "@repo/tw-blocks/escrows/multi-release/resolve-dispute/dialog/ResolveDispute";
 import { TooltipProvider } from "@repo/ui/components/tooltip";
 import type { GetEscrowsFromIndexerResponse as Escrow } from "@trustless-work/escrow/types";
@@ -26,6 +27,7 @@ export const MilestoneActions = ({
       <TooltipProvider delay={200}>
         <div className="flex flex-wrap items-center gap-2">
           <ApproveMilestoneButton milestoneIndex={milestoneIndex} />
+          <DisputeMilestoneButton milestoneIndex={milestoneIndex} />
         </div>
       </TooltipProvider>
     );

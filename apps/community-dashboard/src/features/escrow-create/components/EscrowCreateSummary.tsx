@@ -17,6 +17,7 @@ type EscrowCreateSummaryProps = {
   imageFile: File | null;
   cmindsUser: UserSearchResult | null;
   releaseSigner: UserSearchResult | null;
+  disputeResolver: UserSearchResult | null;
   selectedTasks: TaskRecord[];
   amounts: Record<string, string>;
   className?: string;
@@ -38,6 +39,7 @@ export const EscrowCreateSummary = ({
   imageFile,
   cmindsUser,
   releaseSigner,
+  disputeResolver,
   selectedTasks,
   amounts,
   className,
@@ -145,6 +147,12 @@ export const EscrowCreateSummary = ({
               <span className="text-muted-foreground">Release Signer</span>
               <span className="max-w-[65%] truncate text-right font-medium">
                 {displayPerson(releaseSigner)}
+              </span>
+            </div>
+            <div className="flex justify-between gap-3">
+              <span className="text-muted-foreground">Dispute Resolver</span>
+              <span className="max-w-[65%] truncate text-right font-medium">
+                {displayPerson(disputeResolver)}
               </span>
             </div>
           </div>
