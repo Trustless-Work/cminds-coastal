@@ -18,6 +18,7 @@ import {
   isEscrowInactive,
 } from "@repo/features/escrow/utils/escrow-status-display";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
+import { LocaleSwitcher } from "@repo/i18n/LocaleSwitcher";
 import { Navbar } from "@repo/shared/Navbar";
 import { SiteFooter } from "@repo/shared/SiteFooter";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
@@ -78,7 +79,12 @@ export const TransparencyEscrowDetailView = ({
 
   return (
     <div className="flex min-h-svh flex-col bg-background">
-      <Navbar title="CMinds" logoSrc="/logos/dark-en-logo.png" logoHref="/" />
+      <Navbar
+        title="CMinds"
+        logoSrc="/logos/dark-en-logo.png"
+        logoHref="/"
+        leading={<LocaleSwitcher />}
+      />
 
       <div className="mx-auto w-full max-w-[1320px] flex-1 px-6 pb-16 pt-6 sm:px-10">
         {metadataQuery.isLoading ? (

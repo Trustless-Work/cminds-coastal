@@ -11,6 +11,8 @@ import { usePollarBootstrap } from "../hooks/usePollarBootstrap";
 import { useSyncUser } from "../hooks/useSyncUser";
 import type { SyncableUserRole } from "../types";
 import { endStalePollarSession } from "../utils/end-stale-session";
+import { LocaleSwitcher } from "@repo/i18n/LocaleSwitcher";
+
 import { LogoutButton } from "./LogoutButton";
 import { UserCard } from "./UserCard";
 
@@ -126,11 +128,17 @@ function AuthGateInner({
         subtitle={profile?.email ?? null}
         walletAddress={walletAddress}
       />
+      <LocaleSwitcher />
       <LogoutButton loginHref={loginHref} />
     </div>
   ) : isAuthenticated ? (
-    <LogoutButton loginHref={loginHref} />
-  ) : null;
+    <div className="flex items-center gap-2 md:gap-3">
+      <LocaleSwitcher />
+      <LogoutButton loginHref={loginHref} />
+    </div>
+  ) : (
+    <LocaleSwitcher />
+  );
 
   if (sessionPending) {
     return (

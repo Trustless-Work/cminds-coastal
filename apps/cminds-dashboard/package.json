@@ -13,6 +13,7 @@
     "@repo/config": "workspace:^",
     "@repo/features": "workspace:*",
     "@repo/helpers": "workspace:*",
+    "@repo/i18n": "workspace:*",
     "@repo/pdf": "workspace:*",
     "@repo/providers": "workspace:*",
     "@repo/shared": "workspace:*",
@@ -22,6 +23,7 @@
     "@trustless-work/escrow": "^3.0.5",
     "lucide-react": "^1.24.0",
     "next": "catalog:",
+    "next-intl": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

@@ -7,6 +7,7 @@ import {
   useFundingEscrowsInfinite,
   useLoadMoreOnIntersect,
 } from "@repo/features/escrow/hooks/useFundingEscrowsInfinite";
+import { LocaleSwitcher } from "@repo/i18n/LocaleSwitcher";
 import { Navbar } from "@repo/shared/Navbar";
 import { NoData } from "@repo/shared/NoData";
 import { SiteFooter } from "@repo/shared/SiteFooter";
@@ -59,7 +60,12 @@ export const TransparencyLandingView = () => {
 
   return (
     <div className="flex min-h-svh flex-col bg-background">
-      <Navbar title="CMinds" logoSrc="/logos/dark-en-logo.png" logoHref="/" />
+      <Navbar
+        title="CMinds"
+        logoSrc="/logos/dark-en-logo.png"
+        logoHref="/"
+        leading={<LocaleSwitcher />}
+      />
 
       <div className="mx-auto w-full max-w-[1320px] flex-1 px-6 pb-16 pt-6 sm:px-10">
         <TransparencyHero headline="Coastal Progress">

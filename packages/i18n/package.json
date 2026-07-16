@@ -1,0 +1,40 @@
+{
+  "name": "@repo/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./locales": "./src/locales.ts",
+    "./cookie": "./src/cookie.ts",
+    "./resolve-locale": "./src/resolve-locale.ts",
+    "./get-messages": "./src/get-messages.ts",
+    "./request": "./src/request.ts",
+    "./middleware": "./src/middleware.ts",
+    "./actions": "./src/actions.ts",
+    "./LocaleSwitcher": "./src/LocaleSwitcher.tsx",
+    "./messages/en.json": "./src/messages/en.json",
+    "./messages/es.json": "./src/messages/es.json"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "eslint": "catalog:",
+    "next": "catalog:",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@repo/ui": "workspace:*",
+    "next-intl": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "peerDependencies": {
+    "next": ">=15"
+  }
+}

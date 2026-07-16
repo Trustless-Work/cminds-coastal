@@ -1,5 +1,6 @@
 "use client";
 
+import { LocaleSwitcher } from "@repo/i18n/LocaleSwitcher";
 import { cn } from "@repo/ui/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -42,6 +43,7 @@ export const AdminShell = ({
                 {email}
               </span>
             ) : null}
+            <LocaleSwitcher />
             <AdminLogoutButton />
           </div>
         </div>

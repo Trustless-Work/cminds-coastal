@@ -17,3 +17,4 @@ catalog:
   babel-plugin-react-compiler: 1.0.0
   "@pollar/core": 0.10.1
   "@pollar/react": 0.10.1
+  next-intl: 4.13.2
