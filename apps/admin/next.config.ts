@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     "@repo/config",
     "@repo/features",
     "@repo/helpers",
+    "@repo/pdf",
     "@repo/providers",
     "@repo/shared",
     "@repo/tw-blocks",

@@ -34,6 +34,7 @@ import {
   parseEvidenceLinks,
 } from "../utils";
 import { ContractIdCopyPanel } from "./ContractIdCopyPanel";
+import { DownloadTaskInvoiceButton } from "./DownloadTaskInvoiceButton";
 import { ManageEscrowActions } from "./ManageEscrowActions";
 import { MilestoneActions } from "./MilestoneActions";
 import { MilestoneFlagBadges } from "./MilestoneFlagBadges";
@@ -236,6 +237,8 @@ export const EscrowDetail = ({
                   const metaMilestone = metadata.milestones[milestoneIndex];
                   const showActions =
                     status === "ready_for_review" || status === "disputed";
+                  const showInvoiceDownload =
+                    status === "released" || status === "resolved";
 
                   return (
                     <li
@@ -337,6 +340,19 @@ export const EscrowDetail = ({
                             escrow={chainEscrow}
                             milestoneIndex={milestoneIndex}
                             status={status}
+                          />
+                        </div>
+                      ) : null}
+
+                      {showInvoiceDownload ? (
+                        <div className="flex items-center justify-end border-t border-border pt-4">
+                          <DownloadTaskInvoiceButton
+                            escrow={chainEscrow}
+                            metadata={metadata}
+                            milestoneIndex={milestoneIndex}
+                            settlementType={
+                              status === "resolved" ? "resolved" : "released"
+                            }
                           />
                         </div>
                       ) : null}

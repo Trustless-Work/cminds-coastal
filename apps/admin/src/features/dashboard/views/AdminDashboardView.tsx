@@ -8,6 +8,7 @@ import { AdminPageScaffold } from "@/features/admin-shell/components/AdminPageSc
 import { ADMIN_NAV_ITEMS } from "@/features/admin-shell/constants/nav";
 
 import { DashboardKpiCards } from "../components/DashboardKpiCards";
+import { DownloadAnalyticsReportButton } from "../components/DownloadAnalyticsReportButton";
 import { EscrowsByCommunityChart } from "../components/EscrowsByCommunityChart";
 import { EscrowsByStatusChart } from "../components/EscrowsByStatusChart";
 import { EscrowsOverTimeChart } from "../components/EscrowsOverTimeChart";
@@ -28,7 +29,15 @@ export const AdminDashboardView = () => {
       data.escrowsCreatedByMonth.some((row) => row.count > 0));
 
   return (
-    <AdminPageScaffold title={nav.title} description={nav.description}>
+    <AdminPageScaffold
+      title={nav.title}
+      description={nav.description}
+      actions={
+        data && !isError ? (
+          <DownloadAnalyticsReportButton data={data} />
+        ) : undefined
+      }
+    >
       <div className="flex flex-col gap-8">
         <DashboardKpiCards kpis={data?.kpis} isLoading={isLoading} />
 
