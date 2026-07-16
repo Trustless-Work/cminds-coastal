@@ -3,8 +3,10 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+import { useSyncCompletedEscrowStatus } from "@repo/features/escrow/hooks/useSyncCompletedEscrowStatus";
+import { maybeMarkEscrowCompleted } from "@repo/features/escrow/services/maybe-mark-completed";
 import { fetchEscrow } from "@repo/features/escrow/services/escrows.service";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useWalletContext } from "@repo/providers/WalletProvider";
@@ -21,6 +23,7 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
+import type { MultiReleaseMilestone } from "@trustless-work/escrow/types";
 
 import { ContractIdCopyPanel } from "../components/ContractIdCopyPanel";
 
@@ -29,6 +32,7 @@ type EscrowDetailViewProps = {
 };
 
 export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
+  const queryClient = useQueryClient();
   const { walletAddress } = useWalletContext();
   const { selectedEscrow, setSelectedEscrow } = useEscrowContext();
   const syncedContractIdRef = useRef<string | null>(null);
@@ -48,12 +52,31 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
       ? (selectedEscrow.balance ?? chainEscrow?.balance)
       : chainEscrow?.balance;
 
+  useSyncCompletedEscrowStatus({
+    escrowId: contractId,
+    offchainStatus: metadataQuery.data?.status,
+    milestones: (
+      selectedEscrow?.contractId === contractId
+        ? selectedEscrow?.milestones
+        : chainEscrow?.milestones
+    ) as MultiReleaseMilestone[] | undefined,
+  });
+
   useEffect(() => {
     if (!chainEscrow?.contractId) return;
     if (syncedContractIdRef.current === chainEscrow.contractId) return;
     syncedContractIdRef.current = chainEscrow.contractId;
     setSelectedEscrow(chainEscrow);
   }, [chainEscrow, setSelectedEscrow]);
+
+  async function handleReleaseSuccess(
+    milestones: MultiReleaseMilestone[],
+  ): Promise<void> {
+    const updated = await maybeMarkEscrowCompleted(contractId, milestones);
+    if (updated) {
+      void queryClient.invalidateQueries({ queryKey: ["escrows"] });
+    }
+  }
 
   if (metadataQuery.isLoading) {
     return (
@@ -290,6 +313,9 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
                         {flags?.approved ? (
                           <ReleaseMilestoneButton
                             milestoneIndex={milestone.milestone_index}
+                            onSuccess={(milestones) => {
+                              void handleReleaseSuccess(milestones);
+                            }}
                           />
                         ) : null}
                       </div>

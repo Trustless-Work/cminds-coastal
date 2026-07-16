@@ -19,7 +19,9 @@ type DistributionInput = { address: string; amount: string | number };
 
 export function useResolveDispute({
   onSuccess,
-}: { onSuccess?: () => void } = {}) {
+}: {
+  onSuccess?: (milestones: MultiReleaseMilestone[]) => void;
+} = {}) {
   const { resolveDispute } = useEscrowsMutations();
   const { selectedEscrow, updateEscrow } = useEscrowContext();
   const { walletAddress } = useWalletContext();
@@ -166,16 +168,13 @@ export function useResolveDispute({
         "Funds were distributed according to your resolution.",
       );
 
-      onSuccess?.();
-
       const sumDistributed = payload.distributions.reduce((acc, d) => {
         const n = Number(d.amount || 0);
         return acc + (isNaN(n) ? 0 : n);
       }, 0);
 
-      updateEscrow({
-        ...selectedEscrow,
-        milestones: selectedEscrow?.milestones.map((milestone, index) => {
+      const nextMilestones = (selectedEscrow?.milestones ?? []).map(
+        (milestone, index) => {
           if (index === Number(payload.milestoneIndex)) {
             return {
               ...milestone,
@@ -187,9 +186,16 @@ export function useResolveDispute({
             };
           }
           return milestone;
-        }),
+        },
+      ) as MultiReleaseMilestone[];
+
+      updateEscrow({
+        ...selectedEscrow,
+        milestones: nextMilestones,
         balance: (selectedEscrow?.balance || 0) - sumDistributed || 0,
       });
+
+      onSuccess?.(nextMilestones);
     } catch (error) {
       toastError(
         "Resolve Dispute Failed",

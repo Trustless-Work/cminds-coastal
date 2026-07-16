@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+import { useSyncCompletedEscrowStatus } from "@repo/features/escrow/hooks/useSyncCompletedEscrowStatus";
 import type {
   EscrowMilestoneRecord,
   EscrowRecord,
@@ -15,6 +16,7 @@ import { UpdateEscrowDialog } from "@repo/tw-blocks/escrows/multi-release/update
 import { useEscrowsByContractIdsQuery } from "@repo/tw-blocks/tanstack/useEscrowsByContractIdsQuery";
 import { Badge } from "@repo/ui/components/badge";
 import type { GetEscrowsFromIndexerResponse as Escrow } from "@trustless-work/escrow/types";
+import type { MultiReleaseMilestone } from "@trustless-work/escrow/types";
 
 import {
   getMilestoneAmount,
@@ -23,6 +25,7 @@ import {
   getMilestoneStatusText,
   parseEvidenceLinks,
 } from "../utils";
+import { CancelEscrowButton } from "./CancelEscrowButton";
 import { ContractIdCopyPanel } from "./ContractIdCopyPanel";
 import { MilestoneActions } from "./MilestoneActions";
 import { MilestoneFlagBadges } from "./MilestoneFlagBadges";
@@ -51,6 +54,16 @@ export const EscrowDetail = ({
     selectedEscrow?.contractId === contractId
       ? (selectedEscrow.balance ?? chainEscrow?.balance)
       : chainEscrow?.balance;
+
+  useSyncCompletedEscrowStatus({
+    escrowId: contractId,
+    offchainStatus: metadata.status,
+    milestones: (
+      selectedEscrow?.contractId === contractId
+        ? selectedEscrow?.milestones
+        : chainEscrow?.milestones
+    ) as MultiReleaseMilestone[] | undefined,
+  });
 
   useEffect(() => {
     if (!chainEscrow?.contractId) return;
@@ -399,20 +412,23 @@ export const EscrowDetail = ({
               </div>
             </dl>
 
-            {chainEscrow ? (
-              <div className="min-w-0 space-y-3 border-t border-border pt-6">
-                <p className="text-sm font-medium text-foreground">
-                  Manage Escrow
-                </p>
-                <UpdateEscrowDialog />
-              </div>
-            ) : (
-              <p className="break-words text-sm leading-relaxed text-muted-foreground">
-                {chainQuery.isLoading
-                  ? "Loading on-chain escrow…"
-                  : "On-chain data unavailable. You can still review metadata and copy the contract ID."}
+            <div className="min-w-0 space-y-3 border-t border-border pt-6">
+              <p className="text-sm font-medium text-foreground">
+                Manage Escrow
               </p>
-            )}
+              {chainEscrow ? <UpdateEscrowDialog /> : null}
+              <CancelEscrowButton
+                escrowId={contractId}
+                status={metadata.status}
+              />
+              {!chainEscrow ? (
+                <p className="break-words text-sm leading-relaxed text-muted-foreground">
+                  {chainQuery.isLoading
+                    ? "Loading on-chain escrow…"
+                    : "On-chain data unavailable. You can still review metadata, cancel the escrow, and copy the contract ID."}
+                </p>
+              ) : null}
+            </div>
 
             <div className="min-w-0 border-t border-border pt-6">
               <ContractIdCopyPanel contractId={contractId} />

@@ -293,9 +293,10 @@ export const FundingEscrowDetailView = ({
 
             <div className="min-w-0 space-y-3 border-t border-border pt-6">
               <p className="text-sm font-medium text-foreground">
-                Browser wallet
+                Browser Wallet
               </p>
               <WalletButton />
+
               {walletAddress && chainEscrow ? (
                 <FundEscrowDialog />
               ) : fundStatusMessage ? (

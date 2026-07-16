@@ -5,7 +5,11 @@ import { networkConfig } from "@repo/config";
 import { useWallet } from "./useWallet";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 import { Button } from "@repo/ui/components/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/components/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@repo/ui/components/popover";
 import { Check, Copy, LogOut, ChevronDown, Wallet } from "lucide-react";
 
 /**
@@ -40,7 +44,7 @@ export const WalletButton = () => {
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="h-10 px-4 gap-2 font-medium bg-transparent cursor-pointer"
+            className="h-10 px-4 gap-2 font-medium bg-transparent cursor-pointer w-full"
           >
             <Wallet className="h-4 w-4" />
             <span className="hidden sm:inline">{walletName}</span>

@@ -51,6 +51,20 @@ const PARTICIPATING_LIST_INCLUDE = {
   },
 } satisfies Prisma.EscrowInclude;
 
+const DETAIL_INCLUDE = {
+  community: { select: COMMUNITY_SELECT },
+  milestones: {
+    include: { task: true },
+    orderBy: { milestone_index: 'asc' as const },
+  },
+  approver: {
+    select: { user_id: true, email: true, display_name: true },
+  },
+  release_signer: {
+    select: { user_id: true, email: true, display_name: true },
+  },
+} satisfies Prisma.EscrowInclude;
+
 function encodeFundingCursor(createdAt: Date, escrowId: string): string {
   const payload: FundingCursorPayload = {
     createdAt: createdAt.toISOString(),
@@ -317,19 +331,62 @@ export class EscrowsService {
     return this.prisma.escrow.update({
       where: { escrow_id: escrowId },
       data,
-      include: {
-        community: { select: COMMUNITY_SELECT },
-        milestones: {
-          include: { task: true },
-          orderBy: { milestone_index: 'asc' },
-        },
-        approver: {
-          select: { user_id: true, email: true, display_name: true },
-        },
-        release_signer: {
-          select: { user_id: true, email: true, display_name: true },
-        },
-      },
+      include: DETAIL_INCLUDE,
+    });
+  }
+
+  async updateStatus(
+    authUser: AuthenticatedUser,
+    escrowId: string,
+    status: EscrowStatus.CANCELLED | EscrowStatus.COMPLETED,
+  ) {
+    const user = await this.usersService.requireSyncedUser(authUser);
+    const escrow = await this.prisma.escrow.findUnique({
+      where: { escrow_id: escrowId },
+    });
+
+    if (!escrow) {
+      throw new NotFoundException(`Escrow ${escrowId} not found`);
+    }
+
+    const isOwner = escrow.initializer_user_id === user.user_id;
+    const isCminds = user.roles.includes(UserRole.CMINDS_OPERATOR);
+    const isCommunityImplementer = user.roles.includes(
+      UserRole.COMMUNITY_IMPLEMENTER,
+    );
+
+    if (status === EscrowStatus.CANCELLED) {
+      if (!isCminds) {
+        throw new ForbiddenException(
+          'Only CMINDS_OPERATOR can cancel an escrow',
+        );
+      }
+      if (escrow.status === EscrowStatus.CANCELLED) {
+        throw new BadRequestException('Escrow is already cancelled');
+      }
+      if (escrow.status === EscrowStatus.COMPLETED) {
+        throw new BadRequestException('Cannot cancel a completed escrow');
+      }
+    }
+
+    if (status === EscrowStatus.COMPLETED) {
+      if (!isCminds && !(isCommunityImplementer && isOwner)) {
+        throw new ForbiddenException(
+          'Not allowed to mark this escrow as completed',
+        );
+      }
+      if (escrow.status === EscrowStatus.COMPLETED) {
+        throw new BadRequestException('Escrow is already completed');
+      }
+      if (escrow.status === EscrowStatus.CANCELLED) {
+        throw new BadRequestException('Cannot complete a cancelled escrow');
+      }
+    }
+
+    return this.prisma.escrow.update({
+      where: { escrow_id: escrowId },
+      data: { status },
+      include: DETAIL_INCLUDE,
     });
   }
 

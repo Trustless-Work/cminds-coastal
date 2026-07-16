@@ -262,9 +262,6 @@ describe('EscrowsService', () => {
     ]);
     expect(result.statuses).toEqual([
       EscrowStatus.INITIALIZED,
-      EscrowStatus.FUNDED,
-      EscrowStatus.IN_PROGRESS,
-      EscrowStatus.PAUSED,
       EscrowStatus.COMPLETED,
     ]);
   });
@@ -464,6 +461,100 @@ describe('EscrowsService', () => {
       await expect(
         service.updateMetadata(authUser, 'C-ESCROW', { title: 'New' }),
       ).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('updateStatus', () => {
+    const baseEscrow = {
+      escrow_id: 'C-ESCROW',
+      status: EscrowStatus.INITIALIZED,
+      initializer_user_id: initializer.user_id,
+      approver_user_id: cmindsOperator.user_id,
+      release_signer_user_id: '33333333-3333-3333-3333-333333333333',
+    };
+
+    it('should allow CMinds operator to cancel', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+      prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
+      const updated = { ...baseEscrow, status: EscrowStatus.CANCELLED };
+      prismaMock.escrow.update.mockResolvedValue(updated);
+
+      await expect(
+        service.updateStatus(authUser, 'C-ESCROW', EscrowStatus.CANCELLED),
+      ).resolves.toEqual(updated);
+
+      expect(prismaMock.escrow.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { escrow_id: 'C-ESCROW' },
+          data: { status: EscrowStatus.CANCELLED },
+        }),
+      );
+    });
+
+    it('should forbid community implementer from cancelling', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(initializer);
+      prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
+
+      await expect(
+        service.updateStatus(authUser, 'C-ESCROW', EscrowStatus.CANCELLED),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should allow owner community implementer to mark completed', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(initializer);
+      prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
+      const updated = { ...baseEscrow, status: EscrowStatus.COMPLETED };
+      prismaMock.escrow.update.mockResolvedValue(updated);
+
+      await expect(
+        service.updateStatus(authUser, 'C-ESCROW', EscrowStatus.COMPLETED),
+      ).resolves.toEqual(updated);
+    });
+
+    it('should forbid non-owner community implementer from completing', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue({
+        user_id: '99999999-9999-9999-9999-999999999999',
+        roles: [UserRole.COMMUNITY_IMPLEMENTER],
+        is_active: true,
+      });
+      prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
+
+      await expect(
+        service.updateStatus(authUser, 'C-ESCROW', EscrowStatus.COMPLETED),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should reject cancelling a completed escrow', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+      prismaMock.escrow.findUnique.mockResolvedValue({
+        ...baseEscrow,
+        status: EscrowStatus.COMPLETED,
+      });
+
+      await expect(
+        service.updateStatus(authUser, 'C-ESCROW', EscrowStatus.CANCELLED),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should reject completing a cancelled escrow', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+      prismaMock.escrow.findUnique.mockResolvedValue({
+        ...baseEscrow,
+        status: EscrowStatus.CANCELLED,
+      });
+
+      await expect(
+        service.updateStatus(authUser, 'C-ESCROW', EscrowStatus.COMPLETED),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw NotFoundException when missing', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+      prismaMock.escrow.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.updateStatus(authUser, 'missing', EscrowStatus.CANCELLED),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

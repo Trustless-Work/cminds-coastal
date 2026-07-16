@@ -18,10 +18,12 @@ import { Loader2 } from "lucide-react";
 
 type ReleaseMilestoneButtonProps = {
   milestoneIndex: number | string;
+  onSuccess?: (milestones: MultiReleaseMilestone[]) => void;
 };
 
 export const ReleaseMilestoneButton = ({
   milestoneIndex,
+  onSuccess,
 }: ReleaseMilestoneButtonProps) => {
   const { releaseFunds } = useEscrowsMutations();
   const { selectedEscrow, updateEscrow } = useEscrowContext();
@@ -74,9 +76,8 @@ export const ReleaseMilestoneButton = ({
         setAmounts(releasedAmount, platformFee);
       }
 
-      updateEscrow({
-        ...selectedEscrow,
-        milestones: selectedEscrow?.milestones.map((milestone, index) => {
+      const nextMilestones = (selectedEscrow?.milestones ?? []).map(
+        (milestone, index) => {
           if (index === Number(milestoneIndex)) {
             return {
               ...milestone,
@@ -87,7 +88,12 @@ export const ReleaseMilestoneButton = ({
             };
           }
           return milestone;
-        }),
+        },
+      ) as MultiReleaseMilestone[];
+
+      updateEscrow({
+        ...selectedEscrow,
+        milestones: nextMilestones,
         balance: (selectedEscrow?.balance || 0) - (selectedEscrow?.amount || 0),
       });
 
@@ -96,6 +102,8 @@ export const ReleaseMilestoneButton = ({
 
       // Open success dialog
       dialogStates.successRelease.setIsOpen(true);
+
+      onSuccess?.(nextMilestones);
     } catch (error) {
       toastError(
         "Release Failed",

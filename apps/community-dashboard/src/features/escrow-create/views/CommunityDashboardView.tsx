@@ -1,10 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { useMemo, type CSSProperties } from "react";
+import {
+  EscrowListFilterBar,
+  ESCROW_STATUS_FILTER_OPTIONS,
+} from "@repo/features/escrow/components/EscrowListFilterBar";
+import { useEscrowListSearchParams } from "@repo/features/escrow/hooks/useFundingEscrowsInfinite";
+import { filterEscrowRecords } from "@repo/features/escrow/utils/filter-escrow-records";
 import { NoData } from "@repo/shared/NoData";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import { FileStack } from "lucide-react";
+import { FileStack, SearchX } from "lucide-react";
 
 import { CommunityBanner } from "../components/CommunityBanner";
 import { CommunityEscrowImageCard } from "../components/CommunityEscrowImageCard";
@@ -19,6 +25,19 @@ export const CommunityDashboardView = () => {
     error,
     refetch,
   } = useCommunityEscrows();
+
+  const {
+    draftFilters,
+    setDraftFilters,
+    appliedFilters,
+    applyFilters,
+    hasActiveFilters,
+  } = useEscrowListSearchParams();
+
+  const filtered = useMemo(
+    () => filterEscrowRecords(data, appliedFilters),
+    [data, appliedFilters],
+  );
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pb-24 pt-6 sm:px-10">
@@ -69,6 +88,23 @@ export const CommunityDashboardView = () => {
       ) : null}
 
       <section className="mt-12 sm:mt-14">
+        <header className="mb-6 space-y-4 sm:mb-8">
+          <div className="space-y-1">
+            <h3 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              Escrow list
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Filter by status or search your coastal escrows.
+            </p>
+          </div>
+          <EscrowListFilterBar
+            values={draftFilters}
+            statusOptions={[...ESCROW_STATUS_FILTER_OPTIONS]}
+            onChange={setDraftFilters}
+            onSearch={applyFilters}
+          />
+        </header>
+
         {isLoading ? (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
@@ -103,9 +139,21 @@ export const CommunityDashboardView = () => {
           />
         ) : null}
 
-        {!isLoading && data.length > 0 ? (
+        {!isLoading && data.length > 0 && filtered.length === 0 ? (
+          <NoData
+            title="No matching escrows"
+            description={
+              hasActiveFilters
+                ? "No escrows match your filters. Try adjusting your search."
+                : "No escrows to show."
+            }
+            icon={<SearchX />}
+          />
+        ) : null}
+
+        {!isLoading && filtered.length > 0 ? (
           <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-3">
-            {data.map((escrow, index) => {
+            {filtered.map((escrow, index) => {
               const style: CSSProperties = {
                 animationDelay: `${Math.min(index, 8) * 60}ms`,
               };

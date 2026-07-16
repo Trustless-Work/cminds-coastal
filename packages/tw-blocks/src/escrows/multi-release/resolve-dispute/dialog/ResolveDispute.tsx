@@ -20,6 +20,7 @@ import { Loader2, Trash2 } from "lucide-react";
 import { useResolveDispute } from "../shared/useResolveDispute";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { formatCurrency } from "@repo/helpers";
+import type { MultiReleaseMilestone } from "@trustless-work/escrow";
 import {
   Select,
   SelectContent,
@@ -31,9 +32,11 @@ import {
 export const ResolveDisputeDialog = ({
   showSelectMilestone = false,
   milestoneIndex,
+  onSuccess,
 }: {
   showSelectMilestone?: boolean;
   milestoneIndex?: number | string;
+  onSuccess?: (milestones: MultiReleaseMilestone[]) => void;
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const {
@@ -50,7 +53,12 @@ export const ResolveDisputeDialog = ({
     distributedSum,
     isExactMatch,
     difference,
-  } = useResolveDispute({ onSuccess: () => setIsOpen(false) });
+  } = useResolveDispute({
+    onSuccess: (milestones) => {
+      setIsOpen(false);
+      onSuccess?.(milestones);
+    },
+  });
   const { selectedEscrow } = useEscrowContext();
 
   React.useEffect(() => {

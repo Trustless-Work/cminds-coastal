@@ -133,6 +133,20 @@ export async function updateEscrowMetadata(
   return data;
 }
 
+export type UpdatableEscrowStatus = "CANCELLED" | "COMPLETED";
+
+/** Sync off-chain escrow status (CANCELLED or COMPLETED). */
+export async function updateEscrowStatus(
+  escrowId: string,
+  status: UpdatableEscrowStatus,
+): Promise<EscrowRecord> {
+  const { data } = await http.patch<EscrowRecord>(
+    `/escrows/${encodeURIComponent(escrowId)}/status`,
+    { status },
+  );
+  return data;
+}
+
 /** Public funding catalog — cursor-paginated, no auth required. */
 export type FundingEscrowsQuery = {
   limit?: number;

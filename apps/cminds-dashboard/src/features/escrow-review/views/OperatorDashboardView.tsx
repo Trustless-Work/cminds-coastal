@@ -1,9 +1,15 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useMemo, type CSSProperties } from "react";
+import {
+  EscrowListFilterBar,
+  ESCROW_STATUS_FILTER_OPTIONS,
+} from "@repo/features/escrow/components/EscrowListFilterBar";
+import { useEscrowListSearchParams } from "@repo/features/escrow/hooks/useFundingEscrowsInfinite";
+import { filterEscrowRecords } from "@repo/features/escrow/utils/filter-escrow-records";
 import { NoData } from "@repo/shared/NoData";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import { FileStack } from "lucide-react";
+import { FileStack, SearchX } from "lucide-react";
 
 import { useOperatorEscrows } from "../hooks/useOperatorEscrows";
 import { EscrowImageCard } from "../components/EscrowImageCard";
@@ -22,6 +28,24 @@ export const OperatorDashboardView = () => {
     error,
     refetch,
   } = useOperatorEscrows();
+
+  const {
+    draftFilters,
+    setDraftFilters,
+    appliedFilters,
+    applyFilters,
+    hasActiveFilters,
+  } = useEscrowListSearchParams();
+
+  const filteredEscrows = useMemo(() => {
+    const metadata = enrichedEscrows.map((item) => item.metadata);
+    const allowedIds = new Set(
+      filterEscrowRecords(metadata, appliedFilters).map((e) => e.escrow_id),
+    );
+    return enrichedEscrows.filter((item) =>
+      allowedIds.has(item.metadata.escrow_id),
+    );
+  }, [enrichedEscrows, appliedFilters]);
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pb-24 pt-6 sm:px-10">
@@ -82,13 +106,21 @@ export const OperatorDashboardView = () => {
       </section>
 
       <section className="mt-16 scroll-mt-24 sm:mt-20">
-        <header className="mb-6 flex flex-col gap-2 sm:mb-8">
-          <h3 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Assigned Escrows
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Escrows where your account is the on-record approver.
-          </p>
+        <header className="mb-6 space-y-4 sm:mb-8">
+          <div className="space-y-1">
+            <h3 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              Assigned Escrows
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Escrows where your account is the on-record approver.
+            </p>
+          </div>
+          <EscrowListFilterBar
+            values={draftFilters}
+            statusOptions={[...ESCROW_STATUS_FILTER_OPTIONS]}
+            onChange={setDraftFilters}
+            onSearch={applyFilters}
+          />
         </header>
 
         {isLoading ? (
@@ -123,9 +155,23 @@ export const OperatorDashboardView = () => {
           />
         ) : null}
 
-        {!isLoading && enrichedEscrows.length > 0 ? (
+        {!isLoading &&
+        enrichedEscrows.length > 0 &&
+        filteredEscrows.length === 0 ? (
+          <NoData
+            title="No matching escrows"
+            description={
+              hasActiveFilters
+                ? "No escrows match your filters. Try adjusting your search."
+                : "No escrows to show."
+            }
+            icon={<SearchX />}
+          />
+        ) : null}
+
+        {!isLoading && filteredEscrows.length > 0 ? (
           <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-3">
-            {enrichedEscrows.map((item, index) => {
+            {filteredEscrows.map((item, index) => {
               const style: CSSProperties = {
                 animationDelay: `${Math.min(index, 8) * 60}ms`,
               };

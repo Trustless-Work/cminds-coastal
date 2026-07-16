@@ -13,11 +13,9 @@ import {
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { EscrowStatus } from '../../../generated/prisma/enums';
 
+/** Statuses reachable in the current write path and visible in the funding catalog. */
 export const PUBLIC_FUNDING_STATUSES = [
   EscrowStatus.INITIALIZED,
-  EscrowStatus.FUNDED,
-  EscrowStatus.IN_PROGRESS,
-  EscrowStatus.PAUSED,
   EscrowStatus.COMPLETED,
 ] as const;
 

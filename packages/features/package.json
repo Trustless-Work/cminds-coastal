@@ -8,7 +8,9 @@
     "./auth/services/*": "./src/auth/services/*.ts",
     "./auth/types": "./src/auth/types.ts",
     "./escrow/services/*": "./src/escrow/services/*.ts",
-    "./escrow/hooks/*": "./src/escrow/hooks/*.ts"
+    "./escrow/hooks/*": "./src/escrow/hooks/*.ts",
+    "./escrow/components/*": "./src/escrow/components/*.tsx",
+    "./escrow/utils/*": "./src/escrow/utils/*.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

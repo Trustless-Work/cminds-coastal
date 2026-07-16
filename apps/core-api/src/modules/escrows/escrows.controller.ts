@@ -29,6 +29,7 @@ import { CreateEscrowDto } from './dto/create-escrow.dto';
 import { ListFundingEscrowsQueryDto } from './dto/list-funding-escrows-query.dto';
 import { ListParticipatingEscrowsQueryDto } from './dto/list-participating-escrows-query.dto';
 import { UpdateEscrowMetadataDto } from './dto/update-escrow-metadata.dto';
+import { UpdateEscrowStatusDto } from './dto/update-escrow-status.dto';
 import { EscrowsService } from './escrows.service';
 
 @ApiTags('escrows')
@@ -181,5 +182,26 @@ export class EscrowsController {
     @Body() dto: UpdateEscrowMetadataDto,
   ) {
     return this.escrowsService.updateMetadata(user, escrowId, dto);
+  }
+
+  @Patch(':escrowId/status')
+  @Roles(UserRole.CMINDS_OPERATOR, UserRole.COMMUNITY_IMPLEMENTER)
+  @ApiOperation({
+    summary: 'Update off-chain escrow status (CANCELLED or COMPLETED)',
+  })
+  @ApiParam({
+    name: 'escrowId',
+    description: 'Stellar contract ID (C-address)',
+  })
+  @ApiResponse({ status: 200, description: 'Escrow status updated' })
+  @ApiResponse({ status: 400, description: 'Invalid status transition' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  updateStatus(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('escrowId') escrowId: string,
+    @Body() dto: UpdateEscrowStatusDto,
+  ) {
+    return this.escrowsService.updateStatus(user, escrowId, dto.status);
   }
 }
