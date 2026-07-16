@@ -11,7 +11,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     label: "Dashboard",
     title: "Dashboard",
     description:
-      "Overview of platform administration. More tools will land here.",
+      "Platform overview — communities, task menu, escrows, and planned USDC.",
   },
   {
     href: "/tasks",
