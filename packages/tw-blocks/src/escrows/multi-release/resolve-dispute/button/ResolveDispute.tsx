@@ -69,7 +69,7 @@ export const ResolveDisputeButton = ({
       });
 
       toastSuccess(
-        "Dispute Resolved",
+        "Help Resolved",
         "Funds were distributed according to your resolution.",
       );
       updateEscrow({
@@ -93,7 +93,7 @@ export const ResolveDisputeButton = ({
       });
     } catch (error) {
       toastError(
-        "Resolve Dispute Failed",
+        "Resolve Help Failed",
         handleError(error as ErrorResponse).message ||
           "Something went wrong. Please try again.",
       );
@@ -115,7 +115,7 @@ export const ResolveDisputeButton = ({
           <span className="ml-2">Resolving...</span>
         </div>
       ) : (
-        "Resolve Dispute"
+        "Resolve Help"
       )}
     </Button>
   );

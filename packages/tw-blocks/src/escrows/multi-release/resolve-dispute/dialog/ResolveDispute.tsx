@@ -83,7 +83,7 @@ export const ResolveDisputeDialog = ({
         renderTrigger(openDialog)
       ) : (
         <IconActionButton
-          label="Resolve Dispute"
+          label="Resolve Help"
           icon={<Scale className="size-4" />}
           onClick={openDialog}
         />
@@ -91,7 +91,7 @@ export const ResolveDisputeDialog = ({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="!w-full sm:!max-w-3xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Resolve Dispute</DialogTitle>
+          <DialogTitle>Resolve Help</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit}>

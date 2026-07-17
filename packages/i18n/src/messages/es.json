@@ -2,6 +2,7 @@
   "common": {
     "language": "Language",
     "localeEn": "English",
-    "localeEs": "Español"
+    "localeEs": "Español",
+    "localeFr": "Français"
   }
 }

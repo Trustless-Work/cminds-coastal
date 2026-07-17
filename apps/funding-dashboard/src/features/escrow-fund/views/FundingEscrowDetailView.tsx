@@ -18,7 +18,8 @@ import {
 } from "@repo/features/escrow/utils/escrow-status-display";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useWalletContext } from "@repo/providers/WalletProvider";
-import { BalanceProgressDonut } from "@repo/tw-blocks/escrows/indicators/balance-progress/donut/BalanceProgress";
+import type { MilestoneStatusInput } from "@repo/helpers";
+import { MilestoneStatusPieChart } from "@repo/tw-blocks/escrows/indicators/milestone-status-progress/MilestoneStatusPieChart";
 import { FundEscrowDialog } from "@repo/tw-blocks/escrows/single-multi-release/fund-escrow/dialog/FundEscrow";
 import { useEscrowsByContractIdsQuery } from "@repo/tw-blocks/tanstack/useEscrowsByContractIdsQuery";
 import { WalletButton } from "@repo/tw-blocks/wallet-kit/WalletButtons";
@@ -130,6 +131,31 @@ export const FundingEscrowDetailView = ({
         ? null
         : "On-chain data unavailable. You can still copy the contract ID below."
     : "Connect an external wallet to fund on-chain.";
+
+  const pieMilestones: MilestoneStatusInput[] = metadata.milestones.map(
+    (milestone) => {
+      const chainMilestone =
+        chainEscrow?.milestones?.[milestone.milestone_index];
+      return {
+        description: `[${milestone.task.code}] ${milestone.task.name}`,
+        amount: Number(milestone.amount),
+        status:
+          chainMilestone && "status" in chainMilestone
+            ? chainMilestone.status
+            : undefined,
+        evidence:
+          chainMilestone && "evidence" in chainMilestone
+            ? chainMilestone.evidence
+            : undefined,
+        flags:
+          chainMilestone &&
+          "flags" in chainMilestone &&
+          chainMilestone.flags
+            ? chainMilestone.flags
+            : undefined,
+      };
+    },
+  );
 
   return (
     <div className="space-y-8">
@@ -320,12 +346,7 @@ export const FundingEscrowDetailView = ({
             </dl>
 
             <div className="min-w-0 overflow-hidden rounded-2xl border border-border px-4 py-5">
-              <BalanceProgressDonut
-                contractId={contractId}
-                target={total}
-                currency="USDC"
-                balance={balance}
-              />
+              <MilestoneStatusPieChart milestones={pieMilestones} />
             </div>
 
             <div className="min-w-0 space-y-3 border-t border-border pt-6">

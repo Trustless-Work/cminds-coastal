@@ -64,7 +64,7 @@ export const OperatorStatsCards = ({
     },
     {
       id: "disputed",
-      label: "Disputed",
+      label: "Help",
       value: isLoading ? null : stats.disputed,
       icon: ShieldAlert,
     },

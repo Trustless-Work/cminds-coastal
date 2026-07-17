@@ -16,7 +16,7 @@ type MilestoneFlagBadgesProps = {
 type FlagBadgeVariant = "outline" | "success" | "destructive";
 
 function flagBadgeVariant(label: string): FlagBadgeVariant {
-  if (label === "DISPUTED") return "destructive";
+  if (label === "HELP") return "destructive";
   if (label === "RELEASED" || label === "RESOLVED") return "success";
   return "outline";
 }

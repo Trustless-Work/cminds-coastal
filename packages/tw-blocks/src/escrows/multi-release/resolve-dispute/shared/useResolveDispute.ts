@@ -161,7 +161,7 @@ export function useResolveDispute({
       });
 
       toastSuccess(
-        "Dispute Resolved",
+        "Help Resolved",
         "Funds were distributed according to your resolution.",
       );
 
@@ -195,7 +195,7 @@ export function useResolveDispute({
       onSuccess?.(nextMilestones);
     } catch (error) {
       toastError(
-        "Resolve Dispute Failed",
+        "Resolve Help Failed",
         handleError(error as ErrorResponse).message ||
           "Something went wrong. Please try again.",
       );

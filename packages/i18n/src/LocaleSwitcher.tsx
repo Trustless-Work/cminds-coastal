@@ -14,9 +14,13 @@ import { useTransition } from "react";
 import { setLocale } from "./actions";
 import { locales, type AppLocale, isAppLocale } from "./locales";
 
-const LOCALE_LABEL_KEYS: Record<AppLocale, "localeEn" | "localeEs"> = {
+const LOCALE_LABEL_KEYS: Record<
+  AppLocale,
+  "localeEn" | "localeEs" | "localeFr"
+> = {
   en: "localeEn",
   es: "localeEs",
+  fr: "localeFr",
 };
 
 export function LocaleSwitcher() {
@@ -46,14 +50,14 @@ export function LocaleSwitcher() {
     >
       <SelectTrigger
         size="sm"
-        className="w-[7.5rem] shrink-0"
+        className="h-11 w-[8.5rem] shrink-0 rounded-full border-0 bg-white px-3 text-xs font-medium uppercase tracking-wide text-foreground shadow-[0_10px_30px_rgba(0,0,0,0.05)] ring-1 ring-border/80 hover:bg-white hover:opacity-80 focus-visible:border-transparent focus-visible:ring-1 focus-visible:ring-border/80 data-[size=sm]:h-11 data-[size=sm]:rounded-full data-[size=sm]:text-xs"
         aria-label={t("language")}
       >
-        <SelectValue />
+        <SelectValue className="uppercase" />
       </SelectTrigger>
       <SelectContent align="end">
         {locales.map((code) => (
-          <SelectItem key={code} value={code}>
+          <SelectItem key={code} value={code} className="uppercase">
             {t(LOCALE_LABEL_KEYS[code])}
           </SelectItem>
         ))}

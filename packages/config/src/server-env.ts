@@ -95,6 +95,12 @@ export class ServerEnv extends EnvConfig {
       "escrow-images"
     );
   }
+
+  get supabaseEvidenceBucket(): string {
+    return (
+      this.getOptional(process.env.SUPABASE_EVIDENCE_BUCKET) ?? "escrow-evidence"
+    );
+  }
 }
 
 export const serverEnv = new ServerEnv();

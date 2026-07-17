@@ -12,7 +12,7 @@ import {
 } from "../../../../handle-errors/handle";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { IconActionButton } from "@repo/ui/components/icon-action-button";
-import { Swords } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 
 type DisputeMilestoneButtonProps = {
   milestoneIndex: number | string;
@@ -43,8 +43,8 @@ export const DisputeMilestoneButton = ({
       });
 
       toastSuccess(
-        "Milestone Disputed",
-        "This milestone is now in dispute and awaiting resolution.",
+        "Help Requested",
+        "This milestone needs help and is awaiting resolution.",
       );
 
       updateEscrow({
@@ -64,7 +64,7 @@ export const DisputeMilestoneButton = ({
       });
     } catch (error) {
       toastError(
-        "Dispute Failed",
+        "Help Failed",
         handleError(error as ErrorResponse).message ||
           "Something went wrong. Please try again.",
       );
@@ -75,8 +75,8 @@ export const DisputeMilestoneButton = ({
 
   return (
     <IconActionButton
-      label="Dispute"
-      icon={<Swords className="size-4" />}
+      label="Help"
+      icon={<CircleHelp className="size-4" />}
       variant="destructive"
       loading={isSubmitting}
       disabled={!selectedEscrow?.balance}

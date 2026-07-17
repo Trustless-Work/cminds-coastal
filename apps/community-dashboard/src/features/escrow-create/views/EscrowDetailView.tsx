@@ -4,8 +4,12 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { EscrowParties } from "@repo/features/escrow/components/EscrowParties";
+import {
+  EvidenceLinks,
+  hasResolvableEvidence,
+} from "@repo/features/escrow/components/EvidenceLinks";
 import { fetchEscrow } from "@repo/features/escrow/services/escrows.service";
 import {
   CANCELLED_ESCROW_IMAGE_CLASS,
@@ -18,11 +22,12 @@ import {
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { useWalletContext } from "@repo/providers/WalletProvider";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
-import { BalanceProgressDonut } from "@repo/tw-blocks/escrows/indicators/balance-progress/donut/BalanceProgress";
+import { MilestoneStatusPieChart } from "@repo/tw-blocks/escrows/indicators/milestone-status-progress/MilestoneStatusPieChart";
 import { ChangeMilestoneStatusDialog } from "@repo/tw-blocks/escrows/single-multi-release/change-milestone-status/dialog/ChangeMilestoneStatus";
 import { DisputeMilestoneButton } from "@repo/tw-blocks/escrows/multi-release/dispute-milestone/button/DisputeMilestone";
 import { ReleaseMilestoneButton } from "@repo/tw-blocks/escrows/multi-release/release-milestone/button/ReleaseMilestone";
 import { useEscrowsByContractIdsQuery } from "@repo/tw-blocks/tanstack/useEscrowsByContractIdsQuery";
+import type { MilestoneStatusInput } from "@repo/helpers";
 import { Badge } from "@repo/ui/components/badge";
 import {
   Card,
@@ -121,6 +126,31 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
   const area = metadata.geographic_area?.trim();
   const taskCount = metadata.milestones.length;
   const canAct = Boolean(chainEscrow && walletAddress);
+
+  const pieMilestones: MilestoneStatusInput[] = metadata.milestones.map(
+    (milestone) => {
+      const chainMilestone =
+        chainEscrow?.milestones?.[milestone.milestone_index];
+      return {
+        description: `[${milestone.task.code}] ${milestone.task.name}`,
+        amount: Number(milestone.amount),
+        status:
+          chainMilestone && "status" in chainMilestone
+            ? chainMilestone.status
+            : undefined,
+        evidence:
+          chainMilestone && "evidence" in chainMilestone
+            ? chainMilestone.evidence
+            : undefined,
+        flags:
+          chainMilestone &&
+          "flags" in chainMilestone &&
+          chainMilestone.flags
+            ? chainMilestone.flags
+            : undefined,
+      };
+    },
+  );
 
   return (
     <div className="space-y-8">
@@ -225,7 +255,7 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
                   Tasks
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Submit evidence, dispute if needed, or release approved tasks.
+                  Submit evidence, request help if needed, or release approved tasks.
                 </p>
               </div>
               <UsdcAmount
@@ -291,26 +321,11 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
                           ) : flags?.resolved ? (
                             <Badge variant="success">RESOLVED</Badge>
                           ) : flags?.disputed ? (
-                            <Badge variant="destructive">DISPUTED</Badge>
+                            <Badge variant="destructive">HELP</Badge>
                           ) : flags?.approved ? (
                             <Badge variant="outline">APPROVED</Badge>
                           ) : null}
                         </div>
-                        {evidence ? (
-                          <a
-                            href={evidence}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex max-w-full items-center gap-1 truncate text-sm text-primary hover:underline"
-                          >
-                            <span className="truncate">View Evidence</span>
-                            <ExternalLink className="size-3 shrink-0" />
-                          </a>
-                        ) : (
-                          <p className="text-sm text-muted-foreground">
-                            No Evidence Yet
-                          </p>
-                        )}
                       </div>
                       <UsdcAmount
                         amount={Number(milestone.amount)}
@@ -332,27 +347,31 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
                         Boolean(flags?.approved) &&
                         !flags?.released &&
                         !flags?.resolved;
-                      const showActions =
+                      const showRoleActions =
                         canAct && (canUpdateStatus || canDispute || canRelease);
+                      const showEvidence = hasResolvableEvidence(evidence);
 
-                      if (!showActions) return null;
+                      if (!showRoleActions && !showEvidence) return null;
 
                       return (
                         <div className="border-t border-border/80 pt-4">
                           <TooltipProvider delay={200}>
                             <div className="flex flex-wrap items-center gap-2">
-                              {canUpdateStatus ? (
+                              {showEvidence ? (
+                                <EvidenceLinks evidence={evidence} />
+                              ) : null}
+                              {canUpdateStatus && canAct ? (
                                 <ChangeMilestoneStatusDialog
                                   showSelectMilestone={false}
                                   milestoneIndex={milestone.milestone_index}
                                 />
                               ) : null}
-                              {canDispute ? (
+                              {canDispute && canAct ? (
                                 <DisputeMilestoneButton
                                   milestoneIndex={milestone.milestone_index}
                                 />
                               ) : null}
-                              {canRelease ? (
+                              {canRelease && canAct ? (
                                 <ReleaseMilestoneButton
                                   milestoneIndex={milestone.milestone_index}
                                 />
@@ -422,12 +441,7 @@ export const EscrowDetailView = ({ contractId }: EscrowDetailViewProps) => {
             </dl>
 
             <div className="min-w-0 overflow-hidden rounded-2xl border border-border px-4 py-5">
-              <BalanceProgressDonut
-                contractId={contractId}
-                target={total}
-                currency="USDC"
-                balance={balance}
-              />
+              <MilestoneStatusPieChart milestones={pieMilestones} />
             </div>
 
             <EscrowParties escrow={metadata} />

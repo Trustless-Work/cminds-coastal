@@ -9,6 +9,7 @@ import { AllowedEmailDomainsModule } from './modules/allowed-email-domains/allow
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { CommunitiesModule } from './modules/communities/communities.module';
 import { EscrowsModule } from './modules/escrows/escrows.module';
+import { EvidenceModule } from './modules/evidence/evidence.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -28,6 +29,7 @@ import { UsersModule } from './modules/users/users.module';
     CommunitiesModule,
     TasksModule,
     EscrowsModule,
+    EvidenceModule,
     AnalyticsModule,
   ],
   controllers: [AppController],

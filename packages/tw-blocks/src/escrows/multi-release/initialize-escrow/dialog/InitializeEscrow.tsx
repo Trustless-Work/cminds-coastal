@@ -338,14 +338,14 @@ export const InitializeEscrowDialog = () => {
                   <FormItem>
                     <FormLabel className="flex items-center justify-between">
                       <span className="flex items-center">
-                        Dispute Resolver
+                        Help Resolver
                         <span className="text-destructive ml-1">*</span>
                       </span>
                     </FormLabel>
 
                     <FormControl>
                       <Input
-                        placeholder="Enter dispute resolver address"
+                        placeholder="Enter help resolver address"
                         {...field}
                         onChange={(e) => {
                           field.onChange(e);

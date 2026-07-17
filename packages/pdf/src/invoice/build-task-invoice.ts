@@ -30,7 +30,7 @@ function formatDateTime(date: Date): string {
 }
 
 function settlementLabel(type: TaskInvoiceData["payment"]["settlementType"]): string {
-  return type === "released" ? "Released" : "Dispute resolved";
+  return type === "released" ? "Released" : "Help resolved";
 }
 
 function drawDivider(doc: jsPDF, y: number, pageWidth: number, margin: number): void {
@@ -201,7 +201,7 @@ export async function buildTaskInvoicePdf(data: TaskInvoiceData): Promise<Blob> 
       doc,
       "Payee",
       data.payment.settlementType === "resolved"
-        ? "Distributed on-chain (dispute resolution)"
+        ? "Distributed on-chain (help resolution)"
         : "—",
       y,
       pageWidth,
@@ -257,7 +257,7 @@ export async function buildTaskInvoicePdf(data: TaskInvoiceData): Promise<Blob> 
     if (data.roles.disputeResolver) {
       y = addKeyValue(
         doc,
-        "Dispute resolver",
+        "Help resolver",
         data.roles.disputeResolver,
         y,
         pageWidth,

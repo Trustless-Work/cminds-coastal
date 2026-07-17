@@ -23,7 +23,8 @@ import { LocaleSwitcher } from "@repo/i18n/LocaleSwitcher";
 import { Navbar } from "@repo/shared/Navbar";
 import { SiteFooter } from "@repo/shared/SiteFooter";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
-import { BalanceProgressDonut } from "@repo/tw-blocks/escrows/indicators/balance-progress/donut/BalanceProgress";
+import type { MilestoneStatusInput } from "@repo/helpers";
+import { MilestoneStatusPieChart } from "@repo/tw-blocks/escrows/indicators/milestone-status-progress/MilestoneStatusPieChart";
 import { useEscrowsByContractIdsQuery } from "@repo/tw-blocks/tanstack/useEscrowsByContractIdsQuery";
 import { Badge } from "@repo/ui/components/badge";
 import {
@@ -37,6 +38,19 @@ import { cn } from "@repo/ui/lib/utils";
 
 import { ContractIdCopyPanel } from "../components/ContractIdCopyPanel";
 import { FALLBACK_COVERS } from "../constants/landing";
+
+type ChainMilestone = {
+  description?: string;
+  status?: string;
+  evidence?: string;
+  amount?: number;
+  flags?: {
+    approved?: boolean;
+    disputed?: boolean;
+    released?: boolean;
+    resolved?: boolean;
+  };
+};
 
 type TransparencyEscrowDetailViewProps = {
   contractId: string;
@@ -125,6 +139,9 @@ export const TransparencyEscrowDetailView = ({
             balance={balance}
             chainLoading={chainQuery.isLoading}
             hasChainEscrow={Boolean(chainEscrow)}
+            chainMilestones={
+              chainEscrow?.milestones as ChainMilestone[] | undefined
+            }
           />
         ) : null}
       </div>
@@ -140,6 +157,7 @@ type DetailContentProps = {
   balance: number | undefined;
   chainLoading: boolean;
   hasChainEscrow: boolean;
+  chainMilestones?: ChainMilestone[];
 };
 
 function TransparencyEscrowDetailContent({
@@ -148,6 +166,7 @@ function TransparencyEscrowDetailContent({
   balance,
   chainLoading,
   hasChainEscrow,
+  chainMilestones,
 }: DetailContentProps) {
   const total = metadata.milestones.reduce(
     (sum, milestone) => sum + Number(milestone.amount),
@@ -160,6 +179,30 @@ function TransparencyEscrowDetailContent({
   const inactive = isEscrowInactive(metadata.status);
   const area = metadata.geographic_area?.trim();
   const taskCount = metadata.milestones.length;
+
+  const pieMilestones: MilestoneStatusInput[] = metadata.milestones.map(
+    (milestone) => {
+      const chainMilestone = chainMilestones?.[milestone.milestone_index];
+      return {
+        description: `[${milestone.task.code}] ${milestone.task.name}`,
+        amount: Number(milestone.amount),
+        status:
+          chainMilestone && "status" in chainMilestone
+            ? chainMilestone.status
+            : undefined,
+        evidence:
+          chainMilestone && "evidence" in chainMilestone
+            ? chainMilestone.evidence
+            : undefined,
+        flags:
+          chainMilestone &&
+          "flags" in chainMilestone &&
+          chainMilestone.flags
+            ? chainMilestone.flags
+            : undefined,
+      };
+    },
+  );
 
   return (
     <div className="space-y-8">
@@ -355,12 +398,7 @@ function TransparencyEscrowDetailContent({
             </dl>
 
             <div className="min-w-0 overflow-hidden rounded-2xl border border-border px-4 py-5">
-              <BalanceProgressDonut
-                contractId={contractId}
-                target={total}
-                currency="USDC"
-                balance={balance}
-              />
+              <MilestoneStatusPieChart milestones={pieMilestones} />
             </div>
 
             {!hasChainEscrow && !chainLoading ? (

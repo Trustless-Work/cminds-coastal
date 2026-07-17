@@ -12,7 +12,8 @@
     "./actions": "./src/actions.ts",
     "./LocaleSwitcher": "./src/LocaleSwitcher.tsx",
     "./messages/en.json": "./src/messages/en.json",
-    "./messages/es.json": "./src/messages/es.json"
+    "./messages/es.json": "./src/messages/es.json",
+    "./messages/fr.json": "./src/messages/fr.json"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

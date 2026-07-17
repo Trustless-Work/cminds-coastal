@@ -150,7 +150,7 @@ export const EscrowCreateSummary = ({
               </span>
             </div>
             <div className="flex justify-between gap-3">
-              <span className="text-muted-foreground">Dispute Resolver</span>
+              <span className="text-muted-foreground">Help Resolver</span>
               <span className="max-w-[65%] truncate text-right font-medium">
                 {displayPerson(disputeResolver)}
               </span>

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ClipboardList, ExternalLink } from "lucide-react";
+import { ClipboardList } from "lucide-react";
+import { EvidenceLinks } from "@repo/features/escrow/components/EvidenceLinks";
 import { formatAddress } from "@repo/helpers";
 import { NoData } from "@repo/shared/NoData";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
@@ -10,7 +11,6 @@ import { Skeleton } from "@repo/ui/components/skeleton";
 import { cn } from "@repo/ui/lib/utils";
 
 import type { ReviewQueueItem } from "../types";
-import { parseEvidenceLinks } from "../utils";
 import { MilestoneActions } from "./MilestoneActions";
 import { MilestoneFlagBadges } from "./MilestoneFlagBadges";
 import { MilestoneStatusBadge } from "./MilestoneStatusBadge";
@@ -41,7 +41,7 @@ export const ReviewQueueCarousel = ({
     return (
       <NoData
         title="Review queue empty"
-        description="Tasks marked ready for review or in dispute will show up here."
+        description="Tasks marked ready for review or needing help will show up here."
         icon={<ClipboardList />}
       />
     );
@@ -72,7 +72,6 @@ export const ReviewQueueCarousel = ({
 
 function ReviewQueueCard({ item }: { item: ReviewQueueItem }) {
   const symbol = item.escrow.trustline?.symbol ?? "USDC";
-  const links = parseEvidenceLinks(item.evidence);
   const title = item.metadata?.title ?? item.escrow.title;
   const taskMeta = item.metadata?.milestones[item.milestoneIndex];
   const taskCode = taskMeta?.task.code;
@@ -132,27 +131,7 @@ function ReviewQueueCard({ item }: { item: ReviewQueueItem }) {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div className="min-w-0 space-y-1.5">
             <p className="text-xs text-muted-foreground">Evidence</p>
-            {links.length > 0 ? (
-              <ul className="space-y-1">
-                {links.slice(0, 2).map((link) => (
-                  <li key={link}>
-                    <a
-                      href={link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex max-w-full items-center gap-1 truncate text-sm text-primary hover:underline"
-                    >
-                      <span className="truncate">View Evidence</span>
-                      <ExternalLink className="size-3 shrink-0" />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {item.evidence?.trim() || "No Link"}
-              </p>
-            )}
+            <EvidenceLinks evidence={item.evidence} variant="button" />
           </div>
           <div className="min-w-0 space-y-1.5">
             <p className="text-xs text-muted-foreground">Status</p>

@@ -79,7 +79,7 @@ export const EscrowDetailPageView = ({
           <CardTitle>Escrow not found</CardTitle>
           <CardDescription>
             No escrow with this contract id was found for your approver or
-            dispute resolver role.
+            help resolver role.
           </CardDescription>
           <Link
             href="/dashboard"

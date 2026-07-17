@@ -270,7 +270,7 @@ export const CreateEscrowForm = () => {
               />
               <UserEmailCombobox
                 role="CMINDS_OPERATOR"
-                label="Dispute Resolver"
+                label="Help Resolver"
                 value={disputeResolver}
                 onChange={selectDisputeResolver}
                 placeholder="Search CMinds by email…"

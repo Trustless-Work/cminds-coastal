@@ -33,7 +33,7 @@ const PARTY_ORDER: Array<{
   { role: "release_signer", label: "Release Signer", key: "release_signer" },
   {
     role: "dispute_resolver",
-    label: "Dispute Resolver",
+    label: "Help Resolver",
     key: "dispute_resolver",
   },
 ];

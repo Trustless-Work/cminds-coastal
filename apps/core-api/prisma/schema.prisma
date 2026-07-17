@@ -35,6 +35,11 @@ enum EscrowStatus {
   CANCELLED
 }
 
+enum EvidenceRefKind {
+  FILE
+  URL
+}
+
 // =============================================
 // USERS & AUTH
 // =============================================
@@ -53,10 +58,11 @@ model User {
   updated_at       DateTime       @updatedAt
 
   wallets                     Wallet[]
-  initialized_escrows         Escrow[] @relation("EscrowInitializer")
-  approved_escrows            Escrow[] @relation("EscrowApprover")
-  release_signer_escrows      Escrow[] @relation("EscrowReleaseSigner")
-  dispute_resolver_escrows    Escrow[] @relation("EscrowDisputeResolver")
+  initialized_escrows         Escrow[]     @relation("EscrowInitializer")
+  approved_escrows            Escrow[]     @relation("EscrowApprover")
+  release_signer_escrows      Escrow[]     @relation("EscrowReleaseSigner")
+  dispute_resolver_escrows    Escrow[]     @relation("EscrowDisputeResolver")
+  evidence_refs               EvidenceRef[]
 
   @@index([roles])
   @@index([is_active])
@@ -191,4 +197,29 @@ model EscrowMilestone {
   @@index([escrow_id])
   @@index([task_id])
   @@map("escrow_milestone")
+}
+
+// =============================================
+// EVIDENCE REFS (short on-chain ids → files/URLs)
+// =============================================
+
+model EvidenceRef {
+  id               String          @id @db.VarChar(32)
+  kind             EvidenceRefKind
+  storage_path     String?
+  public_url       String?
+  external_url     String?
+  filename         String?
+  mime_type        String?
+  escrow_id        String?
+  milestone_index  Int?
+  created_by       String          @db.Uuid
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+
+  creator User @relation(fields: [created_by], references: [user_id])
+
+  @@index([created_by])
+  @@index([escrow_id, milestone_index])
+  @@map("evidence_ref")
 }

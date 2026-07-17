@@ -64,8 +64,8 @@ export function useDisputeMilestone({
       });
 
       toastSuccess(
-        "Milestone Disputed",
-        "This milestone is now in dispute and awaiting resolution.",
+        "Help Requested",
+        "This milestone needs help and is awaiting resolution.",
       );
 
       updateEscrow({
@@ -87,7 +87,7 @@ export function useDisputeMilestone({
       onSuccess?.();
     } catch (error) {
       toastError(
-        "Dispute Failed",
+        "Help Failed",
         handleError(error as ErrorResponse).message ||
           "Something went wrong. Please try again.",
       );

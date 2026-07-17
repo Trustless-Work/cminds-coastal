@@ -3,8 +3,9 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { EscrowParties } from "@repo/features/escrow/components/EscrowParties";
+import { EvidenceLinks } from "@repo/features/escrow/components/EvidenceLinks";
 import type {
   EscrowMilestoneRecord,
   EscrowRecord,
@@ -20,10 +21,11 @@ import {
 import { areAllMilestonesSettled } from "@repo/helpers";
 import { useEscrowContext } from "@repo/providers/EscrowProvider";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
-import { BalanceProgressDonut } from "@repo/tw-blocks/escrows/indicators/balance-progress/donut/BalanceProgress";
+import { MilestoneStatusPieChart } from "@repo/tw-blocks/escrows/indicators/milestone-status-progress/MilestoneStatusPieChart";
 import { useEscrowsByContractIdsQuery } from "@repo/tw-blocks/tanstack/useEscrowsByContractIdsQuery";
 import { Badge } from "@repo/ui/components/badge";
 import { cn } from "@repo/ui/lib/utils";
+import type { MilestoneStatusInput } from "@repo/helpers";
 import type { GetEscrowsFromIndexerResponse as Escrow } from "@trustless-work/escrow/types";
 import type { MultiReleaseMilestone } from "@trustless-work/escrow/types";
 
@@ -32,7 +34,6 @@ import {
   getMilestoneFlags,
   getMilestoneReviewStatus,
   getMilestoneStatusText,
-  parseEvidenceLinks,
 } from "../utils";
 import { ContractIdCopyPanel } from "./ContractIdCopyPanel";
 import { DownloadTaskInvoiceButton } from "./DownloadTaskInvoiceButton";
@@ -103,6 +104,26 @@ export const EscrowDetail = ({
     chainEscrow?.milestones.filter(
       (milestone) => getMilestoneReviewStatus(milestone) === "disputed",
     ).length ?? 0;
+
+  const pieMilestones: MilestoneStatusInput[] =
+    liveMilestones?.map((milestone, index) => {
+      const meta = metadata.milestones.find(
+        (m) => m.milestone_index === index,
+      );
+      return {
+        description: meta
+          ? `[${meta.task.code}] ${meta.task.name}`
+          : milestone.description,
+        amount: getMilestoneAmount(milestone) ?? Number(meta?.amount ?? 0),
+        status: milestone.status,
+        evidence: milestone.evidence,
+        flags: getMilestoneFlags(milestone),
+      };
+    }) ??
+    metadata.milestones.map((milestone) => ({
+      description: `[${milestone.task.code}] ${milestone.task.name}`,
+      amount: Number(milestone.amount),
+    }));
 
   return (
     <div className="space-y-8">
@@ -180,7 +201,7 @@ export const EscrowDetail = ({
               ) : null}
               {disputedCount > 0 ? (
                 <Badge variant="destructive" className="rounded-xl font-medium">
-                  {disputedCount} disputed
+                  {disputedCount} need help
                 </Badge>
               ) : null}
             </div>
@@ -217,7 +238,7 @@ export const EscrowDetail = ({
                   Tasks
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Review evidence and approve milestones, or resolve disputes
+                  Review evidence and approve milestones, or resolve help requests
                   raised by the community.
                 </p>
               </div>
@@ -234,7 +255,6 @@ export const EscrowDetail = ({
                 {chainEscrow.milestones.map((milestone, milestoneIndex) => {
                   const status = getMilestoneReviewStatus(milestone);
                   const amount = getMilestoneAmount(milestone);
-                  const links = parseEvidenceLinks(milestone.evidence);
                   const metaMilestone = metadata.milestones[milestoneIndex];
                   const showActions =
                     status === "ready_for_review" || status === "disputed";
@@ -294,28 +314,10 @@ export const EscrowDetail = ({
                           <p className="text-xs text-muted-foreground">
                             Evidence
                           </p>
-                          {links.length > 0 ? (
-                            <ul className="space-y-1">
-                              {links.map((link) => (
-                                <li key={link}>
-                                  <a
-                                    href={link}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="inline-flex max-w-full items-center gap-1 text-sm text-primary hover:underline"
-                                  >
-                                    <span>View Evidence</span>
-                                    <ExternalLink className="size-3 shrink-0" />
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="break-words text-sm text-muted-foreground">
-                              {milestone.evidence?.trim() ||
-                                "No Evidence Submitted"}
-                            </p>
-                          )}
+                          <EvidenceLinks
+                            evidence={milestone.evidence}
+                            variant="button"
+                          />
                         </div>
                         <div className="min-w-0 space-y-1.5">
                           <p className="text-xs text-muted-foreground">
@@ -441,11 +443,9 @@ export const EscrowDetail = ({
             </dl>
 
             <div className="min-w-0 overflow-hidden rounded-2xl border border-border px-4 py-5">
-              <BalanceProgressDonut
-                contractId={contractId}
-                target={total}
+              <MilestoneStatusPieChart
+                milestones={pieMilestones}
                 currency={symbol}
-                balance={balance}
               />
             </div>
 
@@ -457,7 +457,7 @@ export const EscrowDetail = ({
                 </dd>
               </div>
               <div className="min-w-0 space-y-1">
-                <dt className="text-xs text-muted-foreground">Disputed</dt>
+                <dt className="text-xs text-muted-foreground">Help</dt>
                 <dd className="text-xl font-semibold tabular-nums text-foreground">
                   {disputedCount}
                 </dd>

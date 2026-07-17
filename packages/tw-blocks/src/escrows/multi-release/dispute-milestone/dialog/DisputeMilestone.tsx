@@ -37,12 +37,12 @@ export const DisputeMilestoneDialog = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button type="button" className="cursor-pointer w-full">
-          Dispute Task
+          Request Help
         </Button>
       </DialogTrigger>
       <DialogContent className="!w-full sm:!max-w-md">
         <DialogHeader>
-          <DialogTitle>Dispute Task</DialogTitle>
+          <DialogTitle>Request Help</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit}>
@@ -88,10 +88,10 @@ export const DisputeMilestoneDialog = () => {
                 {isSubmitting ? (
                   <div className="flex items-center">
                     <Loader2 className="h-5 w-5 animate-spin" />
-                    <span className="ml-2">Disputing...</span>
+                    <span className="ml-2">Requesting Help...</span>
                   </div>
                 ) : (
-                  "Dispute Task"
+                  "Request Help"
                 )}
               </Button>
             </div>

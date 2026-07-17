@@ -45,10 +45,10 @@ export const useInitializeEscrowSchema = () => {
         disputeResolver: z
           .string()
           .min(1, {
-            message: "Dispute resolver is required.",
+            message: "Help resolver is required.",
           })
           .refine((value) => isValidWallet(value), {
-            message: "Dispute resolver must be a valid wallet.",
+            message: "Help resolver must be a valid wallet.",
           }),
       }),
       engagementId: z.string().min(1, {

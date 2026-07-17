@@ -68,10 +68,10 @@ export const DisputeMilestoneForm = () => {
             {isSubmitting ? (
               <div className="flex items-center">
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <span className="ml-2">Disputing...</span>
+                <span className="ml-2">Requesting Help...</span>
               </div>
             ) : (
-              "Dispute Task"
+              "Request Help"
             )}
           </Button>
         </div>

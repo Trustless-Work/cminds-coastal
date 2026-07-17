@@ -65,7 +65,7 @@ export function buildEscrow(input: BuildEscrowInput): BuildEscrowPayload {
 
   if (!cminds || !releaseSigner || !disputeResolver || !signer) {
     throw new Error(
-      "Signer, CMinds, release signer, and dispute resolver wallets are required",
+      "Signer, CMinds, release signer, and help resolver wallets are required",
     );
   }
 

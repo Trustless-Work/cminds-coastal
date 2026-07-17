@@ -21,6 +21,7 @@
     "./escrows/multi-release/release-milestone/button/ReleaseMilestone": "./src/escrows/multi-release/release-milestone/button/ReleaseMilestone.tsx",
     "./escrows/single-multi-release/fund-escrow/dialog/FundEscrow": "./src/escrows/single-multi-release/fund-escrow/dialog/FundEscrow.tsx",
     "./escrows/indicators/balance-progress/donut/BalanceProgress": "./src/escrows/indicators/balance-progress/donut/BalanceProgress.tsx",
+    "./escrows/indicators/milestone-status-progress/MilestoneStatusPieChart": "./src/escrows/indicators/milestone-status-progress/MilestoneStatusPieChart.tsx",
     "./tanstack/useEscrowsByRoleQuery": "./src/tanstack/useEscrowsByRoleQuery.ts",
     "./tanstack/useEscrowsByContractIdsQuery": "./src/tanstack/useEscrowsByContractIdsQuery.ts",
     "./tanstack/useEscrowsMutations": "./src/tanstack/useEscrowsMutations.ts",
@@ -58,6 +59,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-hook-form": "^7.81.0",
+    "recharts": "3.8.0",
     "sonner": "^2.0.7",
     "zod": "3.25.76"
   }

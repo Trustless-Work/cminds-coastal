@@ -27,7 +27,7 @@ export const LANDING_STEPS: LandingStep[] = [
     step: "02",
     title: "Work is reviewed in public",
     description:
-      "Evidence links and milestone status update as work progresses. CMinds approves or disputes each milestone independently.",
+      "Evidence links and milestone status update as work progresses. CMinds approves or requests help on each milestone independently.",
   },
   {
     id: "release",
