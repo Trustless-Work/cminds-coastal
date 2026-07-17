@@ -5,6 +5,7 @@ export const PARTICIPATING_ROLES = [
   'initializer',
   'approver',
   'release_signer',
+  'dispute_resolver',
 ] as const;
 
 export type ParticipatingRole = (typeof PARTICIPATING_ROLES)[number];

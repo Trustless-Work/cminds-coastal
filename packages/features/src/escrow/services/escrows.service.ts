@@ -18,6 +18,7 @@ export type CreateEscrowPayload = {
   engagement_id: string;
   approver_user_id: string;
   release_signer_user_id: string;
+  dispute_resolver_user_id: string;
   milestones: CreateEscrowMilestonePayload[];
 };
 
@@ -47,6 +48,14 @@ export type EscrowMilestoneRecord = {
   task: EscrowTask;
 };
 
+export type EscrowPartyUser = {
+  user_id: string;
+  email: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  wallets: Array<{ address: string }>;
+};
+
 export type EscrowRecord = {
   escrow_id: string;
   title: string;
@@ -60,6 +69,11 @@ export type EscrowRecord = {
   initializer_user_id: string;
   approver_user_id: string | null;
   release_signer_user_id: string | null;
+  dispute_resolver_user_id: string | null;
+  initializer?: EscrowPartyUser | null;
+  approver?: EscrowPartyUser | null;
+  release_signer?: EscrowPartyUser | null;
+  dispute_resolver?: EscrowPartyUser | null;
   created_at: string;
   updated_at: string;
   milestones: EscrowMilestoneRecord[];
@@ -97,7 +111,8 @@ export async function fetchMyEscrows(): Promise<EscrowRecord[]> {
 export type ParticipatingRole =
   | "initializer"
   | "approver"
-  | "release_signer";
+  | "release_signer"
+  | "dispute_resolver";
 
 export async function fetchParticipatingEscrows(
   as: ParticipatingRole,

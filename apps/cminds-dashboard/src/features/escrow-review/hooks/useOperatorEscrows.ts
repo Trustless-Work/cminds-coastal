@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useParticipatingEscrows } from "@repo/features/escrow/hooks/useParticipatingEscrows";
+import { useParticipatingEscrowsUnion } from "@repo/features/escrow/hooks/useParticipatingEscrows";
 import type { EscrowRecord } from "@repo/features/escrow/services/escrows.service";
 import { useEscrowsByContractIdsQuery } from "@repo/tw-blocks/tanstack/useEscrowsByContractIdsQuery";
 import type { GetEscrowsFromIndexerResponse as Escrow } from "@trustless-work/escrow/types";
@@ -10,7 +10,10 @@ import type { EnrichedOperatorEscrow, OperatorEscrowStats } from "../types";
 import { buildReviewQueue, getMilestoneReviewStatus } from "../utils";
 
 export function useOperatorEscrows() {
-  const coreQuery = useParticipatingEscrows("approver");
+  const coreQuery = useParticipatingEscrowsUnion([
+    "approver",
+    "dispute_resolver",
+  ]);
   const records = useMemo(
     () => coreQuery.data ?? [],
     [coreQuery.data],

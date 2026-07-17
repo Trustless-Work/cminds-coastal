@@ -98,6 +98,10 @@ export class CreateEscrowDto {
   @IsUUID()
   release_signer_user_id!: string;
 
+  @ApiProperty()
+  @IsUUID()
+  dispute_resolver_user_id!: string;
+
   @ApiProperty({ type: [CreateEscrowMilestoneDto] })
   @IsArray()
   @ArrayMinSize(1)

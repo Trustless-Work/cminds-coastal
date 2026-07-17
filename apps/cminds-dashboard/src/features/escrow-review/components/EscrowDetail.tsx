@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+import { EscrowParties } from "@repo/features/escrow/components/EscrowParties";
 import type {
   EscrowMilestoneRecord,
   EscrowRecord,
@@ -480,6 +481,8 @@ export const EscrowDetail = ({
                 </p>
               ) : null}
             </div>
+
+            <EscrowParties escrow={metadata} />
 
             <div className="min-w-0 border-t border-border pt-6">
               <ContractIdCopyPanel contractId={contractId} />

@@ -59,7 +59,7 @@ export const OperatorDashboardView = () => {
           </h2>
           <p className="text-base text-muted-foreground">
             Review evidence, approve milestones, resolve disputes, and monitor
-            escrows where you are the assigned approver.
+            escrows where you are the assigned approver or dispute resolver.
           </p>
         </header>
 
@@ -111,7 +111,8 @@ export const OperatorDashboardView = () => {
               Assigned Escrows
             </h3>
             <p className="text-sm text-muted-foreground">
-              Escrows where your account is the on-record approver.
+              Escrows where your account is the on-record approver or dispute
+              resolver.
             </p>
           </div>
           <EscrowListFilterBar
@@ -150,7 +151,7 @@ export const OperatorDashboardView = () => {
         {!isLoading && !isError && enrichedEscrows.length === 0 ? (
           <NoData
             title="No assigned escrows"
-            description="Escrows that list you as approver will appear here after communities initialize them."
+            description="Escrows that list you as approver or dispute resolver will appear here after communities initialize them."
             icon={<FileStack />}
           />
         ) : null}

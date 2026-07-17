@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
+import { EscrowParties } from "@repo/features/escrow/components/EscrowParties";
 import {
   fetchFundingEscrow,
   type EscrowRecord,
@@ -368,6 +369,8 @@ function TransparencyEscrowDetailContent({
                 details and copy the contract ID below.
               </p>
             ) : null}
+
+            <EscrowParties escrow={metadata} />
 
             <div className="min-w-0 border-t border-border pt-6">
               <ContractIdCopyPanel contractId={contractId} />

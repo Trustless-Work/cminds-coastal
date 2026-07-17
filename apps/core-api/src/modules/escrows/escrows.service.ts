@@ -36,6 +36,17 @@ const COMMUNITY_SELECT = {
   is_active: true,
 } as const;
 
+const PARTY_USER_SELECT = {
+  user_id: true,
+  email: true,
+  display_name: true,
+  avatar_url: true,
+  wallets: {
+    select: { address: true },
+    take: 1,
+  },
+} as const;
+
 const FUNDING_LIST_INCLUDE = {
   community: { select: COMMUNITY_SELECT },
   milestones: {
@@ -58,12 +69,10 @@ const DETAIL_INCLUDE = {
     include: { task: true },
     orderBy: { milestone_index: 'asc' as const },
   },
-  approver: {
-    select: { user_id: true, email: true, display_name: true },
-  },
-  release_signer: {
-    select: { user_id: true, email: true, display_name: true },
-  },
+  initializer: { select: PARTY_USER_SELECT },
+  approver: { select: PARTY_USER_SELECT },
+  release_signer: { select: PARTY_USER_SELECT },
+  dispute_resolver: { select: PARTY_USER_SELECT },
 } satisfies Prisma.EscrowInclude;
 
 function encodeFundingCursor(createdAt: Date, escrowId: string): string {
@@ -115,13 +124,17 @@ export class EscrowsService {
       );
     }
 
-    const [approver, releaseSigner] = await Promise.all([
+    const [approver, releaseSigner, disputeResolver] = await Promise.all([
       this.prisma.user.findUnique({
         where: { user_id: dto.approver_user_id },
         include: { wallets: true },
       }),
       this.prisma.user.findUnique({
         where: { user_id: dto.release_signer_user_id },
+        include: { wallets: true },
+      }),
+      this.prisma.user.findUnique({
+        where: { user_id: dto.dispute_resolver_user_id },
         include: { wallets: true },
       }),
     ]);
@@ -144,9 +157,22 @@ export class EscrowsService {
       );
     }
 
-    if (approver.wallets.length === 0 || releaseSigner.wallets.length === 0) {
+    if (
+      !disputeResolver?.is_active ||
+      !disputeResolver.roles.includes(UserRole.CMINDS_OPERATOR)
+    ) {
       throw new BadRequestException(
-        'Approver and release signer must have a linked wallet',
+        'dispute_resolver_user_id must be an active CMINDS_OPERATOR',
+      );
+    }
+
+    if (
+      approver.wallets.length === 0 ||
+      releaseSigner.wallets.length === 0 ||
+      disputeResolver.wallets.length === 0
+    ) {
+      throw new BadRequestException(
+        'Approver, release signer, and dispute resolver must have a linked wallet',
       );
     }
 
@@ -194,6 +220,7 @@ export class EscrowsService {
         initializer_user_id: initializer.user_id,
         approver_user_id: approver.user_id,
         release_signer_user_id: releaseSigner.user_id,
+        dispute_resolver_user_id: disputeResolver.user_id,
         milestones: {
           create: dto.milestones.map((milestone) => ({
             task_id: milestone.task_id,
@@ -204,19 +231,7 @@ export class EscrowsService {
           })),
         },
       },
-      include: {
-        community: { select: COMMUNITY_SELECT },
-        milestones: {
-          include: { task: true },
-          orderBy: { milestone_index: 'asc' },
-        },
-        approver: {
-          select: { user_id: true, email: true, display_name: true },
-        },
-        release_signer: {
-          select: { user_id: true, email: true, display_name: true },
-        },
-      },
+      include: DETAIL_INCLUDE,
     });
   }
 
@@ -241,19 +256,7 @@ export class EscrowsService {
     const user = await this.usersService.requireSyncedUser(authUser);
     const escrow = await this.prisma.escrow.findUnique({
       where: { escrow_id: escrowId },
-      include: {
-        community: { select: COMMUNITY_SELECT },
-        milestones: {
-          include: { task: true },
-          orderBy: { milestone_index: 'asc' },
-        },
-        approver: {
-          select: { user_id: true, email: true, display_name: true },
-        },
-        release_signer: {
-          select: { user_id: true, email: true, display_name: true },
-        },
-      },
+      include: DETAIL_INCLUDE,
     });
 
     if (!escrow) {
@@ -264,12 +267,15 @@ export class EscrowsService {
     const isAssignedApprover = escrow.approver_user_id === user.user_id;
     const isAssignedReleaseSigner =
       escrow.release_signer_user_id === user.user_id;
+    const isAssignedDisputeResolver =
+      escrow.dispute_resolver_user_id === user.user_id;
     const isCminds = user.roles.includes(UserRole.CMINDS_OPERATOR);
 
     if (
       !isOwner &&
       !isAssignedApprover &&
       !isAssignedReleaseSigner &&
+      !isAssignedDisputeResolver &&
       !isCminds
     ) {
       throw new ForbiddenException('Not allowed to view this escrow');
@@ -298,9 +304,16 @@ export class EscrowsService {
 
     const isOwner = escrow.initializer_user_id === user.user_id;
     const isAssignedApprover = escrow.approver_user_id === user.user_id;
+    const isAssignedDisputeResolver =
+      escrow.dispute_resolver_user_id === user.user_id;
     const isCminds = user.roles.includes(UserRole.CMINDS_OPERATOR);
 
-    if (!isOwner && !isAssignedApprover && !isCminds) {
+    if (
+      !isOwner &&
+      !isAssignedApprover &&
+      !isAssignedDisputeResolver &&
+      !isCminds
+    ) {
       throw new ForbiddenException('Not allowed to update this escrow');
     }
 
@@ -405,10 +418,10 @@ export class EscrowsService {
     roles: UserRole[],
     as: ParticipatingRole,
   ): void {
-    if (as === 'approver') {
+    if (as === 'approver' || as === 'dispute_resolver') {
       if (!roles.includes(UserRole.CMINDS_OPERATOR)) {
         throw new ForbiddenException(
-          'Only CMINDS_OPERATOR can list escrows as approver',
+          `Only CMINDS_OPERATOR can list escrows as ${as}`,
         );
       }
       return;
@@ -444,6 +457,8 @@ export class EscrowsService {
         return { approver_user_id: userId };
       case 'release_signer':
         return { release_signer_user_id: userId };
+      case 'dispute_resolver':
+        return { dispute_resolver_user_id: userId };
     }
   }
 
@@ -544,13 +559,7 @@ export class EscrowsService {
   async findFundingPublicByContract(contractId: string) {
     const escrow = await this.prisma.escrow.findUnique({
       where: { escrow_id: contractId },
-      include: {
-        community: { select: COMMUNITY_SELECT },
-        milestones: {
-          include: { task: true },
-          orderBy: { milestone_index: 'asc' },
-        },
-      },
+      include: DETAIL_INCLUDE,
     });
 
     if (!escrow) {

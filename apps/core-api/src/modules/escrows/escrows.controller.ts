@@ -136,7 +136,7 @@ export class EscrowsController {
   })
   @ApiQuery({
     name: 'as',
-    enum: ['initializer', 'approver', 'release_signer'],
+    enum: ['initializer', 'approver', 'release_signer', 'dispute_resolver'],
     required: true,
   })
   @ApiResponse({ status: 200, description: 'Escrow list' })

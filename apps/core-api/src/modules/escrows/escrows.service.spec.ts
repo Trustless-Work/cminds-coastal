@@ -83,6 +83,7 @@ describe('EscrowsService', () => {
         engagement_id: 'ENG-1',
         approver_user_id: '22222222-2222-2222-2222-222222222222',
         release_signer_user_id: '33333333-3333-3333-3333-333333333333',
+        dispute_resolver_user_id: '22222222-2222-2222-2222-222222222222',
         milestones: [
           {
             task_id: '44444444-4444-4444-4444-444444444444',
@@ -107,6 +108,12 @@ describe('EscrowsService', () => {
         roles: [UserRole.COMMUNITY_IMPLEMENTER],
         is_active: true,
         wallets: [{ address: 'GBBB' }],
+      })
+      .mockResolvedValueOnce({
+        user_id: '22222222-2222-2222-2222-222222222222',
+        roles: [UserRole.CMINDS_OPERATOR],
+        is_active: true,
+        wallets: [{ address: 'GCCC' }],
       });
 
     await expect(
@@ -119,6 +126,7 @@ describe('EscrowsService', () => {
         engagement_id: 'ENG-1',
         approver_user_id: '22222222-2222-2222-2222-222222222222',
         release_signer_user_id: '33333333-3333-3333-3333-333333333333',
+        dispute_resolver_user_id: '22222222-2222-2222-2222-222222222222',
         milestones: [
           {
             task_id: '44444444-4444-4444-4444-444444444444',
@@ -310,6 +318,19 @@ describe('EscrowsService', () => {
       );
     });
 
+    it('should list escrows for dispute resolver', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+      prismaMock.escrow.findMany.mockResolvedValue([]);
+
+      await service.findParticipating(authUser, 'dispute_resolver');
+
+      expect(prismaMock.escrow.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { dispute_resolver_user_id: cmindsOperator.user_id },
+        }),
+      );
+    });
+
     it('should list escrows for release signer', async () => {
       prismaMock.escrow.findMany.mockResolvedValue([]);
 
@@ -367,10 +388,24 @@ describe('EscrowsService', () => {
       initializer_user_id: initializer.user_id,
       approver_user_id: cmindsOperator.user_id,
       release_signer_user_id: '33333333-3333-3333-3333-333333333333',
+      dispute_resolver_user_id: '66666666-6666-6666-6666-666666666666',
     };
 
     it('should allow assigned approver to view escrow', async () => {
       usersServiceMock.requireSyncedUser.mockResolvedValue(cmindsOperator);
+      prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
+
+      await expect(service.findOne(authUser, 'C-ESCROW')).resolves.toEqual(
+        baseEscrow,
+      );
+    });
+
+    it('should allow assigned dispute resolver to view escrow', async () => {
+      usersServiceMock.requireSyncedUser.mockResolvedValue({
+        user_id: '66666666-6666-6666-6666-666666666666',
+        roles: [UserRole.CMINDS_OPERATOR],
+        is_active: true,
+      });
       prismaMock.escrow.findUnique.mockResolvedValue(baseEscrow);
 
       await expect(service.findOne(authUser, 'C-ESCROW')).resolves.toEqual(
@@ -422,6 +457,7 @@ describe('EscrowsService', () => {
       initializer_user_id: initializer.user_id,
       approver_user_id: cmindsOperator.user_id,
       release_signer_user_id: '33333333-3333-3333-3333-333333333333',
+      dispute_resolver_user_id: '66666666-6666-6666-6666-666666666666',
     };
 
     it('should update title, description, and engagement_id for CMinds operator', async () => {

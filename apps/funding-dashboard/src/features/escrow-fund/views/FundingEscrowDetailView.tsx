@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { UsdcAmount } from "@repo/shared/UsdcAmount";
+import { EscrowParties } from "@repo/features/escrow/components/EscrowParties";
 import { fetchFundingEscrow } from "@repo/features/escrow/services/escrows.service";
 import {
   CANCELLED_ESCROW_IMAGE_CLASS,
@@ -341,6 +342,8 @@ export const FundingEscrowDetailView = ({
                 </p>
               ) : null}
             </div>
+
+            <EscrowParties escrow={metadata} />
 
             <div className="min-w-0 border-t border-border pt-6">
               <ContractIdCopyPanel contractId={contractId} />

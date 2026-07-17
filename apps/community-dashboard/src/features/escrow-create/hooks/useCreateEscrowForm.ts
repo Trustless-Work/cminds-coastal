@@ -279,6 +279,7 @@ export function useCreateEscrowForm() {
         engagement_id: values.engagementId,
         approver_user_id: values.cmindsUserId,
         release_signer_user_id: values.releaseSignerUserId,
+        dispute_resolver_user_id: values.disputeResolverUserId,
         milestones: selectedTasks.map((task, index) => ({
           task_id: task.taskId,
           milestone_index: index,

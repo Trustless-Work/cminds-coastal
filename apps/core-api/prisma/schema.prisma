@@ -52,10 +52,11 @@ model User {
   created_at       DateTime       @default(now())
   updated_at       DateTime       @updatedAt
 
-  wallets                  Wallet[]
-  initialized_escrows      Escrow[] @relation("EscrowInitializer")
-  approved_escrows         Escrow[] @relation("EscrowApprover")
-  release_signer_escrows   Escrow[] @relation("EscrowReleaseSigner")
+  wallets                     Wallet[]
+  initialized_escrows         Escrow[] @relation("EscrowInitializer")
+  approved_escrows            Escrow[] @relation("EscrowApprover")
+  release_signer_escrows      Escrow[] @relation("EscrowReleaseSigner")
+  dispute_resolver_escrows    Escrow[] @relation("EscrowDisputeResolver")
 
   @@index([roles])
   @@index([is_active])
@@ -148,22 +149,25 @@ model Escrow {
   image_url              String?
   status                 EscrowStatus @default(INITIALIZED)
   engagement_id          String
-  initializer_user_id    String       @db.Uuid
-  approver_user_id       String?      @db.Uuid
-  release_signer_user_id String?      @db.Uuid
-  created_at             DateTime     @default(now())
-  updated_at             DateTime     @updatedAt
+  initializer_user_id         String       @db.Uuid
+  approver_user_id            String?      @db.Uuid
+  release_signer_user_id      String?      @db.Uuid
+  dispute_resolver_user_id    String?      @db.Uuid
+  created_at                  DateTime     @default(now())
+  updated_at                  DateTime     @updatedAt
 
-  community      Community         @relation(fields: [community_id], references: [community_id])
-  initializer    User              @relation("EscrowInitializer", fields: [initializer_user_id], references: [user_id])
-  approver       User?             @relation("EscrowApprover", fields: [approver_user_id], references: [user_id])
-  release_signer User?             @relation("EscrowReleaseSigner", fields: [release_signer_user_id], references: [user_id])
-  milestones     EscrowMilestone[]
+  community        Community         @relation(fields: [community_id], references: [community_id])
+  initializer      User              @relation("EscrowInitializer", fields: [initializer_user_id], references: [user_id])
+  approver         User?             @relation("EscrowApprover", fields: [approver_user_id], references: [user_id])
+  release_signer   User?             @relation("EscrowReleaseSigner", fields: [release_signer_user_id], references: [user_id])
+  dispute_resolver User?             @relation("EscrowDisputeResolver", fields: [dispute_resolver_user_id], references: [user_id])
+  milestones       EscrowMilestone[]
 
   @@index([community_id])
   @@index([initializer_user_id])
   @@index([approver_user_id])
   @@index([release_signer_user_id])
+  @@index([dispute_resolver_user_id])
   @@index([status])
   @@map("escrow")
 }
