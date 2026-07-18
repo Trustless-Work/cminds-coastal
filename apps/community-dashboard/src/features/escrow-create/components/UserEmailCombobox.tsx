@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState, type ReactNode } from "react";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2, SquareArrowOutUpRight } from "lucide-react";
 import { formatAddress } from "@repo/helpers";
 import { useUserEmailSearch } from "@repo/features/auth/hooks/useUserEmailSearch";
 import type {
@@ -202,28 +202,44 @@ export const UserEmailCombobox = ({
               <ul className="space-y-1">
                 {users.map((user) => {
                   const selected = value?.user_id === user.user_id;
+                  const label = user.display_name?.trim() || user.email;
                   return (
                     <li key={user.user_id}>
-                      <button
-                        type="button"
+                      <div
                         className={cn(
-                          "flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-sm hover:bg-muted",
+                          "flex items-center gap-1 rounded-xl pr-1 hover:bg-muted",
                           selected && "bg-muted",
                         )}
-                        onClick={() => {
-                          onChange(user);
-                          setOpen(false);
-                        }}
                       >
-                        <Check
-                          className={cn(
-                            "size-4 shrink-0",
-                            selected ? "opacity-100" : "opacity-0",
-                          )}
-                        />
-                        <UserOptionAvatar user={user} />
-                        <UserOptionMeta user={user} />
-                      </button>
+                        <button
+                          type="button"
+                          className="flex min-w-0 flex-1 items-center gap-2 rounded-xl px-2 py-2 text-left text-sm outline-none"
+                          onClick={() => {
+                            onChange(user);
+                            setOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "size-4 shrink-0",
+                              selected ? "opacity-100" : "opacity-0",
+                            )}
+                          />
+                          <UserOptionAvatar user={user} />
+                          <UserOptionMeta user={user} />
+                        </button>
+                        <a
+                          href={`/dashboard/profile/${user.user_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(event) => event.stopPropagation()}
+                          className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-background-tertiary hover:text-foreground"
+                          aria-label={`View ${label} profile`}
+                        >
+                          <SquareArrowOutUpRight className="size-3.5" />
+                          View profile
+                        </a>
+                      </div>
                     </li>
                   );
                 })}
@@ -242,15 +258,26 @@ export const UserEmailCombobox = ({
             )}
           </div>
           {value ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="mt-2 w-full"
-              onClick={() => onChange(null)}
-            >
-              Clear Selection
-            </Button>
+            <div className="mt-2 flex items-center gap-2">
+              <a
+                href={`/dashboard/profile/${value.user_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-9 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <SquareArrowOutUpRight className="size-3.5" />
+                View profile
+              </a>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="flex-1"
+                onClick={() => onChange(null)}
+              >
+                Clear Selection
+              </Button>
+            </div>
           ) : null}
         </PopoverContent>
       </Popover>
