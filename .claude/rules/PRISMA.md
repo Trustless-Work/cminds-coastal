@@ -1,0 +1,89 @@
+---
+description: Prisma schema and database conventions for core-api
+globs: apps/core-api/prisma/**,apps/core-api/src/database/**
+alwaysApply: false
+---
+
+# Prisma & Database Conventions
+
+## Schema Conventions
+
+- Table names use `@@map("snake_case")` — Prisma models use PascalCase
+- UUIDs for all primary keys: `@id @default(uuid()) @db.Uuid`
+- Always add `created_at` and `updated_at` timestamps
+- Use enums for finite states: `EscrowStatus`, `MilestoneStatus`, `EvidenceStatus`, `UserRole`, etc.
+- Store Stellar identifiers as `String` (`contract_address`, `wallet_address`) — validate format in DTOs/services
+- Monetary amounts: use `Decimal` or store in stroops/minor units with clear documentation
+
+## Planned enums (v1)
+
+```prisma
+enum EscrowStatus {
+  DRAFT
+  INITIALIZED
+  FUNDED
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum MilestoneStatus {
+  PENDING
+  READY_FOR_REVIEW
+  APPROVED
+  DISPUTED
+  RELEASED
+}
+
+enum UserRole {
+  COMMUNITY_IMPLEMENTER
+  RELEASE_SIGNER
+  CMINDS_OPERATOR
+  FUNDER
+}
+```
+
+Identity: `User.pollar_user_id` maps to Pollar `usr_…`. Roles live on `User.roles` (not on `Wallet`). Syncable on login: `COMMUNITY_IMPLEMENTER`, `CMINDS_OPERATOR`, `FUNDER`. `RELEASE_SIGNER` is assigned via seed/admin only.
+
+## Relations & Cascade
+
+- `onDelete: Cascade` for child records that shouldn't exist without parent (Milestone → Escrow, Evidence → Milestone)
+- `onDelete: SetNull` for optional associations
+- Always add `@@index` on FK columns and frequently queried fields (`contract_address`, `escrow_id`, `status`)
+- Use `@@unique` for composite natural keys where needed (e.g. `[escrow_id, task_code]`)
+
+## Prisma Usage in Services
+
+```typescript
+// Transactions for multi-step writes
+await this.prisma.$transaction(async (tx) => {
+  await tx.milestone.create({ data: { ... } });
+  await tx.escrow.update({ where: { ... }, data: { status: 'IN_PROGRESS' } });
+});
+
+// Use updateMany when the record might not exist (avoids throwing)
+await this.prisma.milestone.updateMany({
+  where: { escrow_id: escrowId, id: milestoneId },
+  data: { status: 'APPROVED' },
+});
+
+// Use deleteMany for safe deletes (no throw if not found)
+await this.prisma.evidence.deleteMany({
+  where: { milestone_id: milestoneId, id: evidenceId },
+});
+```
+
+## Commands
+
+Run from `apps/core-api/`:
+
+| Command | Use |
+|---------|-----|
+| `pnpm run prisma:generate` | After schema changes |
+| `pnpm run prisma:migrate` | Create migration (production) |
+| `pnpm run prisma:push` | Push schema (dev only) |
+| `pnpm run prisma:studio` | Visual DB browser |
+| `pnpm run prisma:seed` | Seed data (task menu, test escrows) |
+
+See `.cursor/rules/DATABASE.mdc` for full setup guide.

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   NotFoundException,
   UnauthorizedException,
@@ -62,6 +63,9 @@ describe('UsersService', () => {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+    },
+    community: {
+      findUnique: jest.fn(),
     },
     $transaction: jest.fn(),
   };
@@ -564,6 +568,161 @@ describe('UsersService', () => {
           take: 20,
         }),
       );
+    });
+  });
+
+  describe('updateProfile', () => {
+    const communityId = '33333333-3333-3333-3333-333333333333';
+
+    function mockCurrentUser(roles: UserRole[]): void {
+      authIdentityMock.findUserByAuthIdentity.mockResolvedValueOnce({
+        user_id: mockUser.user_id,
+        roles,
+        is_active: true,
+        supabase_user_id: null,
+      });
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        ...mockUser,
+        roles,
+      });
+    }
+
+    it('updates the scalar profile fields', async () => {
+      mockCurrentUser([UserRole.FUNDER]);
+      prismaMock.user.update.mockResolvedValueOnce({
+        ...mockUser,
+        first_name: 'Ada',
+        last_name: 'Lovelace',
+        country: 'Costa Rica',
+      });
+
+      await service.updateProfile(authUser, {
+        first_name: 'Ada',
+        last_name: 'Lovelace',
+        country: 'Costa Rica',
+      });
+
+      expect(prismaMock.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { user_id: mockUser.user_id },
+          data: {
+            first_name: 'Ada',
+            last_name: 'Lovelace',
+            country: 'Costa Rica',
+          },
+        }),
+      );
+    });
+
+    it('throws NotFoundException when the user was never synced', async () => {
+      authIdentityMock.findUserByAuthIdentity.mockResolvedValueOnce(null);
+
+      await expect(
+        service.updateProfile(authUser, { first_name: 'Ada' }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(prismaMock.user.update).not.toHaveBeenCalled();
+    });
+
+    it('lets a community implementer link an existing community', async () => {
+      mockCurrentUser([UserRole.COMMUNITY_IMPLEMENTER]);
+      prismaMock.community.findUnique.mockResolvedValueOnce({
+        community_id: communityId,
+        is_active: true,
+      });
+      prismaMock.user.update.mockResolvedValueOnce({
+        ...mockUser,
+        community_id: communityId,
+        community: { community_id: communityId, name: 'Playa Azul' },
+      });
+
+      const result = await service.updateProfile(authUser, {
+        community_id: communityId,
+      });
+
+      expect(prismaMock.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: { community_id: communityId },
+        }),
+      );
+      expect(result.community).toEqual({
+        community_id: communityId,
+        name: 'Playa Azul',
+      });
+    });
+
+    it('throws ForbiddenException when a non-implementer sends a community', async () => {
+      mockCurrentUser([UserRole.FUNDER]);
+
+      await expect(
+        service.updateProfile(authUser, { community_id: communityId }),
+      ).rejects.toBeInstanceOf(ForbiddenException);
+      expect(prismaMock.community.findUnique).not.toHaveBeenCalled();
+      expect(prismaMock.user.update).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException when the community does not exist', async () => {
+      mockCurrentUser([UserRole.COMMUNITY_IMPLEMENTER]);
+      prismaMock.community.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.updateProfile(authUser, { community_id: communityId }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(prismaMock.user.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getPublicProfile', () => {
+    it('returns the full profile projection without wallet balance', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        ...mockUser,
+        first_name: 'Ada',
+        last_name: 'Lovelace',
+        phone_number: '+50688887777',
+        country: 'Costa Rica',
+        city: 'Puntarenas',
+        bio: 'Coastal lead',
+        community: { community_id: 'c1', name: 'Playa Azul' },
+      });
+
+      const result = await service.getPublicProfile(mockUser.user_id);
+
+      expect(result).toEqual({
+        user_id: mockUser.user_id,
+        display_name: mockUser.display_name,
+        first_name: 'Ada',
+        last_name: 'Lovelace',
+        avatar_url: mockUser.avatar_url,
+        email: mockUser.email,
+        phone_number: '+50688887777',
+        country: 'Costa Rica',
+        city: 'Puntarenas',
+        bio: 'Coastal lead',
+        roles: mockUser.roles,
+        community: { community_id: 'c1', name: 'Playa Azul' },
+        wallet_address: mockUser.wallets[0].address,
+        created_at: mockUser.created_at,
+      });
+      expect(result).not.toHaveProperty('is_active');
+      expect(result).not.toHaveProperty('supabase_user_id');
+    });
+
+    it('throws NotFoundException for an unknown user', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.getPublicProfile('missing-id'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('throws NotFoundException for an inactive user', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        ...mockUser,
+        is_active: false,
+      });
+
+      await expect(
+        service.getPublicProfile(mockUser.user_id),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 });

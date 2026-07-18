@@ -5,6 +5,7 @@ import { AuthGate } from "@repo/features/auth/components/AuthGate";
 import { Skeleton } from "@repo/ui/components/skeleton";
 
 import { FundingEscrowListView } from "../../features/escrow-fund/views/FundingEscrowListView";
+import { FUNDING_AUTH_SHELL } from "../../constants/auth-shell";
 
 const ListFallback = () => (
   <div className="mx-auto w-full max-w-[1320px] px-6 pb-24 pt-6 sm:px-10">
@@ -19,12 +20,7 @@ const ListFallback = () => (
 
 export default function DashboardPage() {
   return (
-    <AuthGate
-      appRole="FUNDER"
-      appTitle="CMinds"
-      logoSrc="/logos/dark-en-logo.png"
-      logoHref="/dashboard"
-    >
+    <AuthGate {...FUNDING_AUTH_SHELL}>
       <Suspense fallback={<ListFallback />}>
         <FundingEscrowListView />
       </Suspense>

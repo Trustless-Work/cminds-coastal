@@ -10,7 +10,13 @@
     "./escrow/services/*": "./src/escrow/services/*.ts",
     "./escrow/hooks/*": "./src/escrow/hooks/*.ts",
     "./escrow/components/*": "./src/escrow/components/*.tsx",
-    "./escrow/utils/*": "./src/escrow/utils/*.ts"
+    "./escrow/utils/*": "./src/escrow/utils/*.ts",
+    "./profile/views/*": "./src/profile/views/*.tsx",
+    "./profile/components/*": "./src/profile/components/*.tsx",
+    "./profile/hooks/*": "./src/profile/hooks/*.ts",
+    "./profile/services/*": "./src/profile/services/*.ts",
+    "./profile/schemas/*": "./src/profile/schemas/*.ts",
+    "./profile/types": "./src/profile/types.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -35,6 +41,7 @@
     "@repo/i18n": "workspace:*",
     "@repo/shared": "workspace:*",
     "@repo/ui": "workspace:*",
+    "@stellar/stellar-sdk": "^13.0.0",
     "@tanstack/react-query": "^5.101.2",
     "lucide-react": "^1.24.0",
     "react": "catalog:",
