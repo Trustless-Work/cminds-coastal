@@ -26,16 +26,29 @@ export type UserWallet = {
   updated_at: string;
 };
 
+export type UserCommunitySummary = {
+  community_id: string;
+  name: string;
+};
+
 export type UserProfile = {
   user_id: string;
   pollar_user_id: string;
   email: string;
   display_name: string | null;
   avatar_url: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  phone_number: string | null;
+  country: string | null;
+  city: string | null;
+  bio: string | null;
+  community_id: string | null;
   auth_providers: AuthProvider[];
   roles: UserRole[];
   is_active: boolean;
   created_at: string;
   updated_at: string;
   wallets: UserWallet[];
+  community: UserCommunitySummary | null;
 };
