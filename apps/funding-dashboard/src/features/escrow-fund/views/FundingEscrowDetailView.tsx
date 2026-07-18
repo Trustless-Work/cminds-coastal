@@ -21,6 +21,7 @@ import { useWalletContext } from "@repo/providers/WalletProvider";
 import type { MilestoneStatusInput } from "@repo/helpers";
 import { MilestoneStatusPieChart } from "@repo/tw-blocks/escrows/indicators/milestone-status-progress/MilestoneStatusPieChart";
 import { FundEscrowDialog } from "@repo/tw-blocks/escrows/single-multi-release/fund-escrow/dialog/FundEscrow";
+import { FundWithPollarDialog } from "@repo/tw-blocks/escrows/single-multi-release/fund-escrow/dialog/FundWithPollar";
 import { useEscrowsByContractIdsQuery } from "@repo/tw-blocks/tanstack/useEscrowsByContractIdsQuery";
 import { WalletButton } from "@repo/tw-blocks/wallet-kit/WalletButtons";
 import { Badge } from "@repo/ui/components/badge";
@@ -312,8 +313,8 @@ export const FundingEscrowDetailView = ({
                 Fund this escrow
               </h2>
               <p className="break-words text-sm leading-relaxed text-muted-foreground">
-                Contribute USDC with an external wallet, or copy the contract ID
-                to send from any Stellar wallet.
+                Contribute USDC from your Pollar wallet, connect an external
+                wallet, or copy the contract ID to send from any Stellar wallet.
               </p>
             </div>
 
@@ -347,6 +348,21 @@ export const FundingEscrowDetailView = ({
 
             <div className="min-w-0 overflow-hidden rounded-2xl border border-border px-4 py-5">
               <MilestoneStatusPieChart milestones={pieMilestones} />
+            </div>
+
+            <div className="min-w-0 space-y-3 border-t border-border pt-6">
+              <p className="text-sm font-medium text-foreground">
+                Pollar Wallet
+              </p>
+              {chainEscrow ? (
+                <FundWithPollarDialog />
+              ) : (
+                <p className="break-words text-sm leading-relaxed text-muted-foreground">
+                  {chainQuery.isLoading
+                    ? "Loading on-chain escrow…"
+                    : "On-chain data unavailable. You can still copy the contract ID below."}
+                </p>
+              )}
             </div>
 
             <div className="min-w-0 space-y-3 border-t border-border pt-6">
