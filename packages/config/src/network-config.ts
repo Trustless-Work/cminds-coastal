@@ -67,6 +67,13 @@ export class NetworkConfig {
     return this.isMainnet ? "PUBLIC" : "TESTNET";
   }
 
+  /** Horizon REST endpoint for the active network. */
+  get horizonUrl(): string {
+    return this.isMainnet
+      ? "https://horizon.stellar.org"
+      : "https://horizon-testnet.stellar.org";
+  }
+
   /** Trustless Work Escrow Viewer (read-only dApp). */
   getEscrowViewerUrl(contractId: string): string {
     return `https://viewer.trustlesswork.com/${encodeURIComponent(contractId)}`;
