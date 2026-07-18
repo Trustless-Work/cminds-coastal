@@ -1,0 +1,125 @@
+---
+description: Always use docs/ as product source of truth — CMinds escrow pilot context
+alwaysApply: true
+---
+
+# Product documentation context
+
+Before implementing features, fixing bugs, or making product decisions, **consult `docs/`**. It is the authoritative source for requirements, roles, flows, and scope boundaries.
+
+## Documentation index
+
+| Document | Path | Use when |
+| --- | --- | --- |
+| **CMinds product requirements** | `docs/CMINDS_CONTEXT.md` | Any feature work, UX, API design, naming, status models, scope questions |
+| **Design system** | `docs/DESIGN_SYSTEM.md` | Any UI, styling, layout, components, tokens, motion — **light mode only** |
+
+When `docs/` grows, read the relevant file(s) first. If requirements are ambiguous, prefer what is written in docs over assumptions.
+
+**UI rule:** Follow `docs/DESIGN_SYSTEM.md` for all four frontends. Do not add dark mode or a theme toggle.
+
+---
+
+## Product summary (v1)
+
+**Coastal Communities Escrow Pilot** — role-based escrow for community-led coastal conservation tasks.
+
+- **Infrastructure:** Trustless Work escrow on **Stellar**
+- **Asset:** **USDC**
+- **Wallet:** **Freighter**
+- **Goal:** End-to-end demo flow in ~15 days — not a full grant management platform
+
+> Communities create escrow requests from a fixed task menu, assign fixed milestone amounts, submit evidence links, CMinds reviews and approves/disputes milestones, funders fund initialized escrows with USDC, community leaders manually release funds per approved milestone, and observers track progress via a public transparency viewer.
+
+---
+
+## App ↔ role mapping
+
+| App | Package | Actor | Primary flows |
+| --- | --- | --- | --- |
+| Community Dashboard | `community-dashboard` | Community Implementer, Release Signer | Create/init escrow, select tasks, submit evidence, release funds |
+| CMinds Dashboard | `cminds-dashboard` | CMinds operator | Review evidence, approve/dispute, pause/cancel, add milestones |
+| Funding Dashboard | `funding-dashboard` | Funder / Depositor | View escrow, fund USDC, copy contract address |
+| Public Viewer | `public-viewer` | Observer / public | Transparency — status, milestones, funding, evidence links |
+| Core API | `core-api` | Backend | Off-chain metadata, evidence URLs, audit; on-chain via Trustless Work SDK |
+
+### Trustless Work role mapping
+
+| TW Role | v1 Actor | App |
+| --- | --- | --- |
+| Escrow Initializer | Community Implementer | `community-dashboard` |
+| Milestone Marker | Community Implementer | `community-dashboard` |
+| Milestone Approver | CMinds | `cminds-dashboard` |
+| Dispute Resolver | CMinds | `cminds-dashboard` |
+| Release Signer | Community Leader | `community-dashboard` |
+| Funder / Depositor | Any wallet | `funding-dashboard` |
+| Observer | Public / funders | `public-viewer` |
+| Platform Address | CMinds admin | `cminds-dashboard` |
+
+---
+
+## Core flows (implement in this order for v1)
+
+1. **Create & initialize escrow** — Freighter connect → project details → fixed task menu → fixed amounts per milestone → init → contract address
+2. **Fund escrow** — only after initialized; direct wallet fund or copy address; multiple funders allowed
+3. **Update milestone** — evidence links → mark ready for review
+4. **CMinds review** — approve or dispute (request-changes off-platform in v1)
+5. **Release** — manual, per milestone, signed by release signer
+6. **Public transparency** — escrow summary, milestones, funded/released amounts, shortened addresses, evidence links
+
+**Critical rules:**
+- Escrows **cannot be funded** until **initialized**
+- Milestones are **non-sequential** — approve/release independently
+- Milestones **cannot be edited** once status has been updated
+- Amounts are **fixed per milestone**, not percentage-based
+- Evidence in v1 is **links**, not full upload infrastructure (unless trivial)
+- Only `X-01 Custom Task` for non-menu tasks
+
+---
+
+## Fixed task menu (categories)
+
+Tasks from Vital Oceans / CMinds agreement — each selected task becomes a milestone:
+
+| Category | Codes |
+| --- | --- |
+| Management & Coordination | G-01 … G-04 |
+| Community Participation | C-01 … C-04 |
+| Advocacy & Policy | I-01 … I-05 |
+| Information Production | D-01 … D-04 |
+| Communications & Visibility | K-01 … K-03 |
+| Custom | X-01 |
+
+Full task table with deliverables: `docs/CMINDS_CONTEXT.md` §9.
+
+---
+
+## Status models (suggested v1)
+
+**Escrow:** Initialized → Funded / Partially Funded → Active → Paused | Cancelled | Completed
+
+**Milestone:** Pending → In Progress → Ready for Review → Approved | Disputed → Released
+
+Align code enums, UI labels, and API with these unless docs are explicitly updated.
+
+---
+
+## In scope vs out of scope (v1)
+
+**In:** 4 dashboards, Freighter wallet, escrow init, task menu, milestone amounts, evidence links, CMinds approval/dispute, manual per-milestone release, multi-funder, public viewer, admin pause/cancel, testnet/mainnet via env
+
+**Out:** Full grant CRM, KYC/KYB, fiat on-ramp, automated approval, complex permissions, production privacy controls, mobile-native app, in-app request-change workflow, advanced analytics
+
+When asked to build something, check §5.2 of `CMINDS_CONTEXT.md` before expanding scope.
+
+---
+
+## Agent behavior
+
+1. **Read** the relevant `docs/` section before coding a feature or answering product questions.
+2. **Align** UI copy, field names, statuses, and flows with the docs — not generic escrow/grant patterns.
+3. **Defer** out-of-scope items; say so explicitly if the user requests them.
+4. **Reference** `docs/CMINDS_CONTEXT.md` by section when explaining trade-offs (e.g. "§8.4 CMinds approval").
+5. **Prefer** the demo scenario in §20 for examples (G-01, G-02, C-01, G-04).
+
+Trustless Work is **never custodian of funds**.
