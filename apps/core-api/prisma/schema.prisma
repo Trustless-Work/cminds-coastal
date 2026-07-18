@@ -51,12 +51,20 @@ model User {
   email            String         @unique
   display_name     String?
   avatar_url       String?
+  first_name       String?
+  last_name        String?
+  phone_number     String?
+  country          String?
+  city             String?
+  bio              String?
+  community_id     String?        @db.Uuid
   auth_providers   AuthProvider[] @default([])
   roles            UserRole[]
   is_active        Boolean        @default(true)
   created_at       DateTime       @default(now())
   updated_at       DateTime       @updatedAt
 
+  community                   Community? @relation("CommunityMembers", fields: [community_id], references: [community_id], onDelete: SetNull)
   wallets                     Wallet[]
   initialized_escrows         Escrow[]     @relation("EscrowInitializer")
   approved_escrows            Escrow[]     @relation("EscrowApprover")
@@ -66,6 +74,7 @@ model User {
 
   @@index([roles])
   @@index([is_active])
+  @@index([community_id])
   @@map("user")
 }
 
@@ -116,6 +125,7 @@ model Community {
   updated_at   DateTime @updatedAt
 
   escrows Escrow[]
+  members User[]   @relation("CommunityMembers")
 
   @@index([is_active])
   @@map("community")

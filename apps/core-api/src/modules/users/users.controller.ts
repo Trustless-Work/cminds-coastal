@@ -5,12 +5,15 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  Param,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -18,6 +21,7 @@ import { CurrentUser, Roles, type AuthenticatedUser } from '../../auth';
 import { UserRole } from '../../generated/prisma/enums';
 import { SearchUsersQueryDto } from './dto/search-users-query.dto';
 import { SyncUserDto } from './dto/sync-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
@@ -46,6 +50,22 @@ export class UsersController {
   @ApiResponse({ status: 404, description: 'User not synced yet' })
   me(@CurrentUser() user: AuthenticatedUser) {
     return this.usersService.findMe(user);
+  }
+
+  @Patch('me')
+  @ApiOperation({ summary: 'Update the authenticated user profile' })
+  @ApiResponse({ status: 200, description: 'Updated user profile' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Only community implementers can set a community',
+  })
+  @ApiResponse({ status: 404, description: 'User not synced yet' })
+  updateProfile(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return this.usersService.updateProfile(user, dto);
   }
 
   @Get('admin/me')
@@ -80,5 +100,17 @@ export class UsersController {
       page: query.page,
       pageSize: query.pageSize,
     });
+  }
+
+  @Get(':userId/public')
+  @ApiOperation({
+    summary: 'Return another user public profile (no balance or contact info)',
+  })
+  @ApiParam({ name: 'userId', description: 'Target user id', format: 'uuid' })
+  @ApiResponse({ status: 200, description: 'Public user profile' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  publicProfile(@Param('userId') userId: string) {
+    return this.usersService.getPublicProfile(userId);
   }
 }
