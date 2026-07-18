@@ -13,6 +13,10 @@ type SignTransactionFn = (unsignedTransaction: string) => Promise<string>;
 
 type PollarSignContextValue = {
   signTransaction: SignTransactionFn;
+  /** Authenticated Pollar custodial G-address, or null when unavailable. */
+  walletAddress: string | null;
+  /** True when a signing-capable Pollar session is ready. */
+  ready: boolean;
 };
 
 const PollarSignContext = createContext<PollarSignContextValue | null>(null);
@@ -24,7 +28,10 @@ async function missingPollarSign(): Promise<string> {
 }
 
 function PollarSignBridge({ children }: { children: ReactNode }) {
-  const { signTx, verified, wallet } = usePollar();
+  const { signTx, verified, wallet, isAuthenticated } = usePollar();
+
+  const walletAddress = wallet?.address ?? null;
+  const ready = Boolean(isAuthenticated && verified && walletAddress);
 
   const signTransaction = useCallback<SignTransactionFn>(
     async (unsignedTransaction) => {
@@ -48,7 +55,9 @@ function PollarSignBridge({ children }: { children: ReactNode }) {
   );
 
   return (
-    <PollarSignContext.Provider value={{ signTransaction }}>
+    <PollarSignContext.Provider
+      value={{ signTransaction, walletAddress, ready }}
+    >
       {children}
     </PollarSignContext.Provider>
   );
@@ -62,7 +71,11 @@ export function PollarSignProvider({ children }: { children: ReactNode }) {
   if (!clientEnv.pollarApiKey) {
     return (
       <PollarSignContext.Provider
-        value={{ signTransaction: missingPollarSign }}
+        value={{
+          signTransaction: missingPollarSign,
+          walletAddress: null,
+          ready: false,
+        }}
       >
         {children}
       </PollarSignContext.Provider>
