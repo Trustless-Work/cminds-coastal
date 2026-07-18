@@ -4,8 +4,5 @@ export const COMMUNITY_AUTH_SHELL = {
   appTitle: "CMinds",
   logoSrc: "/logos/dark-en-logo.png",
   logoHref: "/dashboard",
-  navLinks: [
-    { href: "/dashboard", label: "Escrows" },
-    { href: "/dashboard/profile", label: "Profile" },
-  ],
+  profileHref: "/dashboard/profile",
 };

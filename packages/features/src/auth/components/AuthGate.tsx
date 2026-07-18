@@ -23,6 +23,8 @@ type AuthGateProps = {
   logoSrc?: string;
   logoHref?: string;
   navLinks?: NavLink[];
+  /** When set, clicking the navbar UserCard navigates here. */
+  profileHref?: string;
   children: React.ReactNode;
   loginHref?: string;
 };
@@ -75,6 +77,7 @@ function AuthGateInner({
   logoSrc,
   logoHref,
   navLinks,
+  profileHref,
   children,
   loginHref = "/login",
 }: AuthGateProps) {
@@ -127,6 +130,7 @@ function AuthGateInner({
         avatarUrl={avatarUrl}
         subtitle={profile?.email ?? null}
         walletAddress={walletAddress}
+        href={profileHref}
       />
       <LocaleSwitcher />
       <LogoutButton loginHref={loginHref} />

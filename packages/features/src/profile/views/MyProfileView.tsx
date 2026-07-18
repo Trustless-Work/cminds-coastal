@@ -1,6 +1,8 @@
 "use client";
 
+import { Button } from "@repo/ui/components/button";
 import { useQueryClient } from "@tanstack/react-query";
+import { Eye } from "lucide-react";
 import type { UserProfile } from "../../auth/types";
 import { ProfileHeaderCard } from "../components/ProfileHeaderCard";
 import { ProfileInfoForm } from "../components/ProfileInfoForm";
@@ -45,6 +47,16 @@ const MyProfileContent = ({ profile }: { profile: UserProfile }) => {
           email={profile.email}
           avatarUrl={profile.avatar_url}
           roles={profile.roles}
+          action={
+            <Button
+              variant="outline"
+              size="sm"
+              render={<a href={`/dashboard/profile/${profile.user_id}`} />}
+            >
+              <Eye data-icon="inline-start" />
+              Public Profile
+            </Button>
+          }
         />
       </div>
 
@@ -60,7 +72,9 @@ const MyProfileContent = ({ profile }: { profile: UserProfile }) => {
           />
         </div>
         <aside className="space-y-6">
-          <WalletBalanceCard />
+          <WalletBalanceCard
+            walletAddress={profile.wallets[0]?.address ?? null}
+          />
         </aside>
       </div>
     </div>

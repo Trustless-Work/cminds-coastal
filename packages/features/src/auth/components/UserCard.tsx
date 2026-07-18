@@ -15,6 +15,8 @@ import {
 } from "@repo/ui/components/tooltip";
 import { cn } from "@repo/ui/lib/utils";
 import { Check, Copy } from "lucide-react";
+import { useRouter } from "next/navigation";
+import type { KeyboardEvent, MouseEvent } from "react";
 
 type UserCardProps = {
   displayName: string | null;
@@ -22,6 +24,8 @@ type UserCardProps = {
   /** Secondary line under the name (e.g. role). */
   subtitle?: string | null;
   walletAddress?: string | null;
+  /** When set, the card navigates here on click (e.g. profile). */
+  href?: string;
   className?: string;
 };
 
@@ -60,8 +64,10 @@ export function UserCard({
   avatarUrl,
   subtitle,
   walletAddress,
+  href,
   className,
 }: UserCardProps) {
+  const router = useRouter();
   const { copiedKeyId, copyToClipboard } = useCopy();
   const fullName = displayName?.trim() || "User";
   const label = shortenDisplayName(fullName);
@@ -69,6 +75,35 @@ export function UserCard({
   const address = walletAddress?.trim() || null;
   const secondary = subtitle?.trim() || null;
   const formattedWallet = address ? formatAddress(address, 6) : null;
+  const isLink = Boolean(href);
+
+  function navigateToHref(): void {
+    if (!href) {
+      return;
+    }
+    router.push(href);
+  }
+
+  function handleCardClick(event: MouseEvent<HTMLDivElement>): void {
+    if (!href) {
+      return;
+    }
+    const target = event.target as HTMLElement | null;
+    if (target?.closest("[data-user-card-action]")) {
+      return;
+    }
+    navigateToHref();
+  }
+
+  function handleCardKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
+    if (!href) {
+      return;
+    }
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      navigateToHref();
+    }
+  }
 
   return (
     <TooltipProvider delay={200}>
@@ -76,8 +111,14 @@ export function UserCard({
         className={cn(
           "flex h-11 min-w-0 flex-1 items-center rounded-full bg-white py-0 pl-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.05)] ring-1 ring-border/80 md:max-w-[17rem] md:flex-initial",
           address ? "pr-1.5" : "pr-3",
+          isLink && "cursor-pointer",
           className,
         )}
+        role={isLink ? "link" : undefined}
+        tabIndex={isLink ? 0 : undefined}
+        aria-label={isLink ? `Open profile for ${fullName}` : undefined}
+        onClick={isLink ? handleCardClick : undefined}
+        onKeyDown={isLink ? handleCardKeyDown : undefined}
       >
         <Avatar size="sm" className="size-8 shrink-0 after:border-transparent">
           {avatarUrl ? (
@@ -126,11 +167,13 @@ export function UserCard({
                     type="button"
                     variant="ghost"
                     size="icon-xs"
+                    data-user-card-action
                     className="size-7 shrink-0 rounded-full text-muted-foreground hover:scale-100 hover:bg-background-tertiary hover:text-foreground"
                     aria-label={
                       copiedKeyId ? "Address copied" : "Copy wallet address"
                     }
-                    onClick={() => {
+                    onClick={(event) => {
+                      event.stopPropagation();
                       void copyToClipboard(address);
                     }}
                   />
