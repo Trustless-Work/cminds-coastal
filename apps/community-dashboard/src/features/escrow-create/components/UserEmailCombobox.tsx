@@ -233,11 +233,10 @@ export const UserEmailCombobox = ({
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(event) => event.stopPropagation()}
-                          className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-background-tertiary hover:text-foreground"
+                          className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background-tertiary hover:text-foreground"
                           aria-label={`View ${label} profile`}
                         >
                           <SquareArrowOutUpRight className="size-3.5" />
-                          View profile
                         </a>
                       </div>
                     </li>
@@ -263,10 +262,10 @@ export const UserEmailCombobox = ({
                 href={`/dashboard/profile/${value.user_id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-9 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label={`View ${value.display_name?.trim() || value.email} profile`}
               >
                 <SquareArrowOutUpRight className="size-3.5" />
-                View profile
               </a>
               <Button
                 type="button"

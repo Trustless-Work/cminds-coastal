@@ -408,7 +408,7 @@ function TransparencyEscrowDetailContent({
               </p>
             ) : null}
 
-            <EscrowParties escrow={metadata} />
+            <EscrowParties escrow={metadata} getProfileHref={false} />
 
             <div className="min-w-0 border-t border-border pt-6">
               <ContractIdCopyPanel contractId={contractId} />

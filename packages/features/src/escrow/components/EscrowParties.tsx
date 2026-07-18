@@ -41,6 +41,12 @@ const PARTY_ORDER: Array<{
 type EscrowPartiesProps = {
   escrow: EscrowRecord;
   className?: string;
+  /**
+   * Builds the public profile URL for a party. Defaults to
+   * `/dashboard/profile/:userId`. Pass `false` to disable links
+   * (e.g. public viewer, which has no profile routes).
+   */
+  getProfileHref?: ((userId: string) => string) | false;
 };
 
 function partyWalletAddress(user: EscrowPartyUser): string | null {
@@ -65,8 +71,20 @@ export function buildEscrowParties(escrow: EscrowRecord): EscrowPartyEntry[] {
   return parties;
 }
 
-export function EscrowParties({ escrow, className }: EscrowPartiesProps) {
+function defaultProfileHref(userId: string): string {
+  return `/dashboard/profile/${userId}`;
+}
+
+export function EscrowParties({
+  escrow,
+  className,
+  getProfileHref,
+}: EscrowPartiesProps) {
   const parties = buildEscrowParties(escrow);
+  const resolveProfileHref =
+    getProfileHref === false
+      ? null
+      : (getProfileHref ?? defaultProfileHref);
 
   if (parties.length === 0) {
     return null;
@@ -93,6 +111,7 @@ export function EscrowParties({ escrow, className }: EscrowPartiesProps) {
               avatarUrl={party.user.avatar_url}
               subtitle={party.label}
               walletAddress={partyWalletAddress(party.user)}
+              href={resolveProfileHref?.(party.user.user_id)}
               className="w-full max-w-none md:max-w-none"
             />
           </li>
